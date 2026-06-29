@@ -61,7 +61,7 @@ function SurfaceCard({ s }: { s: SampleSurface }) {
 // under /public/screenshots/v8/surfaces/. See v8-build-report.md §3.
 const SURFACES: SampleSurface[] = [
   {
-    title: 'Browse 560 stocks',
+    title: 'Browse 1,216 stocks',
     body: 'Search by ticker or sector. Filter by paper-portfolio signal — Buy, Hold, Sell. No jargon, just numbers you can read.',
     src: '/screenshots/v8/surfaces/surface-discover.jpg',
     alt: 'Discover page showing Hot Picks today — top Paper Buy signals like PM, SOBO, CNR, RY with Plain Scores in the 60s.',

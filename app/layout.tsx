@@ -26,7 +26,7 @@ const serif = Source_Serif_4({
 export const metadata: Metadata = {
   title: 'Paper Portfolio Canada — Practice reading stocks with paper portfolios',
   description:
-    'Paper Portfolio Canada is a learning tool for paper portfolios. Search 560 stocks, see plain-language signals, and practice trading with no real money. Nothing here is investment advice.',
+    'Paper Portfolio Canada is a learning tool for paper portfolios. Search 1,216 stocks, see plain-language signals, and practice trading with no real money. Nothing here is investment advice.',
   applicationName: 'Paper Portfolio Canada',
   robots: { index: false, follow: false },
 };

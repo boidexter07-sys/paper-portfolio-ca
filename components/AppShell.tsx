@@ -115,12 +115,34 @@ function UnauthHome({ children }: { children: React.ReactNode }) {
             <span className="font-serif text-h4 text-ink">Paper Portfolio</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/login" className="pv-btn-ghost text-body-sm">
+            {/* T29: added whitespace-nowrap so the two buttons never break
+                onto two lines when the viewport tightens. Also shortened
+                the CTA copy so both fit comfortably at 1280px and 375px.
+                The `pv-btn-primary` class sets `display: inline-flex`
+                which beats Tailwind's `.hidden` utility at the same
+                specificity (CSS source order). So we wrap each Link in
+                a `<span>` that owns the responsive visibility — the
+                span's `.hidden` rule applies cleanly, and the Link's
+                `.pv-btn-primary` styling is untouched. */}
+            <Link href="/login" className="pv-btn-ghost text-body-sm whitespace-nowrap">
               Log in
             </Link>
-            <Link href="/signup" className="pv-btn-primary text-body-sm">
-              Start your 7-day free trial
-            </Link>
+            <span className="hidden sm:inline-flex">
+              <Link
+                href="/signup"
+                className="pv-btn-primary text-body-sm whitespace-nowrap"
+              >
+                Start free trial
+              </Link>
+            </span>
+            <span className="inline-flex sm:hidden">
+              <Link
+                href="/signup"
+                className="pv-btn-primary text-body-sm whitespace-nowrap"
+              >
+                Sign up
+              </Link>
+            </span>
           </div>
         </div>
       </header>
