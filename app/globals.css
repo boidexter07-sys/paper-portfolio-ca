@@ -279,6 +279,15 @@
   letter-spacing: 0.08em;
 }
 
+/* T26b: sentence-case eyebrow modifier for the landing page.
+   Drop the uppercase transform and tighten letter-spacing so labels
+   read as "What you can look at" instead of "WHAT YOU CAN LOOK AT". */
+.pv-eyebrow--sentence {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
 .pv-card {
   border-radius: 8px;
   border: 1px solid theme('colors.fog');

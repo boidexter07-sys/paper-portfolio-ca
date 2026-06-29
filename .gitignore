@@ -58,6 +58,10 @@ coverage/
 /SETUP.md
 qa/
 screenshots/
+# But Next.js serves /public directly, so asset screenshots under
+# public/screenshots/ must be tracked (they're the source of truth
+# for the v8 landing page surface tiles).
+!public/screenshots/
 _atlas_*.js
 _t*_*.js
 _t*.js
@@ -77,3 +81,4 @@ seed/*.db-wal
 
 # Keep only the public-facing screenshot capture script in scripts/
 !scripts/screenshots.ts
+.vercel
