@@ -162,6 +162,12 @@
   width: 96px;
   height: 96px;
 }
+/* T28: lg coin is 160px so 3-digit scores like "100" fit comfortably
+   inside the circle without overflow. Used on the PRISM card hero slot. */
+.pv-coin-lg {
+  width: 160px;
+  height: 160px;
+}
 
 /* ------------------------------------------------------------------
    Embossed number (Accent 2) — inset text-shadow so the number reads

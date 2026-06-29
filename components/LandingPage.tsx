@@ -145,14 +145,14 @@ export function LandingPage() {
               A higher score means more factors lined up in the stock&apos;s favour. A lower score means more headwinds. The number is a starting point — your judgment comes next.
             </p>
             <p className="text-body text-graphite mt-2 max-w-prose">
-              AAPL scored 62.4 on Monday. <a href="#prism-example" className="underline">Here is why.</a>
+              AAPL scored 62 on Monday. <a href="#prism-example" className="underline">Here is why.</a>
             </p>
           </div>
 
           {/* Plain Score visual — the same view a visitor sees on any stock page */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-8 items-center">
             <div className="flex justify-center md:justify-start">
-              <PlainScoreCoin score={62.4} size="lg" />
+              <PlainScoreCoin score={62} size="lg" />
             </div>
             <div>
               <p className="pv-eyebrow pv-eyebrow--sentence mb-2">Sample Plain Score</p>
