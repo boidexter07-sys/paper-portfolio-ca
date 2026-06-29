@@ -1,0 +1,7 @@
+Lighthouse mobile audit -- http://localhost:3019/
+Run at 2026-06-29T22:42:30.888Z
+
+Performance:    99
+Accessibility:  96
+Best Practices: 100
+SEO:            63

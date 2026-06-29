@@ -38,14 +38,20 @@ type SampleSurface = {
 function SurfaceCard({ s }: { s: SampleSurface }) {
   return (
     <div className="pv-card overflow-hidden flex flex-col">
-      <div className="relative w-full aspect-[16/9] bg-fog/40">
+      <div className="relative w-full aspect-[16/9] bg-fog/40 overflow-hidden rounded-t-md">
         <Image
           src={s.src}
           alt={s.alt}
-          width={640}
-          height={360}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
-          className="w-full h-full object-cover object-top"
+          // T30: the v11 captures are 478x269 (16:9), matched to the
+          // card's display area. The previous 640x360 / object-cover
+          // setup caused ~239px of horizontal clipping on each side,
+          // chopping the page title on the left and card titles on the
+          // right. With object-contain + a 16:9 source, the image
+          // fills the box edge-to-edge with no clipping.
+          width={478}
+          height={269}
+          sizes="(max-width: 640px) 100vw, 478px"
+          className="w-full h-full object-contain"
           // T26b: real product screenshots replace the v5 placeholder SVGs.
         />
       </div>
@@ -57,31 +63,41 @@ function SurfaceCard({ s }: { s: SampleSurface }) {
   );
 }
 
-// Surface tile shots — all 1280×800 v7 captures downscaled to 640×360 JPEG
-// under /public/screenshots/v8/surfaces/. See v8-build-report.md §3.
+// Surface tile shots -- v11 captures (Thor, T30). Each tile is now a
+// 478x269 (16:9) JPEG captured from a fullPage screenshot of the source
+// page at 1280px viewport, then downscaled. The 16:9 source aspect matches
+// the SurfaceCard's display area so the image fills the box without
+// horizontal clipping (the v8 captures were 1280x360 / 3.556:1 and got
+// ~239px clipped off each side by the previous object-cover setup).
+//
+// Tiles + source pages (matches LandingPage SURFACES):
+//   1. surface-discover    -- /discover (Hot Picks at the top)
+//   2. surface-portfolio   -- /portfolio (default = Mid-Cap Discovery Sleeve)
+//   3. surface-watchlist   -- /discover filtered to "Hold"
+//   4. surface-glossary    -- /learn (the Learning Hub)
 const SURFACES: SampleSurface[] = [
   {
     title: 'Browse 1,216 stocks',
     body: 'Search by ticker or sector. Filter by paper-portfolio signal — Buy, Hold, Sell. No jargon, just numbers you can read.',
-    src: '/screenshots/v8/surfaces/surface-discover.jpg',
+    src: '/screenshots/v11/surfaces/surface-discover.jpg',
     alt: 'Discover page showing Hot Picks today — top Paper Buy signals like PM, SOBO, CNR, RY with Plain Scores in the 60s.',
   },
   {
     title: 'Practice with paper portfolios',
     body: 'Set up one for value, one for growth, one for the wild ideas. Track paper P&L the same way you would with real money — without the real money part.',
-    src: '/screenshots/v8/surfaces/surface-portfolio.jpg',
+    src: '/screenshots/v11/surfaces/surface-portfolio.jpg',
     alt: 'Portfolio page showing a TSX Value Sleeve with holdings RY, TD, ENB, BNS, BMO and total paper value $92,062 (+40.43%).',
   },
   {
     title: 'Watch what you want to learn',
     body: 'A short list is more useful than a long one. Drop the stocks you want to track into a watchlist and skim their Plain Scores each week.',
-    src: '/screenshots/v8/surfaces/surface-watchlist.jpg',
+    src: '/screenshots/v11/surfaces/surface-watchlist.jpg',
     alt: 'Discover page filtered to Hold signals — every stock in the universe with its Plain Score and tier, browsable at a glance.',
   },
   {
     title: 'Read what the words mean',
     body: 'Paper Portfolio is a learning tool, so we ship a 100-term glossary in plain language. Click any word that is new to you.',
-    src: '/screenshots/v8/surfaces/surface-glossary.jpg',
+    src: '/screenshots/v11/surfaces/surface-glossary.jpg',
     alt: 'Learning hub showing the plain-language glossary with terms like P/E Ratio, ROE, and Margin of Safety explained in everyday English.',
   },
 ];
