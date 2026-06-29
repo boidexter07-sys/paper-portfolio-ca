@@ -128,12 +128,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Plain-language primer */}
+      {/* Plain-language primer — T27b: rewritten to match the lead+subline
+          pattern shipped in components/LandingPage.tsx (T26a/T27a). The old
+          "made by a computer" framing has been moved out of explainer copy;
+          the honest-about-limits caveat lives in lib/disclosures.ts. */}
       <section>
         <div className="pv-card p-5 sm:p-6">
           <p className="pv-eyebrow mb-2">A note about PRISM signals</p>
-          <p className="text-body text-graphite max-w-prose">
-            PRISM signals are made by a computer that looks at public data and turns it into a number from 0 to 100. They are a starting point for learning, not a recommendation. Always read what the number is based on before you decide what to do.
+          <h3 className="font-serif text-h3 text-ink leading-snug max-w-prose">
+            PRISM is a model that scores every stock from 0 to 100. It reads the same public data a serious investor would and turns it into one number you can act on.
+          </h3>
+          <p className="text-body text-graphite mt-2 max-w-prose">
+            A higher score means more factors lined up in the stock&apos;s favour. A lower score means more headwinds. The number is a starting point — your judgment comes next.
           </p>
           <Link href="/learn" className="mt-3 inline-block text-body-sm text-mark underline">Read the explainer →</Link>
         </div>

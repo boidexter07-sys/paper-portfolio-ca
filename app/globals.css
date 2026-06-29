@@ -288,6 +288,20 @@
   font-weight: 500;
 }
 
+/* T27b: "featured" eyebrow modifier for the PRISM card headline.
+   Bigger, ink-colored, semibold — the standard 13px stone eyebrow gets
+   visually swallowed under a serif h2, so this one matches the
+   typographic weight of a deck/sub-headline without out-shouting the
+   H2 above it. Scoped to a single element; no global impact. */
+.pv-eyebrow--featured {
+  font-size: 1rem;        /* 16px, up from 13px */
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: -0.005em;
+  font-weight: 600;
+  color: theme('colors.ink');
+}
+
 .pv-card {
   border-radius: 8px;
   border: 1px solid theme('colors.fog');

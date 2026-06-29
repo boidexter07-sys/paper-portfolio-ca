@@ -137,14 +137,15 @@ export function LandingPage() {
       <section className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="pv-card p-6 sm:p-8">
           <div className="max-w-3xl">
-            <p className="pv-eyebrow pv-eyebrow--sentence mb-3">What is PRISM?</p>
+            <p className="pv-eyebrow pv-eyebrow--featured mb-3">What is PRISM?</p>
             <h2 className="font-serif text-h2 sm:text-h1 text-ink leading-tight">
-              A score from 0 to 100 for each stock, made by a computer that reads public data.
+              PRISM is a model that scores every stock from 0 to 100. It reads the same public data a serious investor would — price action, fundamentals, and recent news — and turns it into one number you can act on.
             </h2>
             <p className="text-body text-graphite mt-3 max-w-prose">
-              PRISM looks at price action, the company&apos;s books, and recent news.
-              Higher score means the model sees more things going right. Lower means more things
-              going sideways or wrong. It is a starting point for learning, not a recommendation.
+              A higher score means more factors lined up in the stock&apos;s favour. A lower score means more headwinds. The number is a starting point — your judgment comes next.
+            </p>
+            <p className="text-body text-graphite mt-2 max-w-prose">
+              AAPL scored 62.4 on Monday. <a href="#prism-example" className="underline">Here is why.</a>
             </p>
           </div>
 
@@ -155,9 +156,11 @@ export function LandingPage() {
             </div>
             <div>
               <p className="pv-eyebrow pv-eyebrow--sentence mb-2">Sample Plain Score</p>
+              {/* T27b Option B: removed the duplicate giant "62.4" — the
+                  PlainScoreCoin on the left already renders the number inside
+                  the coin, so the right column is just the caption + breakdown. */}
               <div className="flex items-baseline justify-between gap-3 flex-wrap">
                 <div>
-                  <p className="font-serif text-display text-ink pv-num leading-none">62.4</p>
                   <p className="text-caption text-stone pv-num mt-1">out of 100 · AAPL · Paper Buy</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 min-w-[260px]">
