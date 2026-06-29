@@ -48,14 +48,14 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
-# Taha-internal scratch files — NOT for public sharing
+# Internal scratch files — NOT for public sharing
 # (Kanban QA artifacts, Lighthouse JSON, motion demo binaries, build reports,
 # spec docs, atlas scripts, internal numbered scripts)
-SETUP.md
-v6-build-report.md
-v6-motion-demo.mp4
-v6-motion-demo.webm
-l3-news-spec.md
+/v6-build-report.md
+/v6-motion-demo.mp4
+/v6-motion-demo.webm
+/l3-news-spec.md
+/SETUP.md
 qa/
 screenshots/
 _atlas_*.js
@@ -69,9 +69,11 @@ _reduced_motion_test.js
 _l3_*.ts
 _smoke_*.ts
 _yfinance_pull.py
-scripts/screenshots.ts
 __obsolete_next_cache_*/
 
 # Build caches inside seed scripts dir
 seed/*.db
 seed/*.db-wal
+
+# Keep only the public-facing screenshot capture script in scripts/
+!scripts/screenshots.ts
