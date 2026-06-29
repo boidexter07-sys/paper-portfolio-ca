@@ -1,0 +1,418 @@
+/* Paper Portfolio Canada prototype styles. Theme keys live in tailwind.config.js. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================================================
+   Paper Portfolio Canada motion grammar
+   Reduced-motion rule: the `prefers-reduced-motion: reduce` media query
+   disables every animation below; consumers should also gate effects
+   through useReducedMotion().
+   ======================================================================== */
+
+/* Tokens — duration + easing */
+:root {
+  --mo-tap: 80ms;
+  --mo-pop: 400ms;
+  --mo-count: 800ms;
+  --mo-draw: 1200ms;
+  --mo-page: 320ms;
+  --mo-narrative: 1500ms;
+
+  --mo-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --mo-ease-decel: cubic-bezier(0, 0, 0.2, 1);
+  --mo-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mo-ease-linear: linear;
+
+  /* Neumorphic surface (Option A accents) — same palette as the
+       rest of the prototype; shadows tint with the canvas color. */
+  --neo-canvas: #f7f7f4; /* matches theme('colors.paper') */
+  --neo-shadow: #cfd1d6;  /* drop-shadow color */
+  --neo-light: #ffffff;   /* highlight color */
+}
+
+/* ------------------------------------------------------------------
+   Count-up: numbers are rendered as text, so the count itself is
+   handled in the React component (useCountUp). Nothing to animate here.
+   ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------
+   Draw-in: applied to a wrapping div around the chart. The actual
+   SVG path uses stroke-dasharray + stroke-dashoffset; the CSS just
+   keeps the wrapper opaque so the chart doesn't flicker.
+   ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------
+   Pulse: PRISM signal tier chip — scales 1 → 1.08 → 1 + color glow.
+   Add the .pv-pulse class to an element to run once.
+   ------------------------------------------------------------------ */
+@keyframes pv-pulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(122,82,48,0.0); }
+  40%  { transform: scale(1.10); box-shadow: 0 0 0 8px rgba(122,82,48,0.18); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(122,82,48,0.0); }
+}
+.pv-pulse {
+  animation: pv-pulse 600ms var(--mo-ease-standard);
+  will-change: transform, box-shadow;
+}
+
+/* ------------------------------------------------------------------
+   Shimmer: skeleton-screen highlight, 1500ms linear loop.
+   Add the class to any block element to get a moving left→right gradient.
+   ------------------------------------------------------------------ */
+@keyframes pv-shimmer {
+  0%   { background-position: -480px 0; }
+  100% { background-position: 480px 0; }
+}
+.pv-shimmer {
+  background-color: theme('colors.fog');
+  background-image: linear-gradient(
+    90deg,
+    rgba(232, 234, 237, 0)   0%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(232, 234, 237, 0)   100%
+  );
+  background-size: 480px 100%;
+  background-repeat: no-repeat;
+  animation: pv-shimmer 1500ms var(--mo-ease-linear) infinite;
+}
+
+/* ------------------------------------------------------------------
+   Pop: badge earned — scale 0 → 1.15 → 1 + brief rotation.
+   Add the .pv-pop class to an element to run the entry animation.
+   ------------------------------------------------------------------ */
+@keyframes pv-pop {
+  0%   { transform: scale(0)    rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(8deg);  opacity: 1; }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+.pv-pop {
+  animation: pv-pop 400ms var(--mo-ease-spring);
+  will-change: transform, opacity;
+}
+
+/* ------------------------------------------------------------------
+   Stagger: child list entry. Add .pv-stagger to a container, then each
+   direct child fades + slides in sequentially with a 50ms stagger.
+   ------------------------------------------------------------------ */
+@keyframes pv-stagger-in {
+  0%   { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 1; }
+}
+.pv-stagger > * {
+  opacity: 0;
+  animation: pv-stagger-in 300ms var(--mo-ease-standard) forwards;
+}
+.pv-stagger > *:nth-child(1)  { animation-delay: 0ms;   }
+.pv-stagger > *:nth-child(2)  { animation-delay: 50ms;  }
+.pv-stagger > *:nth-child(3)  { animation-delay: 100ms; }
+.pv-stagger > *:nth-child(4)  { animation-delay: 150ms; }
+.pv-stagger > *:nth-child(5)  { animation-delay: 200ms; }
+.pv-stagger > *:nth-child(6)  { animation-delay: 250ms; }
+.pv-stagger > *:nth-child(7)  { animation-delay: 300ms; }
+.pv-stagger > *:nth-child(8)  { animation-delay: 350ms; }
+.pv-stagger > *:nth-child(9)  { animation-delay: 400ms; }
+.pv-stagger > *:nth-child(10) { animation-delay: 450ms; }
+.pv-stagger > *:nth-child(n+11) { animation-delay: 500ms; }
+
+/* On-screen list (e.g. watchlist rows) stagger at 40ms per item — see
+   v5-motion-grammar.md §6. */
+.pv-stagger-fast > * {
+  opacity: 0;
+  animation: pv-stagger-in 300ms var(--mo-ease-standard) forwards;
+}
+.pv-stagger-fast > *:nth-child(1)  { animation-delay: 0ms;   }
+.pv-stagger-fast > *:nth-child(2)  { animation-delay: 40ms;  }
+.pv-stagger-fast > *:nth-child(3)  { animation-delay: 80ms;  }
+.pv-stagger-fast > *:nth-child(4)  { animation-delay: 120ms; }
+.pv-stagger-fast > *:nth-child(5)  { animation-delay: 160ms; }
+.pv-stagger-fast > *:nth-child(6)  { animation-delay: 200ms; }
+.pv-stagger-fast > *:nth-child(7)  { animation-delay: 240ms; }
+.pv-stagger-fast > *:nth-child(8)  { animation-delay: 280ms; }
+.pv-stagger-fast > *:nth-child(9)  { animation-delay: 320ms; }
+.pv-stagger-fast > *:nth-child(10) { animation-delay: 360ms; }
+.pv-stagger-fast > *:nth-child(n+11) { animation-delay: 400ms; }
+
+/* ------------------------------------------------------------------
+   Plain Score coin (Accent 1) — round embossed surface with dual shadow.
+   Pressed state: shadows invert to concave (looks "pressed in").
+   ------------------------------------------------------------------ */
+.pv-coin {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: var(--neo-canvas);
+  box-shadow:
+    8px 8px 24px var(--neo-shadow),
+    -8px -8px 24px var(--neo-light);
+  display: grid;
+  place-items: center;
+  transition: box-shadow 80ms var(--mo-ease-standard), transform 80ms var(--mo-ease-standard);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pv-coin:active {
+  box-shadow:
+    inset 6px 6px 12px var(--neo-shadow),
+    inset -6px -6px 12px var(--neo-light);
+  transform: translateY(1px);
+}
+.pv-coin-sm {
+  width: 96px;
+  height: 96px;
+}
+
+/* ------------------------------------------------------------------
+   Embossed number (Accent 2) — inset text-shadow so the number reads
+   as engraved into the card. Uses color-tinted shadows for pos/neg.
+   ------------------------------------------------------------------ */
+.pv-embossed-positive {
+  color: theme('colors.positive');
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.4),
+    0 -1px 1px rgba(46, 107, 79, 0.10);
+}
+.pv-embossed-negative {
+  color: theme('colors.negative');
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.4),
+    0 -1px 1px rgba(139, 44, 44, 0.10);
+}
+.pv-embossed-ink {
+  color: theme('colors.ink');
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.4),
+    0 -1px 1px rgba(15, 20, 25, 0.10);
+}
+
+/* ------------------------------------------------------------------
+   Press-state primary buttons (Accent 3) — Buy / Sell on Stock Profile.
+   Two-layer outset shadow resting, inset shadow pressed.
+   ------------------------------------------------------------------ */
+.pv-btn-neo {
+  background: var(--neo-canvas);
+  color: theme('colors.ink');
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow:
+    0 2px 4px rgba(15, 20, 25, 0.10),
+    0 -1px 2px rgba(255, 255, 255, 0.5);
+  transition:
+    box-shadow 120ms var(--mo-ease-standard),
+    transform 120ms var(--mo-ease-standard);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pv-btn-neo:hover {
+  box-shadow:
+    0 4px 8px rgba(15, 20, 25, 0.12),
+    0 -1px 2px rgba(255, 255, 255, 0.6);
+}
+.pv-btn-neo:active {
+  box-shadow:
+    inset 0 1px 2px rgba(15, 20, 25, 0.15),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(1px);
+}
+.pv-btn-neo-buy {
+  color: theme('colors.mark');
+}
+.pv-btn-neo-sell {
+  color: theme('colors.negative');
+}
+.pv-btn-neo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow:
+    0 2px 4px rgba(15, 20, 25, 0.06),
+    0 -1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* ------------------------------------------------------------------
+   Reduced-motion gate — keep accessibility-critical state transitions
+   (button press, color change) but disable the decorative animations.
+   Per v5-motion-grammar.md §7, these two transitions stay enabled.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .pv-shimmer {
+    animation: none;
+    background: theme('colors.fog');
+  }
+  .pv-pulse,
+  .pv-pop,
+  .pv-stagger > *,
+  .pv-stagger-fast > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .pv-coin,
+  .pv-coin:active {
+    transform: none;
+  }
+  .pv-btn-neo,
+  .pv-btn-neo:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ========================================================================
+   Original prototype styles (kept for compatibility with existing markup).
+   ======================================================================== */
+
+.pv-num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.pv-eyebrow {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  text-transform: uppercase;
+  color: theme('colors.stone');
+  letter-spacing: 0.08em;
+}
+
+.pv-card {
+  border-radius: 8px;
+  border: 1px solid theme('colors.fog');
+  background-color: theme('colors.bone');
+  box-shadow: theme('boxShadow.card');
+}
+
+.pv-btn-primary {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
+  background-color: theme('colors.ink');
+  color: theme('colors.bone');
+  padding: 0.625rem 1rem;
+}
+.pv-btn-primary:hover {
+  background-color: theme('colors.graphite');
+}
+.pv-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pv-btn-secondary {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
+  background-color: theme('colors.bone');
+  color: theme('colors.ink');
+  border: 1px solid theme('colors.fog');
+  padding: 0.625rem 1rem;
+}
+.pv-btn-secondary:hover {
+  background-color: theme('colors.fog');
+}
+.pv-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pv-btn-mark {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-opacity;
+  background-color: theme('colors.mark');
+  color: theme('colors.bone');
+  padding: 0.625rem 1rem;
+}
+.pv-btn-mark:hover {
+  opacity: 0.9;
+}
+.pv-btn-mark:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pv-btn-ghost {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
+  color: theme('colors.graphite');
+  padding: 0.5rem 0.75rem;
+}
+.pv-btn-ghost:hover {
+  background-color: theme('colors.fog');
+}
+.pv-btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pv-btn-danger {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
+  background-color: theme('colors.negative');
+  color: theme('colors.bone');
+  padding: 0.625rem 1rem;
+}
+.pv-btn-danger:hover {
+  filter: brightness(0.95);
+}
+.pv-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pv-btn-danger-sm {
+  @apply inline-flex items-center justify-center rounded-md font-medium text-caption transition-colors;
+  background-color: transparent;
+  color: theme('colors.negative');
+  border: 1px solid theme('colors.negative');
+  padding: 0.25rem 0.625rem;
+}
+.pv-btn-danger-sm:hover {
+  background-color: theme('colors.negative');
+  color: theme('colors.bone');
+}
+
+.pv-input {
+  @apply w-full rounded-md text-body-sm transition-colors;
+  background-color: theme('colors.bone');
+  color: theme('colors.ink');
+  border: 1px solid theme('colors.mist');
+  padding: 0.625rem 0.75rem;
+}
+.pv-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: theme('colors.mark');
+}
+
+.pv-link {
+  color: theme('colors.ink');
+  text-decoration-line: underline;
+  text-decoration-color: theme('colors.fog');
+  text-underline-offset: 2px;
+}
+.pv-link:hover {
+  text-decoration-color: theme('colors.mark');
+}
+
+.pv-pill {
+  @apply inline-flex items-center rounded-full text-caption font-medium;
+  padding: 0.25rem 0.625rem;
+}
+.pv-pill-positive {
+  background-color: rgba(46, 107, 79, 0.1);
+  color: theme('colors.positive');
+}
+.pv-pill-negative {
+  background-color: rgba(139, 44, 44, 0.1);
+  color: theme('colors.negative');
+}
+
+.pv-table {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.pv-scroll-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.pv-scroll-hide::-webkit-scrollbar {
+  display: none;
+}

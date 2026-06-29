@@ -1,0 +1,695 @@
+[
+  {
+    "term": "Altman Z-Score",
+    "definition": "A formula that combines five financial ratios to flag the risk of bankruptcy within two years.",
+    "category": "fundamental",
+    "see_also": [
+      "Permanent Loss of Capital"
+    ]
+  },
+  {
+    "term": "API (Application Programming Interface)",
+    "definition": "A way for two pieces of software to send data to each other, like a waiter for code.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "ATR (Average True Range)",
+    "definition": "The average dollar amount a stock moves per day, over the last two weeks.",
+    "category": "technical",
+    "see_also": [
+      "Volatility"
+    ]
+  },
+  {
+    "term": "Balance Sheet",
+    "definition": "A snapshot of what a company owns, what it owes, and what is left for shareholders.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Bear Market",
+    "definition": "A long stretch when prices have fallen 20% or more from a recent peak.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Benjamin Graham",
+    "definition": "The father of value investing, author of The Intelligent Investor, teacher of Warren Buffett.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Beta",
+    "definition": "A measure of how much a stock tends to move relative to the overall market. Above 1 is more.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Bid and Ask",
+    "definition": "The bid is the highest price a buyer will pay; the ask is the lowest price a seller will accept.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Bollinger Bands",
+    "definition": "A moving average with upper and lower lines showing the recent high and low of normal price.",
+    "category": "technical",
+    "see_also": [
+      "Volatility"
+    ]
+  },
+  {
+    "term": "Book Value",
+    "definition": "The net assets of a company on its balance sheet, equity owed to shareholders.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Bull Market",
+    "definition": "A long stretch when prices are generally rising and investors feel confident.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Buy and Hold",
+    "definition": "A strategy of buying investments and keeping them for years, ignoring short-term noise.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Canadian Dollar (CAD)",
+    "definition": "The currency of Canada, often the reporting currency for Paper Portfolio Canada portfolios and prices.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "Capital Gains",
+    "definition": "The profit you make when you sell an investment for more than you paid for it.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Capital Gains Inclusion Rate",
+    "definition": "The portion of a profit from selling an investment that Canadian tax treats as taxable income.",
+    "category": "canada_specific",
+    "see_also": [
+      "Capital Gains"
+    ]
+  },
+  {
+    "term": "Cash Flow Statement",
+    "definition": "A report showing the actual cash moving in and out of a business over a period.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Charlie Munger",
+    "definition": "Buffett's partner; champion of buying wonderful businesses at fair prices, not the reverse.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Circle of Competence",
+    "definition": "The set of businesses you actually understand well enough to judge the value of.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Compound Interest",
+    "definition": "Interest that earns interest, so growth accelerates over time as earlier gains pile up.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Contrarian",
+    "definition": "An investor willing to buy what others are selling and sell what others are buying.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Correction",
+    "definition": "A drop of 10% to 20% from a recent peak, a normal and frequent part of markets.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Cost Basis",
+    "definition": "The original price you paid per share, used to calculate profit or loss when you sell.",
+    "category": "paper_trading",
+    "see_also": []
+  },
+  {
+    "term": "CRA (Canada Revenue Agency)",
+    "definition": "The Canadian federal agency that administers tax law, including investment account rules.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "Data Feed",
+    "definition": "A live stream of prices or news delivered by a vendor into an app or model.",
+    "category": "general",
+    "see_also": [
+      "API (Application Programming Interface)"
+    ]
+  },
+  {
+    "term": "Debt-to-Equity Ratio",
+    "definition": "How many dollars the company owes for every dollar of shareholder money on the books.",
+    "category": "fundamental",
+    "see_also": [
+      "Leverage"
+    ]
+  },
+  {
+    "term": "Diversification",
+    "definition": "Spreading your money across different investments so one bad position does not sink the portfolio.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Dividend",
+    "definition": "A cash payment a company sends to shareholders, usually out of its profits.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Dividend Yield",
+    "definition": "The annual dividend as a percentage of the current share price. 3% to 6% is meaningful.",
+    "category": "fundamental",
+    "see_also": [
+      "Dividend"
+    ]
+  },
+  {
+    "term": "Earnings",
+    "definition": "A company's profit, usually reported every three months and once a year in detail.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "EBITDA",
+    "definition": "Earnings before interest, taxes, depreciation, and amortization, a rough operating profit measure.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Eligible Dividend",
+    "definition": "A dividend from a Canadian public company taxed more favourably than interest income.",
+    "category": "canada_specific",
+    "see_also": [
+      "Dividend"
+    ]
+  },
+  {
+    "term": "EMA (Exponential Moving Average)",
+    "definition": "An average of recent prices that weights newer prices more heavily than older ones.",
+    "category": "technical",
+    "see_also": []
+  },
+  {
+    "term": "Enterprise Value",
+    "definition": "The full price tag of a business: market value plus debt minus cash on hand.",
+    "category": "general",
+    "see_also": [
+      "EBITDA"
+    ]
+  },
+  {
+    "term": "EPS (Earnings Per Share)",
+    "definition": "The company's profit divided by the number of shares, the building block of the P/E ratio.",
+    "category": "general",
+    "see_also": [
+      "Earnings"
+    ]
+  },
+  {
+    "term": "ETF (Exchange-Traded Fund)",
+    "definition": "A basket of investments that trades on an exchange like a single stock, usually low-cost.",
+    "category": "general",
+    "see_also": [
+      "Index Fund"
+    ]
+  },
+  {
+    "term": "EV/EBITDA",
+    "definition": "The full price of the business, including debt, against its core operating earnings.",
+    "category": "fundamental",
+    "see_also": [
+      "Enterprise Value",
+      "EBITDA"
+    ]
+  },
+  {
+    "term": "Exchange",
+    "definition": "A regulated marketplace where buyers and sellers trade stocks, like the TSX or Nasdaq.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Fama-French 5-Factor Model",
+    "definition": "An academic model explaining returns with market, size, value, profitability, and investment factors.",
+    "category": "fundamental",
+    "see_also": [
+      "Momentum Factor",
+      "Quality Factor (QMJ)"
+    ]
+  },
+  {
+    "term": "FHSA (First Home Savings Account)",
+    "definition": "A Canadian account that combines tax-deductible savings with tax-free withdrawal for a first home.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "Fibonacci Retracement",
+    "definition": "Likely support and resistance levels after a big move, based on percentage pullbacks like 38% and 62%.",
+    "category": "technical",
+    "see_also": []
+  },
+  {
+    "term": "Free Cash Flow Yield",
+    "definition": "The cash the business throws off each year, compared to its market value. Higher is better.",
+    "category": "fundamental",
+    "see_also": [
+      "Cash Flow Statement"
+    ]
+  },
+  {
+    "term": "Fundamental Analysis",
+    "definition": "Studying a company's financial statements and business to estimate its real value.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Graham Number",
+    "definition": "A rough upper-bound fair price, calculated from earnings and book value per share.",
+    "category": "fundamental",
+    "see_also": [
+      "Intrinsic Value"
+    ]
+  },
+  {
+    "term": "Gross Margin",
+    "definition": "The share of each sales dollar left after the direct cost of producing the goods or service.",
+    "category": "fundamental",
+    "see_also": [
+      "Revenue (Top Line)"
+    ]
+  },
+  {
+    "term": "Income Statement",
+    "definition": "A report showing revenue, costs, and profit over a period, usually a quarter or year.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Index Fund",
+    "definition": "A fund that holds the same investments as a market index, like the S&P 500 or TSX 60.",
+    "category": "general",
+    "see_also": [
+      "ETF (Exchange-Traded Fund)"
+    ]
+  },
+  {
+    "term": "Intrinsic Value",
+    "definition": "What a business is really worth based on its future cash, not today's share price.",
+    "category": "value_investing",
+    "see_also": [
+      "Margin of Safety"
+    ]
+  },
+  {
+    "term": "IPO (Initial Public Offering)",
+    "definition": "When a private company first sells shares to the public to raise money on a stock exchange.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "JSON",
+    "definition": "A simple text format for storing and sending data, easy for both humans and computers to read.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Leverage",
+    "definition": "Borrowing money to amplify an investment, which can magnify both gains and losses.",
+    "category": "general",
+    "see_also": [
+      "Debt-to-Equity Ratio"
+    ]
+  },
+  {
+    "term": "Limit Order",
+    "definition": "An order to buy or sell only at a price you specify or better, not at the current market price.",
+    "category": "general",
+    "see_also": [
+      "Market Order"
+    ]
+  },
+  {
+    "term": "Liquidity",
+    "definition": "How easily an investment can be bought or sold without moving the price much.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Lollapalooza Effect",
+    "definition": "When several forces line up in the same direction, the combined result is far more than the sum.",
+    "category": "value_investing",
+    "see_also": [
+      "Charlie Munger"
+    ]
+  },
+  {
+    "term": "MACD",
+    "definition": "A trend indicator that shows whether short-term price is pulling away from long-term price.",
+    "category": "technical",
+    "see_also": []
+  },
+  {
+    "term": "Margin of Safety",
+    "definition": "Buying well below what something is worth, so being wrong by a little still leaves a profit.",
+    "category": "value_investing",
+    "see_also": [
+      "Intrinsic Value"
+    ]
+  },
+  {
+    "term": "Market Capitalization",
+    "definition": "The total value of a company, calculated as share price multiplied by shares outstanding.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Market Order",
+    "definition": "An order to buy or sell immediately at the best price currently available.",
+    "category": "general",
+    "see_also": [
+      "Limit Order"
+    ]
+  },
+  {
+    "term": "Moat",
+    "definition": "A durable edge that protects a business from competitors, like a brand or a cost advantage.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Momentum Factor",
+    "definition": "The tendency of stocks that have risen recently to keep rising for a while longer.",
+    "category": "fundamental",
+    "see_also": [
+      "Fama-French 5-Factor Model"
+    ]
+  },
+  {
+    "term": "Mr. Market",
+    "definition": "Benjamin Graham's metaphor for the market: an emotional manic friend offering prices daily.",
+    "category": "value_investing",
+    "see_also": [
+      "Benjamin Graham"
+    ]
+  },
+  {
+    "term": "Mutual Fund",
+    "definition": "A pooled investment managed by a professional, priced once a day rather than trading live.",
+    "category": "general",
+    "see_also": [
+      "ETF (Exchange-Traded Fund)"
+    ]
+  },
+  {
+    "term": "On-Balance Volume (OBV)",
+    "definition": "A running tally of whether more shares trade on up-days or down-days, signaling real demand.",
+    "category": "technical",
+    "see_also": [
+      "Volume"
+    ]
+  },
+  {
+    "term": "P&L (Profit and Loss)",
+    "definition": "The running total of how much a position or portfolio has made or lost over a period.",
+    "category": "paper_trading",
+    "see_also": []
+  },
+  {
+    "term": "P/B Ratio",
+    "definition": "The share price compared to the net assets the company owns per share. Below 1 is a discount.",
+    "category": "fundamental",
+    "see_also": [
+      "Book Value"
+    ]
+  },
+  {
+    "term": "P/E Ratio",
+    "definition": "How many dollars you pay for each dollar of a company's yearly profit. Lower usually means cheaper.",
+    "category": "fundamental",
+    "see_also": [
+      "EPS (Earnings Per Share)",
+      "Earnings"
+    ]
+  },
+  {
+    "term": "Paper Portfolio",
+    "definition": "A fake list of holdings used to practise decisions without risking actual cash.",
+    "category": "paper_trading",
+    "see_also": [
+      "Paper Trade"
+    ]
+  },
+  {
+    "term": "Paper Trade",
+    "definition": "A simulated buy or sell that tracks real prices but uses no real money.",
+    "category": "paper_trading",
+    "see_also": []
+  },
+  {
+    "term": "Payout Ratio",
+    "definition": "The share of profits paid out as dividends. Above 80% may not be sustainable.",
+    "category": "fundamental",
+    "see_also": [
+      "Dividend"
+    ]
+  },
+  {
+    "term": "Permanent Loss of Capital",
+    "definition": "An irreversible hit to your invested money, the risk that matters more than price swings.",
+    "category": "value_investing",
+    "see_also": [
+      "Risk Tolerance"
+    ]
+  },
+  {
+    "term": "Piotroski F-Score",
+    "definition": "A nine-point yes/no checklist of profitability, leverage, and operating health. 8 or 9 is strong.",
+    "category": "fundamental",
+    "see_also": []
+  },
+  {
+    "term": "Position Sizing",
+    "definition": "Deciding how much of your money to put into one investment, based on risk.",
+    "category": "paper_trading",
+    "see_also": []
+  },
+  {
+    "term": "Profit (Bottom Line)",
+    "definition": "What is left of revenue after all the costs, taxes, and interest are paid.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Quality Factor (QMJ)",
+    "definition": "A scoring overlay that rewards profitability, safety, and stable earnings.",
+    "category": "fundamental",
+    "see_also": [
+      "Return on Equity (ROE)"
+    ]
+  },
+  {
+    "term": "Quality Investor",
+    "definition": "An investor who prioritizes strong businesses and durable advantages over cheap prices.",
+    "category": "value_investing",
+    "see_also": [
+      "Warren Buffett"
+    ]
+  },
+  {
+    "term": "Return on Equity (ROE)",
+    "definition": "How much profit the company makes for each dollar of shareholder equity. Above 15% is strong.",
+    "category": "fundamental",
+    "see_also": [
+      "Book Value"
+    ]
+  },
+  {
+    "term": "Revenue (Top Line)",
+    "definition": "The total money a company brings in from sales before any costs are deducted.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Revenue Growth (CAGR)",
+    "definition": "The compound annual growth rate of sales over the last three years. Above 10% is fast.",
+    "category": "fundamental",
+    "see_also": [
+      "Revenue (Top Line)"
+    ]
+  },
+  {
+    "term": "Risk Tolerance",
+    "definition": "How much short-term loss you can stomach without abandoning your long-term plan.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "RRSP (Registered Retirement Savings Plan)",
+    "definition": "A Canadian retirement account where contributions are tax-deductible and growth is tax-deferred.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "RSI (Relative Strength Index)",
+    "definition": "A 0-to-100 score showing how fast and how far a stock's price has moved recently.",
+    "category": "technical",
+    "see_also": []
+  },
+  {
+    "term": "Sector",
+    "definition": "A group of companies in the same industry, like energy, banks, or technology.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "SEDAR+",
+    "definition": "The Canadian public database where companies file continuous disclosure documents.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "Share",
+    "definition": "One unit of ownership in a company, identical in rights to every other share of the same class.",
+    "category": "general",
+    "see_also": [
+      "Stock"
+    ]
+  },
+  {
+    "term": "Short Selling",
+    "definition": "Borrowing shares to sell now, hoping to buy them back later at a lower price.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Spread",
+    "definition": "The gap between the bid and the ask price, often a rough cost of trading.",
+    "category": "general",
+    "see_also": [
+      "Bid and Ask"
+    ]
+  },
+  {
+    "term": "Stochastic Oscillator",
+    "definition": "A 0-to-100 score showing where today's close sits inside the recent high-low range.",
+    "category": "technical",
+    "see_also": [
+      "RSI (Relative Strength Index)"
+    ]
+  },
+  {
+    "term": "Stock",
+    "definition": "A share of ownership in a company, entitling you to a claim on its profits and votes.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Stop-Loss",
+    "definition": "An order to sell a stock automatically if it falls to a price you set, to limit a loss.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "TFSA (Tax-Free Savings Account)",
+    "definition": "A Canadian account where growth and withdrawals are tax-free, up to a yearly contribution room.",
+    "category": "canada_specific",
+    "see_also": []
+  },
+  {
+    "term": "Ticker Symbol",
+    "definition": "A short code, like AAPL or SHOP, used to identify a stock on an exchange.",
+    "category": "general",
+    "see_also": [
+      "API (Application Programming Interface)"
+    ]
+  },
+  {
+    "term": "TSX (Toronto Stock Exchange)",
+    "definition": "Canada's main stock exchange, where most large Canadian companies list their shares.",
+    "category": "canada_specific",
+    "see_also": [
+      "Exchange"
+    ]
+  },
+  {
+    "term": "TSX Venture Exchange",
+    "definition": "A Canadian exchange for smaller and earlier-stage resource and growth companies.",
+    "category": "canada_specific",
+    "see_also": [
+      "TSX (Toronto Stock Exchange)"
+    ]
+  },
+  {
+    "term": "Value Investing",
+    "definition": "Buying stocks for less than they are worth, then waiting for the market to agree.",
+    "category": "value_investing",
+    "see_also": [
+      "Intrinsic Value"
+    ]
+  },
+  {
+    "term": "Volatility",
+    "definition": "How much a price swings around over time, higher means wilder and riskier.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Volume",
+    "definition": "The number of shares traded in a given day, showing how actively a stock is changing hands.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "VWAP",
+    "definition": "The day's average trading price, weighted by how many shares traded at each price.",
+    "category": "technical",
+    "see_also": [
+      "Volume"
+    ]
+  },
+  {
+    "term": "Warren Buffett",
+    "definition": "Long-time investor known for buying great businesses at fair prices and holding for decades.",
+    "category": "value_investing",
+    "see_also": []
+  },
+  {
+    "term": "Webhook",
+    "definition": "An automatic message one app sends another when something happens, like a price crossing a threshold.",
+    "category": "general",
+    "see_also": []
+  },
+  {
+    "term": "Williams %R",
+    "definition": "A -100 to 0 score showing where today's close sits in the recent high-low range.",
+    "category": "technical",
+    "see_also": [
+      "RSI (Relative Strength Index)"
+    ]
+  },
+  {
+    "term": "Yield",
+    "definition": "The income from an investment over a year, expressed as a percentage of its price.",
+    "category": "general",
+    "see_also": []
+  }
+]

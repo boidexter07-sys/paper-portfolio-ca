@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Next.js build output
+.next/
+.next.corrupt/
+.next.stale_novendor/
+out/
+.swc/
+
+# Build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Local SQLite databases (paper portfolio uses SQLite)
+*.db
+*.db-wal
+*.db-shm
+dev.db
+dev.db-journal
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Coverage / CI artifacts
+coverage/
+.nyc_output/
+
+# Taha-internal scratch files — NOT for public sharing
+# (Kanban QA artifacts, Lighthouse JSON, motion demo binaries, build reports,
+# spec docs, atlas scripts, internal numbered scripts)
+SETUP.md
+v6-build-report.md
+v6-motion-demo.mp4
+v6-motion-demo.webm
+l3-news-spec.md
+qa/
+screenshots/
+_atlas_*.js
+_t*_*.js
+_t*.js
+_t*.ts
+_shot_*.js
+_lighthouse_*.js
+_motion_demo.js
+_reduced_motion_test.js
+_l3_*.ts
+_smoke_*.ts
+_yfinance_pull.py
+scripts/screenshots.ts
+__obsolete_next_cache_*/
+
+# Build caches inside seed scripts dir
+seed/*.db
+seed/*.db-wal
