@@ -1,0 +1,295 @@
+// =====================================================================
+// ARENA Community & Discussion Forum — Database Schema (v1)
+// Author: Thor (T38) · Status: implementation-ready (Taha decisions locked 2026-06-30)
+//
+// This file is the canonical schema for the community block. The project
+// uses better-sqlite3 + a hand-written lib/db.ts for query ergonomics,
+// so the runnable equivalent is the CREATE TABLE block in lib/db.ts.
+// The Prisma model here is the source of truth for *shape*; we keep it
+// Prisma-flavored so a future Prisma migration path is one `prisma db
+// pull` away.
+//
+// Conventions:
+//   - IDs: TEXT (UUIDs) for user-owned rows; INTEGER for high-volume
+//     counters (comments, reactions, reports).
+//   - Timestamps: INTEGER (Unix ms). Matches the rest of the app.
+//   - Soft delete: `deleted_at INTEGER?` on threads + comments.
+//   - Moderation: `moderation_status` is denormalized onto the row
+//     itself (not just in the queue) so reads don't have to JOIN.
+//   - Mod audit: every mod action writes a `community_mod_log` row.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------
+// USERS (extended) — display name + a couple of moderation counters live
+// on the user row. The core `users` table is defined in the main
+// schema.prisma; this model documents the additive fields.
+// ---------------------------------------------------------------------
+model UserCommunity {
+  user_id              String   @id
+  display_name         String   @unique
+  // Timestamps are ms since epoch. matches existing convention.
+  display_name_changed_at Int?
+  // Denormalized counters for v2 reputation display. Always 0 in v1.
+  thread_count         Int      @default(0)
+  comment_count        Int      @default(0)
+  reputation_score     Int      @default(0)
+  // 24h cooldown uses users.created_at (existing column). Cooldown
+  // queries check: strftime('%s','now')*1000 - created_at < 86400000.
+}
+
+// The `users` table itself gains one new column: `is_moderator INTEGER
+// NOT NULL DEFAULT 0` (Taha decision §13.3). Mods are flagged in-place
+// rather than via a join table so the isModerator() check is a single
+// indexed read. The migration backfill flags Muse's account on the
+// first init after the column is added.
+//
+// The `users` table also gains: `is_suspended_manually INTEGER NOT
+// NULL DEFAULT 0` (Taha decision §13.7a) so a manual mod-suspend
+// short-circuits at the user lookup, independent of the pattern-
+// detection suspend log.
+
+// ---------------------------------------------------------------------
+// 1. community_threads — root posts
+// ---------------------------------------------------------------------
+model CommunityThread {
+  id                  String   @id @default(uuid())
+  author_id           String
+  category            String   // 'general' | 'market_commentary' | 'strategy' | 'clan_recruitment'
+  title               String
+  body                String   // plain text only in v1; max 8000 chars
+  created_at          Int
+  updated_at          Int
+  published_at        Int?     // null = still in moderation queue
+  last_activity_at    Int      // bumped on every comment + reaction
+  deleted_at          Int?
+  hidden_at           Int?     // set when a report auto-hides; reversible
+  edit_count          Int      @default(0)
+  // Moderation denormalized: 'clean' | 'flagged_keyword' | 'flagged_toxicity'
+  // | 'cooldown' | 'scored_only_keyword' | 'mod_approved' | 'mod_rejected'
+  moderation_status   String   @default("clean")
+  // Denormalized aggregates so the list query doesn't aggregate per row.
+  comment_count       Int      @default(0)
+  reaction_score      Int      @default(0) // upvotes minus downvotes
+  reaction_count      Int      @default(0) // total reactions (upvote+downvote+emoji)
+
+  // Index plan:
+  //   @@index([category, last_activity_at(sort: Desc)])
+  //   @@index([author_id, created_at(sort: Desc)])
+  //   @@index([moderation_status, last_activity_at(sort: Desc)])
+  //   @@index([published_at, last_activity_at(sort: Desc)]) -- list query
+  //   @@index([hidden_at]) -- partial: hidden_at IS NULL
+}
+
+// ---------------------------------------------------------------------
+// 2. community_comments — threaded replies, self-referential
+// ---------------------------------------------------------------------
+model CommunityComment {
+  id                  String   @id @default(uuid())
+  thread_id           String
+  author_id           String
+  parent_comment_id   String?  // null = top-level reply to the thread
+  body                String   // plain text only; max 4000 chars
+  created_at          Int
+  updated_at          Int
+  published_at        Int?
+  deleted_at          Int?
+  hidden_at           Int?
+  edit_count          Int      @default(0)
+  moderation_status   String   @default("clean")
+  reaction_score      Int      @default(0)
+  reaction_count      Int      @default(0)
+  // Depth is denormalized for cheap UI decisions (collapse at depth 2 on
+  // mobile). Recomputed when a comment is created.
+  depth               Int      @default(0)
+
+  // Index plan:
+  //   @@index([thread_id, parent_comment_id, created_at])
+  //   @@index([thread_id, created_at]) -- tree fetch
+  //   @@index([author_id, created_at(sort: Desc)])
+  //   @@index([moderation_status, created_at(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------
+// 3. community_reactions — upvote / downvote / emoji
+// ---------------------------------------------------------------------
+model CommunityReaction {
+  id           Int      @id @default(autoincrement())
+  user_id      String
+  target_type  String   // 'thread' | 'comment'
+  target_id    String
+  kind         String   // 'upvote' | 'downvote' | 'clap' | 'fire' | 'mind_blown' | 'idea'
+  created_at   Int
+
+  // Unique constraint: one user, one reaction of one kind per target.
+  // Toggling the same kind = DELETE row. Switching kind = UPDATE.
+  // Implemented in app code (UPSERT / DELETE) — the unique index lives
+  // here as the schema guard.
+  @@unique([user_id, target_type, target_id, kind])
+  @@index([target_type, target_id])
+  @@index([user_id, created_at(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------
+// 4. community_reports — user-submitted reports
+// ---------------------------------------------------------------------
+model CommunityReport {
+  id             Int      @id @default(autoincrement())
+  reporter_id    String
+  target_type    String   // 'thread' | 'comment'
+  target_id      String
+  reason         String   // 'spam' | 'harassment' | 'hate' | 'misinformation' | 'off_topic' | 'other'
+  note           String?  // free text, max 280 chars
+  created_at     Int
+  resolved_at    Int?
+  resolved_by    String?  // moderator user id
+  resolution     String?  // 'upheld' | 'dismissed' | 'escalated'
+  // First-report auto-hide side-effect: if this is the first open
+  // report on a target, the target's hidden_at is set in the same
+  // transaction (denormalized).
+  triggered_hide Int      @default(0)
+
+  @@index([target_type, target_id, resolved_at])
+  @@index([reporter_id, created_at(sort: Desc)])
+  @@index([resolved_at]) -- partial: resolved_at IS NULL (the open queue)
+}
+
+// ---------------------------------------------------------------------
+// 5. community_mentions — resolved @username references
+// ---------------------------------------------------------------------
+model CommunityMention {
+  id           Int      @id @default(autoincrement())
+  source_type  String   // 'thread' | 'comment'
+  source_id    String
+  mentioned_id String   // the user being @-mentioned
+  raw_token    String   // the original "@display_name" as typed
+  created_at   Int
+
+  @@index([mentioned_id, created_at(sort: Desc)])
+  @@index([source_type, source_id])
+  @@unique([source_type, source_id, mentioned_id]) // no double-mention per source
+}
+
+// ---------------------------------------------------------------------
+// 6. community_notifications — bell-icon inbox
+// ---------------------------------------------------------------------
+model CommunityNotification {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  kind        String   // 'reply' | 'mention' | 'reaction'
+  source_type String   // 'thread' | 'comment'
+  source_id   String
+  actor_id    String   // the user who triggered it
+  // Dedupe key for reactions: "<user_id>:<source_type>:<source_id>:<kind>:<hour_bucket>"
+  // Reaction notifications dedupe at the hourly level so an emoji
+  // storm becomes one notification.
+  dedupe_key  String
+  created_at  Int
+  read_at     Int?
+
+  @@unique([user_id, dedupe_key]) // one notification per dedupe window
+  @@index([user_id, read_at])
+  @@index([user_id, created_at(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------
+// 7. community_moderation_queue — held content awaiting mod review
+// ---------------------------------------------------------------------
+model CommunityModerationItem {
+  id             Int      @id @default(autoincrement())
+  target_type    String   // 'thread' | 'comment'
+  target_id      String
+  // Why is it in the queue:
+  //   'flagged_keyword' | 'flagged_toxicity' | 'cooldown' | 'report' | 'edit_after_window'
+  queue_reason   String
+  // Snapshot of the mod-triggering context (keyword matched, Perspective
+  // score, reporter reason, etc.) so a mod can decide without re-running
+  // the scan.
+  context_json   String
+  created_at     Int
+  resolved_at    Int?
+  resolved_by    String?
+  resolution     String?  // 'approved' | 'rejected' | 'escalated'
+  // Priority score for queue ordering. Higher = reviewed first.
+  // Formula: report_count*3 + toxicity_score*10 + (cooldown ? 0 : 0)
+  priority       Int      @default(0)
+
+  @@index([resolved_at, priority(sort: Desc)])
+  @@index([target_type, target_id])
+  @@index([queue_reason, resolved_at])
+}
+
+// ---------------------------------------------------------------------
+// 8. community_user_suspensions — pattern-detected auto-suspensions
+// ---------------------------------------------------------------------
+model CommunityUserSuspension {
+  id              Int      @id @default(autoincrement())
+  user_id         String
+  reason          String   // 'pattern_3_reports_30d' | 'manual'
+  triggered_by_report_id Int?
+  suspended_at    Int
+  suspended_until Int      // 72h from suspension
+  lifted_at       Int?
+  lifted_by       String?  // moderator
+
+  @@index([user_id, suspended_at(sort: Desc)])
+  @@index([suspended_until, lifted_at]) -- partial: lifted_at IS NULL
+  @@index([user_id, lifted_at])         -- partial: lifted_at IS NULL (active suspensions)
+}
+
+// ---------------------------------------------------------------------
+// 9. community_mod_log — append-only audit trail of every moderator
+// action. Reviewable by mods; visible in the mod UI when it ships in v2.
+// ---------------------------------------------------------------------
+model CommunityModLog {
+  id           Int      @id @default(autoincrement())
+  // The mod who took the action. NOT a FK so the row persists even if
+  // the mod is later demoted (we want the historical record).
+  mod_user_id  String
+  //   The action type. Keep this list tight and append-only; UI screens
+  //   map 1:1.
+  //   'queue_approved' | 'queue_rejected' | 'queue_escalated'
+  // | 'post_unhidden' | 'post_auto_hidden_off_topic' (system, cron/auto)
+  // | 'user_suspended'  | 'user_unsuspended'
+  // | 'pattern_3_30d'   | 'escalation_3_90d'   (cron-emitted)
+  action       String
+  // Optional target of the action. For queue resolutions and un-hides
+  // this is the queue item id or the target (thread/comment) id; for
+  // user-suspend it's the user id; for cron-emitted rows it's null.
+  target_type  String?  // 'thread' | 'comment' | 'queue_item' | 'user' | null
+  target_id    String?
+  // Free-form JSON context. Examples:
+  //   { "queue_reason": "flagged_keyword", "keyword": "..." }
+  //   { "suspended_until_ms": 1234567890, "reason": "manual" }
+  //   { "report_count_30d": 4, "user_id": "..." }
+  context_json String?
+  created_at   Int
+
+  @@index([mod_user_id, created_at(sort: Desc)])
+  @@index([action, created_at(sort: Desc)])
+  @@index([target_type, target_id])
+}
+
+// ---------------------------------------------------------------------
+// ARENA Challenge integration — minimal fields on the existing challenges
+// table to support "Send Challenge from forum". The full challenges
+// schema lives in the ARENA module; this is a documentation pointer,
+// not a duplicate definition.
+// ---------------------------------------------------------------------
+//
+// The challenges table will gain two optional columns:
+//   - source_type TEXT  ('forum_thread' | 'forum_comment' | 'profile' | NULL)
+//   - source_id   TEXT  (the source thread/comment id, or NULL)
+//
+// Both are nullable; existing rows stay NULL. A foreign-key relationship
+// is NOT enforced at the DB level (community rows can be soft-deleted
+// while the challenge still references them) — the FK is logical, in app
+// code, and we read with LEFT JOIN.

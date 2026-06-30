@@ -47,6 +47,10 @@ export type User = {
   investing_style: 'value' | 'growth' | 'balanced';
   created_at: number;
   acknowledged_first_signal: number;
+  /** T43: ms-since-epoch when the user dismissed/completed the
+   *  ARENA How-To-Play walkthrough; null = still pending (mount the
+   *  WalkthroughHighlight). Updated by POST /api/walkthrough/complete. */
+  walkthrough_completed_at: number | null;
 };
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -56,7 +60,7 @@ export async function getCurrentUser(): Promise<User | null> {
   const userId = verifyCookie(raw);
   if (!userId) return null;
   const row = getDb()
-    .prepare('SELECT id, email, investing_style, created_at, acknowledged_first_signal FROM users WHERE id = ?')
+    .prepare('SELECT id, email, investing_style, created_at, acknowledged_first_signal, walkthrough_completed_at FROM users WHERE id = ?')
     .get(userId) as User | undefined;
   return row ?? null;
 }
@@ -91,12 +95,13 @@ export function createUser(email: string, password: string, investing_style: Use
     investing_style,
     created_at,
     acknowledged_first_signal: 0,
+    walkthrough_completed_at: null,
   };
 }
 
 export function findUserByEmail(email: string): (User & { password_hash: string }) | null {
   const row = getDb()
-    .prepare('SELECT id, email, password_hash, investing_style, created_at, acknowledged_first_signal FROM users WHERE email = ?')
+    .prepare('SELECT id, email, password_hash, investing_style, created_at, acknowledged_first_signal, walkthrough_completed_at FROM users WHERE email = ?')
     .get(email.toLowerCase().trim()) as (User & { password_hash: string }) | undefined;
   return row ?? null;
 }

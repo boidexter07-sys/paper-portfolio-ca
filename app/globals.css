@@ -78,6 +78,16 @@
   animation: pv-shimmer 1500ms var(--mo-ease-linear) infinite;
 }
 
+/* T43: page-level fade-in (single shot) used by WalkthroughHighlight's
+   mount transition. The overlay opacity ramps from 0 to 1 in 280ms.
+   Respects prefers-reduced-motion via the parent component's
+   useReducedMotion() check (it conditionally applies the animation
+   class rather than depending on the media query below). */
+@keyframes pv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* ------------------------------------------------------------------
    Pop: badge earned — scale 0 → 1.15 → 1 + brief rotation.
    Add the .pv-pop class to an element to run the entry animation.
@@ -247,6 +257,13 @@
   .pv-shimmer {
     animation: none;
     background: theme('colors.fog');
+  }
+  /* T43: pv-fade-in is used by the walkthrough overlay; skip it under
+     reduced-motion (the overlay still appears, just instantly). */
+  .pv-fade-in,
+  [data-walk-overlay] {
+    animation: none !important;
+    opacity: 1 !important;
   }
   .pv-pulse,
   .pv-pop,

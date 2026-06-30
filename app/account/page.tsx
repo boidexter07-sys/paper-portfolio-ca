@@ -2,10 +2,22 @@ import { getCurrentUser } from '@/lib/auth';
 import { getUserDaysIntoTrial, getTrialDaysRemaining } from '@/lib/trial';
 import { PIPEDA_NOTICE, TRIAL_DISCLOSURE, SUBSCRIPTION_PRICE_CAD } from '@/lib/constants';
 import { StylePicker } from '@/components/StylePicker';
+import { RestartWalkthroughButton } from '@/components/Walkthrough/RestartWalkthroughButton';
 import { getDb } from '@/lib/db';
 import Link from 'next/link';
 
 const TRIAL_DAYS = 7;
+
+function formatDate(ts: number | null | undefined): string {
+  if (!ts) return 'Not yet';
+  return new Date(ts).toLocaleString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
 
 export default async function AccountPage() {
   const user = await getCurrentUser();
@@ -70,6 +82,35 @@ export default async function AccountPage() {
             <p className="text-caption text-stone">Watchlist</p>
             <p className="font-serif text-h2 text-ink pv-num">{watchCount}</p>
           </div>
+        </div>
+      </section>
+
+      {/* T43: tour state + restart control. The button POSTs to
+          /api/walkthrough/complete and refreshes the page; the layout
+          then re-evaluates and remounts the in-app overlay. */}
+      <section className="pv-card p-4 sm:p-5">
+        <p className="pv-eyebrow">Tour</p>
+        <div className="mt-1 flex items-baseline gap-2">
+          <p className="font-serif text-h2 text-ink">
+            {user.walkthrough_completed_at ? 'Finished' : 'In progress'}
+          </p>
+          <p className="text-caption text-stone">
+            {user.walkthrough_completed_at
+              ? `Completed ${formatDate(user.walkthrough_completed_at)}`
+              : 'Take the tour any time from the Guide page'}
+          </p>
+        </div>
+        <div className="mt-3 flex items-center gap-3 flex-wrap">
+          <Link href="/guide" className="pv-btn-ghost text-body-sm">
+            Open the guide
+          </Link>
+          <Link href="/walkthrough" className="pv-btn-secondary text-body-sm">
+            Take the wizard
+          </Link>
+        </div>
+        <div className="mt-4 pt-4 border-t border-fog">
+          <p className="pv-eyebrow mb-2">Want to see it again?</p>
+          <RestartWalkthroughButton />
         </div>
       </section>
 

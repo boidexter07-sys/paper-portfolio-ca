@@ -8,7 +8,8 @@
     "start": "next start",
     "seed": "tsx seed/seed.ts",
     "seed:l3": "tsx seed/seed_l3.ts",
-    "refresh:l3": "tsx -e \"import('./lib/ingestion').then(m => m.refreshForTicker ? null : null).catch(()=>{});\""
+    "refresh:l3": "tsx -e \"import('./lib/ingestion').then(m => m.refreshForTicker ? null : null).catch(()=>{});\"",
+    "community:pattern-check": "tsx lib/community/pattern-check.ts"
   },
   "dependencies": {
     "better-sqlite3": "11.3.0",
