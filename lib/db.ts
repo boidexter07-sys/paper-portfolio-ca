@@ -5,14 +5,25 @@ import * as fs from 'fs';
 type Database = DatabaseNS.Database;
 const Database = (DatabaseNS as unknown as { default: new (p: string) => Database }).default ?? (DatabaseNS as unknown as new (p: string) => Database);
 
-// Vercel serverless: process.cwd() is read-only. The only writable location
-// is /tmp, so when running on Vercel (detected via VERCEL=1), put the DB
-// there. This is intentionally ephemeral — data resets on cold starts and
-// redeploys. Local dev keeps the original `data/paperportfolio.db` next to
-// the source so `npm run seed` keeps working.
-const IS_VERCEL = !!process.env.VERCEL;
-const DB_DIR = IS_VERCEL ? '/tmp/ppc' : path.join(process.cwd(), 'data');
-const DB_PATH = path.join(DB_DIR, IS_VERCEL ? 'paperportfolio.db' : 'paperportfolio.db');
+// Canonical DB location: data/paperportfolio.db, next to the repo root.
+//
+// T46 update: previously this forked to /tmp/paperportfolio.db on Vercel
+// (T45) because Vercel serverless functions have a read-only
+// process.cwd() and only /tmp is writable. That worked for warm-instance
+// writes but every cold start wiped the data and signup endpoints broke
+// for fresh requests. To ship a populated demo, we now ship the
+// pre-seeded DB file as part of the repo and READ from it everywhere.
+// On Vercel the runtime FS is read-only, so writes from API endpoints
+// (signup, trade, post, reaction) may throw — that limitation is
+// documented in v13-build-report.md. Local dev (process.cwd() writable)
+// still supports full writes for development.
+//
+// Note: the file is in `.gitignore` via `data/*.db`; T46 ships it via
+// `git add -f data/paperportfolio.db` so the seeded file lands in the
+// repo. Local devs who don't want a tracked DB can `git rm --cached` it
+// and rely on `npm run seed` to regenerate their own copy.
+const DB_DIR = path.join(process.cwd(), 'data');
+const DB_PATH = path.join(DB_DIR, 'paperportfolio.db');
 
 let _db: Database | null = null;
 
@@ -21,6 +32,9 @@ export function getDb(): Database {
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
+  // If the shipped DB file doesn't exist (e.g. fresh clone without the
+  // git-tracked file), create one. initSchema() will populate the schema
+  // and `npm run seed` is responsible for filling it.
   const db = new Database(DB_PATH);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');

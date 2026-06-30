@@ -15,6 +15,9 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 
 # Local SQLite databases (paper portfolio uses SQLite)
+# T46: the shipped demo DB at data/paperportfolio.db is intentionally
+# committed to the repo (negated below) so friends can log in to the
+# Vercel-deployable demo. All other DB files stay local.
 *.db
 *.db-wal
 *.db-shm
@@ -23,6 +26,10 @@ dev.db-journal
 data/*.db
 data/*.db-wal
 data/*.db-shm
+# DO NOT commit any other DB files in data/ (e.g. *.db.test.*, *.db.bak.*, *.db.broken)
+!data/paperportfolio.db
+!data/paperportfolio.db-wal
+!data/paperportfolio.db-shm
 
 # Environment files (never commit secrets)
 .env
@@ -73,6 +80,15 @@ _reduced_motion_test.js
 _l3_*.ts
 _smoke_*.ts
 _yfinance_pull.py
+# T46 seed/test scratch files (created during build, never shipped)
+_seed_preflight.js
+_seed_verify.js
+_dedupe_events.js
+_inspect_events.js
+_inspect_users.js
+_tsx_check.js
+inspect_db.js
+inspect_db2.js
 __obsolete_next_cache_*/
 
 # Build caches inside seed scripts dir

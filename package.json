@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "seed": "tsx seed/seed.ts",
+    "seed:friends": "tsx scripts/seed_friend_accounts.ts",
     "seed:l3": "tsx seed/seed_l3.ts",
     "refresh:l3": "tsx -e \"import('./lib/ingestion').then(m => m.refreshForTicker ? null : null).catch(()=>{});\"",
     "community:pattern-check": "tsx lib/community/pattern-check.ts"
