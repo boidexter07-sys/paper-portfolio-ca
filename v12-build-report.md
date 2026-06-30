@@ -6,9 +6,9 @@
 **Author:** Thor (thor profile, kanban task t_52c3e0a7)
 **Builds on:** v11 (T29: 1,216 stocks, login button wrap fix) + T30 (tile image clipping) + T38 (community forum) + T40 (thousand separators, $100K starting cash) + T41 (user-input starting cash slider) + T42 (ARENA v1 — 12 challenges, clans, leaderboards, merch, anti-cheat) + T43 (user guides + walkthrough) + T44 (community forum + walkthrough pages)
 **Live URL:** https://app-six-iota-41.vercel.app
-**Deploy ID (shipping):** dpl_HxpEpKs3Agtk9qTBomxxjAd8UkFK (alias `app-six-iota-41.vercel.app` resolves here at report time)
-**Deploy ID (intermediate):** dpl_F9Wp8JA6UH6J1jCkqUDUYYKGNgGD, dpl_64msfedu889fKea7R9RMcSksm7iu (superseded by auto-deploys on the build-report commit)
-**Repo HEAD:** a9f235e; code SHA: 8c41fb2 (T45 /tmp DB fix)
+**Deploy ID (shipping):** dpl_2otfU9M8jbNSsuWpcHoH1o5ddppk (alias `app-six-iota-41.vercel.app` resolves here at report time)
+**Deploy ID (intermediate):** dpl_F9Wp8JA6UH6J1jCkqUDUYYKGNgGD, dpl_64msfedu889fKea7R9RMcSksm7iu, dpl_HxpEpKs3Agtk9qTBomxxjAd8UkFK (superseded by auto-deploys on each build-report update commit)
+**Repo HEAD:** 71ca234; code SHA: 8c41fb2 (T45 /tmp DB fix)
 **Region:** iad1 (Washington, D.C., USA — East)
 
 ---
