@@ -3,18 +3,28 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LandingPage } from './LandingPage';
+import { NotificationBell } from './Community/NotificationBell';
 
 type ShellUser = { id: string; email: string } | null;
+type ShellProps = {
+  user: ShellUser;
+  /** True if the user is a member of at least one clan. Drives the
+   *  "Clan Challenges" nav visibility per task body — visible only
+   *  to clan members. */
+  hasClan?: boolean;
+  children: React.ReactNode;
+};
 
 const NAV = [
-  { href: '/', label: 'Home', short: 'Home' },
-  { href: '/discover', label: 'Discover', short: 'Discover' },
-  { href: '/portfolio', label: 'Portfolio', short: 'Portfolio' },
-  { href: '/learn', label: 'Learn', short: 'Learn' },
-  { href: '/account', label: 'Account', short: 'Account' },
+  { href: '/', label: 'Home', short: 'Home', walkTarget: 'discover-link' },
+  { href: '/discover', label: 'Discover', short: 'Discover', walkTarget: 'discover-link' },
+  { href: '/portfolio', label: 'Portfolio', short: 'Portfolio', walkTarget: 'portfolio-link' },
+  { href: '/learn', label: 'Learn', short: 'Learn', walkTarget: null },
+  { href: '/guide', label: 'Guide', short: 'Guide', walkTarget: null },
+  { href: '/account', label: 'Account', short: 'Account', walkTarget: null },
 ];
 
-export function AppShell({ user, children }: { user: ShellUser; children: React.ReactNode }) {
+export function AppShell({ user, hasClan, children }: ShellProps) {
   const pathname = usePathname() || '/';
 
   // Auth pages render bare — no shell chrome.
@@ -31,6 +41,7 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
   }
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const showClanNav = !!hasClan;
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -44,6 +55,7 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
             <span className="pv-eyebrow">Learning tool</span>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <span className="hidden sm:inline text-caption text-stone">{user.email}</span>
             <Link href="/account" className="pv-btn-ghost text-body-sm">Account</Link>
           </div>
@@ -57,6 +69,7 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
               <Link
                 key={n.href}
                 href={n.href}
+                data-walk-target={n.walkTarget ?? undefined}
                 className={`block px-3 py-2 rounded-md text-body-sm transition-colors ${
                   isActive(n.href) ? 'bg-fog text-ink font-medium' : 'text-graphite hover:bg-fog'
                 }`}
@@ -73,6 +86,16 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
               >
                 Community
               </Link>
+              {showClanNav && (
+                <Link
+                  href="/arena"
+                  className={`block px-3 py-2 rounded-md text-body-sm transition-colors ${
+                    isActive('/arena') ? 'bg-fog text-ink font-medium' : 'text-graphite hover:bg-fog'
+                  }`}
+                >
+                  Clan Challenges
+                </Link>
+              )}
             </div>
             <div className="pt-4 text-caption text-stone px-3">
               Paper trading only.<br />Nothing is investment advice.
@@ -86,7 +109,7 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
       </div>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-bone border-t border-fog">
-        <div className="grid grid-cols-5">
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}>
           {NAV.map((n) => (
             <Link
               key={n.href}
@@ -176,6 +199,8 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
       return <svg viewBox="0 0 24 24" width={20} height={20}><path d="M4 8 H20 V20 H4 Z" {...stroke} /><path d="M9 8 V5 H15 V8" {...stroke} /></svg>;
     case 'Learn':
       return <svg viewBox="0 0 24 24" width={20} height={20}><path d="M4 5 H20 V19 H4 Z" {...stroke} /><path d="M4 5 L12 11 L20 5" {...stroke} /></svg>;
+    case 'Guide':
+      return <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="12" cy="12" r="9" {...stroke} /><path d="M15 9 L11 11 L9 15 L13 13 Z" {...stroke} /></svg>;
     case 'Account':
       return <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="12" cy="8" r="4" {...stroke} /><path d="M4 21 C4 16 8 14 12 14 C16 14 20 16 20 21" {...stroke} /></svg>;
     default:

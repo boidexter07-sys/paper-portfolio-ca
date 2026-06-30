@@ -8,6 +8,8 @@ import { HomeFeaturedSignalsServer } from '@/components/HomeFeaturedSignalsServe
 import { HomeFeaturedSignalsSkeleton } from '@/components/HomeFeaturedSignalsSkeleton';
 import { CountUp } from '@/components/CountUp';
 import { EmbossedNumber } from '@/components/EmbossedNumber';
+import { listUserChallengePortfolios, CHALLENGE_PORTFOLIO_STARTING_CASH } from '@/lib/arena/portfolios';
+import { formatTimeRemaining } from '@/lib/arena/challenges';
 
 function formatMoney(n: number, currency = 'CAD') {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -30,6 +32,16 @@ export default async function HomePage() {
   const portfolios = listPortfolios(user.id);
   const primary = portfolios[0] ? getPortfolioWithHoldings(portfolios[0].id, user.id) : null;
 
+  // T42: also pull active challenge portfolios so the dashboard surfaces
+  // them with a countdown. Past challenge portfolios are shown after.
+  const challengePortfolios = listUserChallengePortfolios(user.id, 10);
+  const activeChallengePortfolios = challengePortfolios.filter(
+    (cp) => cp.challenge.status === 'live'
+  );
+  const pastChallengePortfolios = challengePortfolios.filter(
+    (cp) => cp.challenge.status !== 'live'
+  );
+
   // Top-of-mind stocks — pick 3 by style match
   const stocks = listStocks();
   const featured = stocks.slice(0, 3);
@@ -50,7 +62,7 @@ export default async function HomePage() {
       </header>
 
       {/* Portfolio summary */}
-      <section>
+      <section data-walk-target="credits-link">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="font-serif text-h2 text-ink">Your paper portfolio</h2>
           <Link href="/portfolio" className="text-caption text-graphite hover:text-ink">View all →</Link>
@@ -103,6 +115,44 @@ export default async function HomePage() {
         )}
       </section>
 
+      {/* Active challenge portfolios — T42 */}
+      {activeChallengePortfolios.length > 0 && (
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="font-serif text-h2 text-ink">Active challenge portfolios</h2>
+            <Link href="/arena" className="text-caption text-graphite hover:text-ink">Open ARENA →</Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pv-stagger-fast">
+            {activeChallengePortfolios.map(({ portfolio, challenge, total_value }) => {
+              const pnl = total_value - portfolio.starting_cash;
+              const pnlPct = portfolio.starting_cash > 0 ? (pnl / portfolio.starting_cash) * 100 : 0;
+              const remaining = formatTimeRemaining(Math.max(0, challenge.ends_at - Date.now()));
+              return (
+                <Link
+                  key={portfolio.id}
+                  href={`/arena/portfolio/${portfolio.id}`}
+                  className="block pv-card p-4 hover:shadow-card transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="pv-eyebrow">{challenge.name}</p>
+                    <span className="text-caption text-stone">{remaining}</span>
+                  </div>
+                  <p className="text-body-sm text-graphite mb-2">
+                    Challenge portfolio · ${CHALLENGE_PORTFOLIO_STARTING_CASH.toLocaleString('en-CA')}
+                  </p>
+                  <div className="flex items-baseline justify-between">
+                    <p className="font-serif text-h4 text-ink pv-num">${total_value.toLocaleString('en-CA', { maximumFractionDigits: 0 })}</p>
+                    <p className={`text-caption pv-num ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+                      {pnl >= 0 ? '+' : ''}${pnl.toLocaleString('en-CA', { maximumFractionDigits: 0 })} ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Featured signals — streamed in Suspense so a slow PRISM call
           (e.g. a locked SQLite writer) doesn't block the rest of the page. */}
       <section>
@@ -115,8 +165,39 @@ export default async function HomePage() {
         </Suspense>
       </section>
 
+      {/* Past challenge portfolios — T42 */}
+      {pastChallengePortfolios.length > 0 && (
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="font-serif text-h2 text-ink">Past challenge portfolios</h2>
+          </div>
+          <ul className="pv-card divide-y divide-fog pv-stagger-fast">
+            {pastChallengePortfolios.slice(0, 5).map(({ portfolio, challenge }) => (
+              <li key={portfolio.id}>
+                <Link
+                  href={`/arena/portfolio/${portfolio.id}`}
+                  className="p-4 flex items-center justify-between gap-3 hover:bg-fog/50"
+                >
+                  <div>
+                    <p className="font-medium text-ink">{challenge.name}</p>
+                    <p className="text-caption text-stone">
+                      {challenge.status === 'settled' ? 'Settled' : 'Cancelled'} · {challenge.settled_at ? new Date(challenge.settled_at).toLocaleDateString('en-CA') : ''}
+                    </p>
+                  </div>
+                  <p className="text-caption text-graphite pv-num">
+                    {portfolio.final_value != null
+                      ? `$${portfolio.final_value.toLocaleString('en-CA', { maximumFractionDigits: 0 })}`
+                      : ''}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* What's moving in plain language */}
-      <section>
+      <section data-walk-target="leaderboard-link">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="font-serif text-h2 text-ink">What others are doing</h2>
           <Link href="/community" className="text-caption text-graphite hover:text-ink">Open community →</Link>
