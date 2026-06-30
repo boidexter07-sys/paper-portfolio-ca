@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 type Database = DatabaseNS.Database;
-const Database = (DatabaseNS as unknown as { default: new (p: string) => Database }).default ?? (DatabaseNS as unknown as new (p: string) => Database);
+const Database = (DatabaseNS as unknown as { default: new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database }).default ?? (DatabaseNS as unknown as new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database);
 
 // Canonical DB location: data/paperportfolio.db, next to the repo root.
 //
@@ -12,16 +12,24 @@ const Database = (DatabaseNS as unknown as { default: new (p: string) => Databas
 // process.cwd() and only /tmp is writable. That worked for warm-instance
 // writes but every cold start wiped the data and signup endpoints broke
 // for fresh requests. To ship a populated demo, we now ship the
-// pre-seeded DB file as part of the repo and READ from it everywhere.
-// On Vercel the runtime FS is read-only, so writes from API endpoints
-// (signup, trade, post, reaction) may throw — that limitation is
-// documented in v13-build-report.md. Local dev (process.cwd() writable)
-// still supports full writes for development.
+// pre-seeded DB file as part of the repo.
 //
-// Note: the file is in `.gitignore` via `data/*.db`; T46 ships it via
-// `git add -f data/paperportfolio.db` so the seeded file lands in the
-// repo. Local devs who don't want a tracked DB can `git rm --cached` it
-// and rely on `npm run seed` to regenerate their own copy.
+// Runtime FS behaviour:
+//   - Local dev (process.cwd() writable, VERCEL unset): open read/write.
+//     `npm run seed` and `npm run seed:friends` populate the file.
+//   - Vercel (VERCEL=1 set): the runtime FS at /var/task is read-only.
+//     better-sqlite3 in default mode tries to write the -wal / -shm side
+//     files and throws SQLITE_READONLY. To get reads working from the
+//     shipped DB, we open with `readonly: true, fileMustExist: true` —
+//     which makes SQLite use the existing DB read-only with no side
+//     files. Writes from API endpoints (signup, trade, post, reaction)
+//     still throw, by design; this limitation is documented in
+//     v13-build-report.md. Friends see a populated demo on every page
+//     load; their actions silently no-op or 500 if they try to write.
+//
+// .gitignore: this file is in `data/*.db` (and negated via
+// `!data/paperportfolio.db` for the shipped file).
+const IS_VERCEL = !!process.env.VERCEL;
 const DB_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'paperportfolio.db');
 
@@ -32,13 +40,15 @@ export function getDb(): Database {
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
-  // If the shipped DB file doesn't exist (e.g. fresh clone without the
-  // git-tracked file), create one. initSchema() will populate the schema
-  // and `npm run seed` is responsible for filling it.
-  const db = new Database(DB_PATH);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-  initSchema(db);
+  // Vercel: open read-only against the shipped file. Local: read/write.
+  const db = IS_VERCEL
+    ? new Database(DB_PATH, { readonly: true, fileMustExist: true })
+    : new Database(DB_PATH);
+  if (!IS_VERCEL) {
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    initSchema(db); // local: ensure schema; Vercel: shipped file already has it
+  }
   _db = db;
   return db;
 }
