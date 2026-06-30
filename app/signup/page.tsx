@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { CashSlider } from '@/components/CashSlider';
+import { DEFAULT_PORTFOLIO_CASH_CAD } from '@/lib/constants';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -11,7 +13,8 @@ export default function SignupPage() {
   const [confirm, setConfirm] = useState('');
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [style, setStyle] = useState<'value' | 'growth' | 'balanced'>('balanced');
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [startingCash, setStartingCash] = useState<number>(DEFAULT_PORTFOLIO_CASH_CAD);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [err, setErr] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +36,12 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, investing_style: style }),
+      body: JSON.stringify({
+        email,
+        password,
+        investing_style: style,
+        startingCash,
+      }),
     });
     const data = await res.json();
     setSubmitting(false);
@@ -117,13 +125,48 @@ export default function SignupPage() {
             {err && <p className="text-caption text-negative">{err}</p>}
             <div className="flex gap-2">
               <button type="button" className="pv-btn-ghost flex-1" onClick={() => setStep(2)}>Back</button>
-              <button type="button" className="pv-btn-primary flex-1" disabled={submitting || !ageConfirmed} onClick={submit}>
-                {submitting ? 'Creating…' : 'Create my account'}
+              <button type="button" className="pv-btn-primary flex-1" disabled={!ageConfirmed} onClick={() => setStep(4)}>
+                Continue
               </button>
             </div>
             <p className="text-caption text-stone text-center pt-2">
               By creating an account you confirm Paper Portfolio is a learning tool, not investment advice, and never connects to any real brokerage.
             </p>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <p className="pv-eyebrow">Set your paper trading budget</p>
+            <h2 className="font-serif text-h3 text-ink leading-tight">
+              How much paper money do you want to start with?
+            </h2>
+            <p className="text-body-sm text-graphite -mt-1">
+              This is your virtual bankroll. You can add more later by creating another portfolio. Min $50,000, max $1,000,000.
+            </p>
+            <CashSlider
+              value={startingCash}
+              onChange={setStartingCash}
+              label="Starting cash"
+              ariaLabel="Starting cash for your paper portfolio"
+            />
+            {err && <p className="text-caption text-negative">{err}</p>}
+            <button
+              type="button"
+              className="pv-btn-primary w-full"
+              disabled={submitting}
+              onClick={submit}
+            >
+              {submitting ? 'Creating…' : 'Continue'}
+            </button>
+            <button
+              type="button"
+              className="text-caption text-graphite hover:text-mark transition-colors w-full text-center"
+              onClick={submit}
+              disabled={submitting}
+            >
+              Skip — use $100K default
+            </button>
           </div>
         )}
 

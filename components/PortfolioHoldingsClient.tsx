@@ -27,6 +27,8 @@ type PortfolioSummary = {
   style: string;
   holdings: Holding[];
   cash_balance: number;
+  /** T41: starting cash captured at portfolio creation. */
+  starting_cash: number;
   total_value: number;
 };
 
@@ -71,7 +73,16 @@ export function PortfolioHoldingsClient({
         {summaries.map((s) => (
           <section key={s.id} className="pv-card p-4 sm:p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-              <h2 className="font-serif text-h2 text-ink">{s.name}</h2>
+              <div className="flex flex-wrap items-baseline gap-2 min-w-0">
+                <h2 className="font-serif text-h2 text-ink">{s.name}</h2>
+                {/* T41: "Started at $X" badge — neutral pill that captures
+                    the portfolio's origin cash so the user can see at a
+                    glance whether it's a $50K experiment or a $1M beast,
+                    even after they've traded it down. */}
+                <span className="pv-pill pv-pill-neutral" title={`Started with ${money(s.starting_cash)} of paper money`}>
+                  Started at {money(s.starting_cash)}
+                </span>
+              </div>
               <span
                 className={`pv-pill ${
                   s.holdings.reduce((a, h) => a + h.unrealized_pnl, 0) >= 0

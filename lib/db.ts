@@ -71,6 +71,13 @@ function initSchema(db: Database) {
       -- paper trading). Buy trades deduct, sell trades credit. Stored as
       -- REAL; never goes negative (enforced in saveTrade).
       cash_balance REAL NOT NULL DEFAULT 100000,
+      -- T41: starting_cash captured once at portfolio creation. Distinct
+      -- from cash_balance (which moves with buys/sells) so the UI can
+      -- show a stable "Started at $X" badge forever. New rows from
+      -- createInitialPortfolio/createAdditionalPortfolio always set this
+      -- explicitly; the migration below backfills existing rows with the
+      -- legacy default.
+      starting_cash REAL NOT NULL DEFAULT 100000,
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
 
@@ -384,6 +391,14 @@ function initSchema(db: Database) {
   // every init — SQLite no-ops the ALTER if the column already exists.
   try {
     db.exec(`ALTER TABLE portfolios ADD COLUMN cash_balance REAL NOT NULL DEFAULT 100000`);
+  } catch {
+    // Column already exists — that's the happy path after first migration.
+  }
+  // T41: same pattern for starting_cash. Backfills any pre-existing rows
+  // with 100000 so the "Started at $X" badge shows the correct historical
+  // default for portfolios created before this column existed.
+  try {
+    db.exec(`ALTER TABLE portfolios ADD COLUMN starting_cash REAL NOT NULL DEFAULT 100000`);
   } catch {
     // Column already exists — that's the happy path after first migration.
   }

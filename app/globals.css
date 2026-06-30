@@ -445,3 +445,112 @@
 .pv-scroll-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ==========================================================
+   T41: starting-cash slider + quick-pick buttons
+   Used by CashSlider (signup step 4 + /portfolio create modal).
+   Range is $50K–$1M; step $10K. Filled portion is the mark color
+   via the --pv-cash-pct CSS var set inline by the component.
+   ========================================================== */
+.pv-cash-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+.pv-cash-slider:focus { outline: none; }
+.pv-cash-slider:focus-visible {
+  outline: 2px solid theme('colors.mark');
+  outline-offset: 8px;
+  border-radius: 4px;
+}
+
+/* WebKit/Blink */
+.pv-cash-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background:
+    linear-gradient(to right,
+      theme('colors.mark') 0%,
+      theme('colors.mark') var(--pv-cash-pct, 0%),
+      theme('colors.fog') var(--pv-cash-pct, 0%),
+      theme('colors.fog') 100%);
+}
+.pv-cash-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: theme('colors.bone');
+  border: 2px solid theme('colors.mark');
+  margin-top: -8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.pv-cash-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+.pv-cash-slider:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px rgba(170, 138, 71, 0.18);
+}
+
+/* Firefox */
+.pv-cash-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: theme('colors.fog');
+}
+.pv-cash-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: theme('colors.mark');
+}
+.pv-cash-slider::-moz-range-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: theme('colors.bone');
+  border: 2px solid theme('colors.mark');
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.pv-cash-slider::-moz-range-thumb:hover {
+  transform: scale(1.08);
+}
+
+/* Quick-pick chips below the slider. */
+.pv-quickpick {
+  @apply inline-flex items-center justify-center px-3 py-1.5 rounded-full text-caption font-medium;
+  background-color: theme('colors.bone');
+  border: 1px solid theme('colors.fog');
+  color: theme('colors.ink');
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  min-width: 56px;
+}
+.pv-quickpick:hover {
+  border-color: theme('colors.mark');
+  color: theme('colors.mark');
+}
+.pv-quickpick--active {
+  background-color: theme('colors.mark');
+  border-color: theme('colors.mark');
+  color: white;
+}
+.pv-quickpick--active:hover {
+  color: white;
+}
+
+/* T41: "Started at $X" badge variant — sits alongside the existing
+   positive/negative pills on the portfolio card. Neutral by design
+   because it's a fact about the portfolio's history, not its P&L. */
+.pv-pill-neutral {
+  background-color: theme('colors.fog');
+  color: theme('colors.ink');
+}

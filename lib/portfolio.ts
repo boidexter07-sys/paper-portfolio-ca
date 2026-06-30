@@ -1,7 +1,10 @@
 // Portfolio helpers — read/write trades, compute P&L.
 
 import { getDb, uuid } from './db';
-import { STARTING_CASH_CAD } from './constants';
+import {
+  DEFAULT_PORTFOLIO_CASH_CAD,
+  validateStartingCash,
+} from './constants';
 
 export type Holding = {
   ticker: string;
@@ -24,6 +27,10 @@ export type PortfolioSummary = {
   holdings: Holding[];
   /** Cash not yet deployed into positions. T40 — paper-trade cash leg. */
   cash_balance: number;
+  /** T41: the cash value the portfolio was created with. Used for the
+   *  "Started at $X" badge on the card. Stored once at creation and never
+   *  mutated — buys/sells move cash_balance but never starting_cash. */
+  starting_cash: number;
   /** Total portfolio value = cash_balance + sum(holdings.market_value). */
   total_value: number;
   /** Total cost basis across holdings (cash leg is excluded). */
@@ -39,12 +46,13 @@ export type PortfolioListItem = {
   name: string;
   style: string;
   cash_balance: number;
+  starting_cash: number;
 };
 
 export function listPortfolios(userId: string): PortfolioListItem[] {
   return getDb()
     .prepare(
-      'SELECT id, name, style, cash_balance FROM portfolios WHERE user_id = ? ORDER BY created_at ASC'
+      'SELECT id, name, style, cash_balance, starting_cash FROM portfolios WHERE user_id = ? ORDER BY created_at ASC'
     )
     .all(userId) as PortfolioListItem[];
 }
@@ -56,7 +64,7 @@ export function getPortfolioWithHoldings(
   const db = getDb();
   const p = db
     .prepare(
-      'SELECT id, user_id, name, style, created_at, cash_balance FROM portfolios WHERE id = ? AND user_id = ?'
+      'SELECT id, user_id, name, style, created_at, cash_balance, starting_cash FROM portfolios WHERE id = ? AND user_id = ?'
     )
     .get(portfolioId, userId) as
     | {
@@ -66,6 +74,7 @@ export function getPortfolioWithHoldings(
         style: string;
         created_at: number;
         cash_balance: number;
+        starting_cash: number;
       }
     | undefined;
   if (!p) return null;
@@ -117,6 +126,7 @@ export function getPortfolioWithHoldings(
     created_at: p.created_at,
     holdings,
     cash_balance: p.cash_balance,
+    starting_cash: p.starting_cash,
     total_value,
     total_cost,
     total_pnl,
@@ -125,27 +135,69 @@ export function getPortfolioWithHoldings(
 }
 
 /**
- * T40: create the user's first paper portfolio with the standard starting
+ * T40/T41: create the user's first paper portfolio with a chosen starting
  * cash. Called from the signup flow so every new account gets a paper
  * wallet to trade in. Idempotent — does nothing if the user already has
  * at least one portfolio (so re-running signup code paths can't double-up).
+ *
+ * `startingCash` is optional — if omitted, falls back to the default
+ * (keeps the T40 behaviour working for any caller that hasn't been
+ * threaded through the new picker yet).
  */
 export function createInitialPortfolio(
   userId: string,
-  args: { name?: string; style?: 'value' | 'growth' | 'balanced' } = {}
-): { id: string; name: string; style: string } {
+  args: {
+    name?: string;
+    style?: 'value' | 'growth' | 'balanced';
+    startingCash?: number;
+  } = {}
+): { id: string; name: string; style: string; starting_cash: number } {
   const db = getDb();
   const existing = db
-    .prepare('SELECT id, name, style FROM portfolios WHERE user_id = ? ORDER BY created_at ASC LIMIT 1')
-    .get(userId) as { id: string; name: string; style: string } | undefined;
+    .prepare('SELECT id, name, style, starting_cash FROM portfolios WHERE user_id = ? ORDER BY created_at ASC LIMIT 1')
+    .get(userId) as { id: string; name: string; style: string; starting_cash: number } | undefined;
   if (existing) return existing;
+  // T41: if no starting cash supplied, fall back to the default. Validation
+  // happens at the API boundary; this is the safe default for any internal
+  // caller that hasn't been threaded through the picker.
+  const startingCash =
+    args.startingCash != null
+      ? validateStartingCash(args.startingCash).ok
+        ? (validateStartingCash(args.startingCash) as { ok: true; value: number }).value
+        : DEFAULT_PORTFOLIO_CASH_CAD
+      : DEFAULT_PORTFOLIO_CASH_CAD;
   const id = uuid();
   const name = args.name ?? 'My paper portfolio';
   const style = args.style ?? 'balanced';
   db.prepare(
-    'INSERT INTO portfolios (id, user_id, name, style, created_at, cash_balance) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(id, userId, name, style, Date.now(), STARTING_CASH_CAD);
-  return { id, name, style };
+    'INSERT INTO portfolios (id, user_id, name, style, created_at, cash_balance, starting_cash) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(id, userId, name, style, Date.now(), startingCash, startingCash);
+  return { id, name, style, starting_cash: startingCash };
+}
+
+/**
+ * T41: create an additional paper portfolio for an existing user.
+ * Used by the /portfolio "Create new portfolio" button. Validates the
+ * starting cash server-side before inserting.
+ */
+export function createAdditionalPortfolio(
+  userId: string,
+  args: {
+    name?: string;
+    style?: 'value' | 'growth' | 'balanced';
+    startingCash: number;
+  }
+): { ok: true; id: string; name: string; style: string; starting_cash: number } | { ok: false; error: string } {
+  const v = validateStartingCash(args.startingCash);
+  if (!v.ok) return { ok: false, error: v.error };
+  const db = getDb();
+  const id = uuid();
+  const name = args.name?.trim() || 'My paper portfolio';
+  const style = args.style ?? 'balanced';
+  db.prepare(
+    'INSERT INTO portfolios (id, user_id, name, style, created_at, cash_balance, starting_cash) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(id, userId, name, style, Date.now(), v.value, v.value);
+  return { ok: true, id, name, style, starting_cash: v.value };
 }
 
 export function removeHolding(

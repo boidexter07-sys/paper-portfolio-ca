@@ -8,6 +8,7 @@ import { TRIAL_DAYS, SUBSCRIPTION_PRICE_CAD } from '@/lib/constants';
 import { PortfolioHoldingsClient } from '@/components/PortfolioHoldingsClient';
 import { CountUp } from '@/components/CountUp';
 import { EmbossedNumber } from '@/components/EmbossedNumber';
+import { CreatePortfolioButton } from '@/components/CreatePortfolioButton';
 
 function money(n: number) {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
@@ -69,12 +70,19 @@ async function PortfolioHoldingsStream() {
 export default function PortfolioPage() {
   return (
     <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6 max-w-5xl">
-      <header>
-        <p className="pv-eyebrow">Your paper portfolios</p>
-        <h1 className="font-serif text-h1 sm:text-display text-ink leading-tight">Portfolio</h1>
-        <p className="text-body text-graphite mt-1 max-w-prose">
-          {PAPER_ONLY_SAFETY.pnlLabel}. After your {TRIAL_DAYS}-day trial, you can keep your portfolio with a <span className="pv-num">${SUBSCRIPTION_PRICE_CAD.toFixed(2)} CAD</span>/mo subscription.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="pv-eyebrow">Your paper portfolios</p>
+          <h1 className="font-serif text-h1 sm:text-display text-ink leading-tight">Portfolio</h1>
+          <p className="text-body text-graphite mt-1 max-w-prose">
+            {PAPER_ONLY_SAFETY.pnlLabel}. After your {TRIAL_DAYS}-day trial, you can keep your portfolio with a <span className="pv-num">${SUBSCRIPTION_PRICE_CAD.toFixed(2)} CAD</span>/mo subscription.
+          </p>
+        </div>
+        {/* T41: trigger for PortfolioCreateModal — opens the slider-driven
+            "create additional portfolio" flow. Lives outside the Suspense
+            boundary so it's interactive even before the streaming holdings
+            section finishes loading. */}
+        <CreatePortfolioButton />
       </header>
 
       <Suspense fallback={<PortfolioTotalsSkeleton />}>

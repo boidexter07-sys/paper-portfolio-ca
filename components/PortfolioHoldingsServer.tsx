@@ -34,7 +34,13 @@ export async function PortfolioHoldingsServer() {
       {summaries.map((s) => (
         <section key={s.id} className="pv-card p-4 sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-            <h2 className="font-serif text-h2 text-ink">{s.name}</h2>
+            <div className="flex flex-wrap items-baseline gap-2 min-w-0">
+              <h2 className="font-serif text-h2 text-ink">{s.name}</h2>
+              {/* T41: "Started at $X" badge. */}
+              <span className="pv-pill pv-pill-neutral" title={`Started with ${money(s.starting_cash)} of paper money`}>
+                Started at {money(s.starting_cash)}
+              </span>
+            </div>
             <span className={`pv-pill ${s.total_pnl >= 0 ? 'pv-pill-positive' : 'pv-pill-negative'}`}>{pct(s.total_pnl_pct)}</span>
           </div>
           {/* T40: cash leg visible on /portfolio — every new portfolio
