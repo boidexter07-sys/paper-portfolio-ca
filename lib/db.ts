@@ -5,8 +5,14 @@ import * as fs from 'fs';
 type Database = DatabaseNS.Database;
 const Database = (DatabaseNS as unknown as { default: new (p: string) => Database }).default ?? (DatabaseNS as unknown as new (p: string) => Database);
 
-const DB_DIR = path.join(process.cwd(), 'data');
-const DB_PATH = path.join(DB_DIR, 'paperportfolio.db');
+// Vercel serverless: process.cwd() is read-only. The only writable location
+// is /tmp, so when running on Vercel (detected via VERCEL=1), put the DB
+// there. This is intentionally ephemeral — data resets on cold starts and
+// redeploys. Local dev keeps the original `data/paperportfolio.db` next to
+// the source so `npm run seed` keeps working.
+const IS_VERCEL = !!process.env.VERCEL;
+const DB_DIR = IS_VERCEL ? '/tmp/ppc' : path.join(process.cwd(), 'data');
+const DB_PATH = path.join(DB_DIR, IS_VERCEL ? 'paperportfolio.db' : 'paperportfolio.db');
 
 let _db: Database | null = null;
 
