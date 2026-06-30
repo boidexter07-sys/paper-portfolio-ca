@@ -6,8 +6,9 @@
 **Author:** Thor (thor profile, kanban task t_52c3e0a7)
 **Builds on:** v11 (T29: 1,216 stocks, login button wrap fix) + T30 (tile image clipping) + T38 (community forum) + T40 (thousand separators, $100K starting cash) + T41 (user-input starting cash slider) + T42 (ARENA v1 — 12 challenges, clans, leaderboards, merch, anti-cheat) + T43 (user guides + walkthrough) + T44 (community forum + walkthrough pages)
 **Live URL:** https://app-six-iota-41.vercel.app
-**Deploy ID:** dpl_F9Wp8JA6UH6J1jCkqUDUYYKGNgGD
-**Deploy SHA:** 8c41fb2bc15090ee73fce229858e2edc5e075482
+**Deploy ID (shipping):** dpl_64msfedu889fKea7R9RMcSksm7iu (alias `app-six-iota-41.vercel.app` resolves here at report time)
+**Deploy ID (intermediate):** dpl_F9Wp8JA6UH6J1jCkqUDUYYKGNgGD (superseded by the build-report deploy)
+**Repo HEAD:** 09cb002 (T45 build report); code SHA: 8c41fb2 (T45 /tmp DB fix)
 **Region:** iad1 (Washington, D.C., USA — East)
 
 ---
@@ -249,7 +250,7 @@ npm start        # localhost:3000
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| Vercel deployment succeeds | ✅ | `vercel ls` shows `dpl_F9Wp8JA6UH6J1jCkqUDUYYKGNgGD` Ready |
+| Vercel deployment succeeds | ✅ | `vercel ls` shows `dpl_64msfedu889fKea7R9RMcSksm7iu` Ready; alias `app-six-iota-41.vercel.app` resolves to it |
 | All 21 routes return 200 on LIVE URL | ✅ | §4 table, 25/25 (21 spec + 4 extras) |
 | Vision-verified home page renders correctly | ✅ | §5 — PRISM coin 62, money formatted, no codenames |
 | Test account signup works end-to-end on live URL | ✅* | §3 — signup returns 200, session cookie set, follow-up login returns 200. *Cross-page nav subject to §6a |
