@@ -7,6 +7,11 @@
 //
 // Honors prefers-reduced-motion via .pv-embossed-* CSS rules (no animation;
 // static shadow only — fully usable in the reduced-motion fallback).
+//
+// T40: number formatting now uses Intl.NumberFormat so values like 50063
+// render as "$50,063" with thousand separators instead of "$50063".
+
+import { formatCountUp } from '@/lib/motion';
 
 export type EmbossedNumberProps = {
   value: number;
@@ -41,8 +46,15 @@ export function EmbossedNumber({
   }
 
   const effectiveDecimals = decimals ?? (Number.isInteger(value) ? 0 : 2);
-  const s = sign && value > 0 ? '+' : '';
-  const formatted = `${prefix}${s}${value.toFixed(effectiveDecimals)}${suffix}`;
+  // Use formatCountUp's sign handling so "+/-" renders before the prefix
+  // (e.g. "+$23,578" not "$+23,578"). The caller-supplied `prefix` should
+  // NOT include the sign character.
+  const formatted = formatCountUp(value, {
+    decimals: effectiveDecimals,
+    prefix,
+    suffix,
+    sign,
+  });
 
   const toneClass =
     effectiveTone === 'positive'

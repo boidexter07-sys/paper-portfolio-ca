@@ -55,15 +55,21 @@ export default async function HomePage() {
           <h2 className="font-serif text-h2 text-ink">Your paper portfolio</h2>
           <Link href="/portfolio" className="text-caption text-graphite hover:text-ink">View all →</Link>
         </div>
-        {primary && primary.holdings.length > 0 ? (
+        {primary ? (
           <div className="pv-card p-4 sm:p-5">
             <div className="flex items-baseline justify-between">
               <div>
-                <p className="pv-eyebrow">{primary.name}</p>
+                {/* T40: the portfolio name lives on the /portfolio page where
+                    it's contextual. The home page is a snapshot — show the
+                    headline numbers (total value, cash, P&L) without the
+                    stale "TSX Value Sleeve" copy Taha's seen too many times. */}
+                <p className="pv-eyebrow">Paper portfolio</p>
                 <p className="font-serif text-h1 text-ink pv-num">
                   <CountUp value={primary.total_value} decimals={0} prefix="$" duration={900} />
                 </p>
-                <p className="text-caption text-stone">Paper P&L — simulated gains, not real money.</p>
+                <p className="text-caption text-stone">
+                  Cash <span className="pv-num">${primary.cash_balance.toLocaleString('en-CA', { maximumFractionDigits: 0 })}</span> · invested <span className="pv-num">${(primary.total_value - primary.cash_balance).toLocaleString('en-CA', { maximumFractionDigits: 0 })}</span>
+                </p>
               </div>
               <div className="text-right">
                 {/* Option A Accent 2 — embossed P&L card with inset text-shadow */}
@@ -75,14 +81,16 @@ export default async function HomePage() {
                 </p>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pv-stagger-fast">
-              {primary.holdings.slice(0, 4).map((h) => (
-                <Link key={h.ticker} href={`/stock/${h.ticker}`} className="flex items-center justify-between p-3 rounded-md bg-fog/50 hover:bg-fog">
-                  <span className="font-medium text-ink">{h.ticker}</span>
-                  <span className={`text-caption pv-num ${h.unrealized_pnl >= 0 ? 'text-positive' : 'text-negative'}`}>{formatPct(h.unrealized_pnl_pct)}</span>
-                </Link>
-              ))}
-            </div>
+            {primary.holdings.length > 0 && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pv-stagger-fast">
+                {primary.holdings.slice(0, 4).map((h) => (
+                  <Link key={h.ticker} href={`/stock/${h.ticker}`} className="flex items-center justify-between p-3 rounded-md bg-fog/50 hover:bg-fog">
+                    <span className="font-medium text-ink">{h.ticker}</span>
+                    <span className={`text-caption pv-num ${h.unrealized_pnl >= 0 ? 'text-positive' : 'text-negative'}`}>{formatPct(h.unrealized_pnl_pct)}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
             <div className="mt-4">
               <Link href="/portfolio" className="pv-btn-secondary">Open portfolio</Link>
             </div>

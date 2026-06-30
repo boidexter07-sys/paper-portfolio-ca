@@ -20,6 +20,12 @@ export type CountUpProps = {
   prefix?: string;
   /** Suffix (e.g. "%", " / 100"). */
   suffix?: string;
+  /**
+   * If true, render a leading "+" for positive values and "-" for negative.
+   * Renders before `prefix`. Use this for P&L style numbers where the sign
+   * appears before the currency symbol (e.g. "+$23,578").
+   */
+  sign?: boolean;
   /** Duration in ms. Default 800 (per motion grammar §4.1 spec). */
   duration?: number;
   /** Optional className passthrough for sizing/coloring. */
@@ -31,6 +37,7 @@ export function CountUp({
   decimals,
   prefix,
   suffix,
+  sign = false,
   duration = 800,
   className,
 }: CountUpProps) {
@@ -38,7 +45,7 @@ export function CountUp({
   const effectiveDecimals = decimals ?? (Number.isInteger(value) ? 0 : 2);
   return (
     <span className={className}>
-      {formatCountUp(v, { decimals: effectiveDecimals, prefix, suffix })}
+      {formatCountUp(v, { decimals: effectiveDecimals, prefix, suffix, sign })}
     </span>
   );
 }

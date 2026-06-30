@@ -120,14 +120,65 @@ function easeOutCubic(t: number): number {
 
 // ----------------------------------------------------------------------------
 // Format helpers — keep the display logic out of the component.
+//
+// T40: formatCountUp now uses Intl.NumberFormat for the integer part so
+// values like 50063 render as "50,063" with thousand separators. The
+// fractional portion (when decimals > 0) is appended manually so the
+// animated intermediate values still show the right precision (e.g.
+// 23578.42 → "+23,578.42" rather than "+23,578.4199999"). Sign handling
+// is delegated to the caller via the `prefix` option so we don't double
+// up on "+/-" when both `sign` and `prefix` are used.
 // ----------------------------------------------------------------------------
 
-export function formatCountUp(
-  v: number,
-  options: { decimals?: number; prefix?: string; suffix?: string }
-): string {
+const _intlCache = new Map<string, Intl.NumberFormat>();
+function getIntlFormatter(locale: string): Intl.NumberFormat {
+  let f = _intlCache.get(locale);
+  if (!f) {
+    f = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+    _intlCache.set(locale, f);
+  }
+  return f;
+}
+
+export type FormatCountUpOpts = {
+  decimals?: number;
+  prefix?: string;
+  suffix?: string;
+  /** BCP-47 locale tag. Default 'en-CA' for CAD contexts. */
+  locale?: string;
+  /**
+   * If true, render a leading "+" for positive values and "-" for negative.
+   * Renders before `prefix`. Use this for P&L style numbers where the sign
+   * appears before the currency symbol (e.g. "+$23,578"). When true, the
+   * `prefix` should NOT include "+" or "-".
+   */
+  sign?: boolean;
+};
+
+export function formatCountUp(v: number, options: FormatCountUpOpts = {}): string {
   const decimals = options.decimals ?? 0;
-  return `${options.prefix ?? ''}${v.toFixed(decimals)}${options.suffix ?? ''}`;
+  const locale = options.locale ?? 'en-CA';
+  const useSign = options.sign === true;
+  // Negative numbers always carry their "-". The "+" for positive numbers
+  // only renders when the caller explicitly opts in via `sign` (used for
+  // P&L style numbers — "+$23,578" / "-$1,234" / "$50,063"). Without the
+  // flag, positives render bare (counts, scores, etc.).
+  const signStr = v < 0 ? '-' : useSign ? '+' : '';
+  const abs = Math.abs(v);
+  const formatter = getIntlFormatter(locale);
+  let body: string;
+  if (decimals <= 0) {
+    body = formatter.format(Math.round(abs));
+  } else {
+    // Split integer and fractional manually so we get thousand separators
+    // on the integer half and exact decimals on the fractional half.
+    const fixed = abs.toFixed(decimals);
+    const dot = fixed.indexOf('.');
+    const intPart = dot === -1 ? fixed : fixed.slice(0, dot);
+    const fracPart = dot === -1 ? '' : fixed.slice(dot);
+    body = `${formatter.format(parseInt(intPart || '0', 10))}${fracPart}`;
+  }
+  return `${signStr}${options.prefix ?? ''}${body}${options.suffix ?? ''}`;
 }
 
 // ----------------------------------------------------------------------------

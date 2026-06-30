@@ -429,7 +429,7 @@ const PORTFOLIO_DEFS: { name: string; style: 'value' | 'growth' | 'balanced'; ho
   },
 ];
 
-const insertPortfolio = db.prepare('INSERT INTO portfolios (id, user_id, name, style, created_at) VALUES (?, ?, ?, ?, ?)');
+const insertPortfolio = db.prepare('INSERT INTO portfolios (id, user_id, name, style, created_at, cash_balance) VALUES (?, ?, ?, ?, ?, ?)');
 const insertHolding = db.prepare('INSERT INTO holdings (portfolio_id, ticker, quantity, avg_cost) VALUES (?, ?, ?, ?)');
 const insertTrade = db.prepare('INSERT INTO trades (id, portfolio_id, ticker, side, quantity, price, trade_date) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const tradeDateBase = Date.now() - 1000 * 60 * 60 * 24 * 14;
@@ -437,7 +437,10 @@ let primaryPortfolioId: string | null = null;
 for (const p of PORTFOLIO_DEFS) {
   const pid = uuid();
   if (!primaryPortfolioId) primaryPortfolioId = pid;
-  insertPortfolio.run(pid, userId, p.name, p.style, tradeDateBase);
+  // T40: every demo portfolio is pre-loaded with the standard starting cash
+  // (matches the column default; explicit here so the seed is self-documenting
+  // and stays correct if someone changes the schema default).
+  insertPortfolio.run(pid, userId, p.name, p.style, tradeDateBase, 100000);
   for (const h of p.holdings) {
     insertHolding.run(pid, h.ticker, h.qty, h.cost);
     insertTrade.run(uuid(), pid, h.ticker, 'buy', h.qty, h.cost, tradeDateBase + Math.floor(Math.random() * 7) * 86400000);

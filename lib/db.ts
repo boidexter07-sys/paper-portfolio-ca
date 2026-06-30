@@ -66,6 +66,11 @@ function initSchema(db: Database) {
       name TEXT NOT NULL,
       style TEXT NOT NULL,
       created_at INTEGER NOT NULL,
+      -- T40: paper-trade cash balance. Every new portfolio starts with
+      -- STARTING_CASH_CAD (CAD $100,000 by default — industry standard for
+      -- paper trading). Buy trades deduct, sell trades credit. Stored as
+      -- REAL; never goes negative (enforced in saveTrade).
+      cash_balance REAL NOT NULL DEFAULT 100000,
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
 
@@ -220,7 +225,168 @@ function initSchema(db: Database) {
       company_name TEXT,
       resolved_at INTEGER NOT NULL
     );
+
+    -- =================================================================
+    -- ARENA Community & Discussion Forum (T38)
+    -- 8 tables: threads, comments, reactions, reports, mentions,
+    -- notifications, moderation queue, suspensions. Soft delete only.
+    -- Moderation status is denormalized onto the row so reads skip the
+    -- queue JOIN. Indexes target the list, tree-fetch, and queue-poll
+    -- queries in the v1 spec.
+    -- =================================================================
+    CREATE TABLE IF NOT EXISTS user_community (
+      user_id TEXT PRIMARY KEY,
+      display_name TEXT UNIQUE NOT NULL,
+      display_name_changed_at INTEGER,
+      thread_count INTEGER NOT NULL DEFAULT 0,
+      comment_count INTEGER NOT NULL DEFAULT 0,
+      reputation_score INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS community_threads (
+      id TEXT PRIMARY KEY,
+      author_id TEXT NOT NULL,
+      category TEXT NOT NULL,
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      published_at INTEGER,
+      last_activity_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      hidden_at INTEGER,
+      edit_count INTEGER NOT NULL DEFAULT 0,
+      moderation_status TEXT NOT NULL DEFAULT 'clean',
+      comment_count INTEGER NOT NULL DEFAULT 0,
+      reaction_score INTEGER NOT NULL DEFAULT 0,
+      reaction_count INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_ct_category_activity ON community_threads(category, last_activity_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ct_author_created ON community_threads(author_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ct_mod_status ON community_threads(moderation_status, last_activity_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ct_published ON community_threads(published_at, last_activity_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_ct_hidden ON community_threads(hidden_at) WHERE hidden_at IS NULL;
+
+    CREATE TABLE IF NOT EXISTS community_comments (
+      id TEXT PRIMARY KEY,
+      thread_id TEXT NOT NULL,
+      author_id TEXT NOT NULL,
+      parent_comment_id TEXT,
+      body TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      published_at INTEGER,
+      deleted_at INTEGER,
+      hidden_at INTEGER,
+      edit_count INTEGER NOT NULL DEFAULT 0,
+      moderation_status TEXT NOT NULL DEFAULT 'clean',
+      reaction_score INTEGER NOT NULL DEFAULT 0,
+      reaction_count INTEGER NOT NULL DEFAULT 0,
+      depth INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (thread_id) REFERENCES community_threads(id),
+      FOREIGN KEY (parent_comment_id) REFERENCES community_comments(id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_cc_thread_parent ON community_comments(thread_id, parent_comment_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_cc_thread_created ON community_comments(thread_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_cc_author ON community_comments(author_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_cc_mod_status ON community_comments(moderation_status, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS community_reactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      target_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      UNIQUE(user_id, target_type, target_id, kind)
+    );
+    CREATE INDEX IF NOT EXISTS idx_cr_target ON community_reactions(target_type, target_id);
+    CREATE INDEX IF NOT EXISTS idx_cr_user_recent ON community_reactions(user_id, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS community_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      reporter_id TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      target_id TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      note TEXT,
+      created_at INTEGER NOT NULL,
+      resolved_at INTEGER,
+      resolved_by TEXT,
+      resolution TEXT,
+      triggered_hide INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_cr_target_open ON community_reports(target_type, target_id, resolved_at);
+    CREATE INDEX IF NOT EXISTS idx_cr_reporter ON community_reports(reporter_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_cr_open ON community_reports(resolved_at) WHERE resolved_at IS NULL;
+
+    CREATE TABLE IF NOT EXISTS community_mentions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source_type TEXT NOT NULL,
+      source_id TEXT NOT NULL,
+      mentioned_id TEXT NOT NULL,
+      raw_token TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      UNIQUE(source_type, source_id, mentioned_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_cm_mentioned ON community_mentions(mentioned_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_cm_source ON community_mentions(source_type, source_id);
+
+    CREATE TABLE IF NOT EXISTS community_notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      source_type TEXT NOT NULL,
+      source_id TEXT NOT NULL,
+      actor_id TEXT NOT NULL,
+      dedupe_key TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      read_at INTEGER,
+      UNIQUE(user_id, dedupe_key)
+    );
+    CREATE INDEX IF NOT EXISTS idx_cnot_user_unread ON community_notifications(user_id, read_at);
+    CREATE INDEX IF NOT EXISTS idx_cnot_user_recent ON community_notifications(user_id, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS community_moderation_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      target_type TEXT NOT NULL,
+      target_id TEXT NOT NULL,
+      queue_reason TEXT NOT NULL,
+      context_json TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      resolved_at INTEGER,
+      resolved_by TEXT,
+      resolution TEXT,
+      priority INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_cmq_unresolved ON community_moderation_queue(resolved_at, priority DESC);
+    CREATE INDEX IF NOT EXISTS idx_cmq_target ON community_moderation_queue(target_type, target_id);
+    CREATE INDEX IF NOT EXISTS idx_cmq_reason_open ON community_moderation_queue(queue_reason, resolved_at);
+
+    CREATE TABLE IF NOT EXISTS community_user_suspensions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      triggered_by_report_id INTEGER,
+      suspended_at INTEGER NOT NULL,
+      suspended_until INTEGER NOT NULL,
+      lifted_at INTEGER,
+      lifted_by TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_csus_user ON community_user_suspensions(user_id, suspended_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_csus_active ON community_user_suspensions(suspended_until, lifted_at) WHERE lifted_at IS NULL;
+    CREATE INDEX IF NOT EXISTS idx_csus_user_active ON community_user_suspensions(user_id, lifted_at) WHERE lifted_at IS NULL;
   `);
+
+  // T40: migration for existing portfolios tables that predate cash_balance.
+  // SQLite supports `ALTER TABLE ADD COLUMN` with a constant default, so we
+  // backfill any pre-existing rows with STARTING_CASH_CAD. Safe to run on
+  // every init — SQLite no-ops the ALTER if the column already exists.
+  try {
+    db.exec(`ALTER TABLE portfolios ADD COLUMN cash_balance REAL NOT NULL DEFAULT 100000`);
+  } catch {
+    // Column already exists — that's the happy path after first migration.
+  }
 }
 
 export function uuid(): string {

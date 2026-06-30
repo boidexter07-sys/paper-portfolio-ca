@@ -37,6 +37,18 @@ export async function PortfolioHoldingsServer() {
             <h2 className="font-serif text-h2 text-ink">{s.name}</h2>
             <span className={`pv-pill ${s.total_pnl >= 0 ? 'pv-pill-positive' : 'pv-pill-negative'}`}>{pct(s.total_pnl_pct)}</span>
           </div>
+          {/* T40: cash leg visible on /portfolio — every new portfolio
+              starts at $100,000 and shrinks as buys go through. */}
+          <div className="mb-3 grid grid-cols-2 gap-3 p-3 rounded-md bg-fog/40">
+            <div>
+              <p className="text-caption text-stone">Cash</p>
+              <p className="font-serif text-h3 text-ink pv-num">{money(s.cash_balance)}</p>
+            </div>
+            <div>
+              <p className="text-caption text-stone">Invested</p>
+              <p className="font-serif text-h3 text-ink pv-num">{money(s.total_value - s.cash_balance)}</p>
+            </div>
+          </div>
           {s.holdings.length === 0 ? (
             <p className="text-body-sm text-graphite">No holdings yet — add one below.</p>
           ) : (

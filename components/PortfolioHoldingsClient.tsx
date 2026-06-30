@@ -26,6 +26,8 @@ type PortfolioSummary = {
   name: string;
   style: string;
   holdings: Holding[];
+  cash_balance: number;
+  total_value: number;
 };
 
 type Stock = {
@@ -85,6 +87,17 @@ export function PortfolioHoldingsClient({
                     : 0
                 )}
               </span>
+            </div>
+            {/* T40: cash leg visible — buys shrink this, sells grow it. */}
+            <div className="mb-3 grid grid-cols-2 gap-3 p-3 rounded-md bg-fog/40">
+              <div>
+                <p className="text-caption text-stone">Cash</p>
+                <p className="font-serif text-h3 text-ink pv-num">{money(s.cash_balance)}</p>
+              </div>
+              <div>
+                <p className="text-caption text-stone">Invested</p>
+                <p className="font-serif text-h3 text-ink pv-num">{money(s.total_value - s.cash_balance)}</p>
+              </div>
             </div>
             {s.holdings.length === 0 ? (
               <p className="text-body-sm text-graphite">No holdings yet — add one below.</p>
@@ -146,7 +159,7 @@ export function PortfolioHoldingsClient({
         open={addOpenFor !== null}
         onClose={() => setAddOpenFor(null)}
         stocks={stocks}
-        portfolios={summaries.map((s) => ({ id: s.id, name: s.name, style: s.style }))}
+        portfolios={summaries.map((s) => ({ id: s.id, name: s.name, style: s.style, cash_balance: s.cash_balance }))}
       />
     </>
   );

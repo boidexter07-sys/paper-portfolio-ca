@@ -24,7 +24,7 @@ type Stock = {
     | 'Strong Paper Sell';
 };
 
-type Portfolio = { id: string; name: string; style: string };
+type Portfolio = { id: string; name: string; style: string; cash_balance: number };
 
 // Default visible-rows cap. The full universe is 560 tickers; rendering all
 // of them in the DOM costs ~7000 nodes and tanks Lighthouse mobile perf to

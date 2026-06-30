@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { PAPER_ONLY_SAFETY } from '@/lib/disclosures';
 import { useToast } from './ToastProvider';
 
-type Portfolio = { id: string; name: string; style: string };
+type Portfolio = { id: string; name: string; style: string; cash_balance?: number };
 
 /**
  * TradeButton — Buy/Sell controls for the Stock Profile page.
@@ -42,6 +42,14 @@ export function TradeButton({
 
   const qty = parseFloat(quantity);
   const total = (isFinite(qty) ? qty : 0) * price;
+  // T40: client-side cash check mirrors the server's saveTrade guard.
+  const selectedPortfolio = portfolios.find((p) => p.id === portfolioId);
+  const cashShort =
+    side === 'buy' &&
+    selectedPortfolio?.cash_balance != null &&
+    total > selectedPortfolio.cash_balance + 1e-6;
+  const cashFmt = (n: number) =>
+    new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -136,7 +144,9 @@ export function TradeButton({
                   onChange={(e) => setPortfolioId(e.target.value)}
                 >
                   {portfolios.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}{p.cash_balance != null ? ` — ${cashFmt(p.cash_balance)} cash` : ''}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -168,12 +178,19 @@ export function TradeButton({
                 <span className="text-body-sm text-graphite">Estimated total</span>
                 <span className="font-serif text-h3 text-ink pv-num">${total.toFixed(2)}</span>
               </div>
+              {selectedPortfolio?.cash_balance != null && (
+                <p className={`text-caption ${cashShort ? 'text-negative' : 'text-stone'}`}>
+                  {cashShort
+                    ? `Over your ${cashFmt(selectedPortfolio.cash_balance)} cash balance — reduce quantity.`
+                    : `Cash after this trade: ${cashFmt(Math.max(0, selectedPortfolio.cash_balance - total))}.`}
+                </p>
+              )}
               {err && <p className="text-caption text-negative">{err}</p>}
               <div className="flex gap-2 pt-2">
                 <button type="button" className="pv-btn-ghost flex-1" onClick={() => setOpen(false)} disabled={submitting}>
                   Cancel
                 </button>
-                <button type="submit" className="pv-btn-primary flex-1" disabled={submitting}>
+                <button type="submit" className="pv-btn-primary flex-1" disabled={submitting || !!cashShort}>
                   {submitting ? 'Saving…' : `Confirm ${side === 'buy' ? 'buy' : 'sell'}`}
                 </button>
               </div>

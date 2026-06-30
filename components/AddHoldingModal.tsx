@@ -12,7 +12,7 @@ type Stock = {
   cached_price: number | null;
 };
 
-type Portfolio = { id: string; name: string; style: string };
+type Portfolio = { id: string; name: string; style: string; cash_balance: number };
 
 type Props = {
   open: boolean;
@@ -22,7 +22,10 @@ type Props = {
   defaultTicker?: string;
   defaultPrice?: number | null;
   stocks: Stock[];
-  portfolios: Portfolio[];
+  /** T40: include cash_balance per portfolio so the modal can warn
+   *  before the server rejects a trade. Optional so call sites that
+   *  haven't been updated yet (e.g. DiscoverTable) still compile. */
+  portfolios: (Portfolio & { cash_balance?: number })[];
 };
 
 /**
@@ -114,6 +117,13 @@ export function AddHoldingModal({ open, onClose, defaultTicker, defaultPrice, st
   const qtyNum = parseFloat(quantity);
   const priceNum = parseFloat(price);
   const total = (isFinite(qtyNum) ? qtyNum : 0) * (isFinite(priceNum) ? priceNum : 0);
+  const selectedPortfolio = portfolios.find((p) => p.id === portfolioId);
+  // T40: client-side cash check that mirrors the server's. Avoids the
+  // round-trip + toast flash when the user types a quantity that's
+  // obviously over their available paper cash.
+  const cashShort = selectedPortfolio && total > selectedPortfolio.cash_balance + 1e-6;
+  const cashFmt = (n: number) =>
+    new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-8 bg-ink/30" role="dialog" aria-modal="true">
@@ -125,7 +135,7 @@ export function AddHoldingModal({ open, onClose, defaultTicker, defaultPrice, st
             <label className="block text-caption text-graphite mb-1">Paper portfolio</label>
             <select className="pv-input" value={portfolioId} onChange={(e) => setPortfolioId(e.target.value)}>
               {portfolios.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>{p.name} — {cashFmt(p.cash_balance)} cash</option>
               ))}
             </select>
           </div>
@@ -191,12 +201,19 @@ export function AddHoldingModal({ open, onClose, defaultTicker, defaultPrice, st
             <span className="text-caption text-graphite">Estimated total</span>
             <span className="font-serif text-h3 text-ink pv-num">${total.toFixed(2)}</span>
           </div>
+          {selectedPortfolio && (
+            <p className={`text-caption ${cashShort ? 'text-negative' : 'text-stone'}`}>
+              {cashShort
+                ? `Over your ${cashFmt(selectedPortfolio.cash_balance)} cash balance — reduce quantity or pick a lower price.`
+                : `${cashFmt(selectedPortfolio.cash_balance)} cash available after this trade becomes ${cashFmt(Math.max(0, selectedPortfolio.cash_balance - total))}.`}
+            </p>
+          )}
           {err && <p className="text-caption text-negative">{err}</p>}
           <div className="flex gap-2 pt-2">
             <button type="button" className="pv-btn-ghost flex-1" onClick={onClose} disabled={submitting}>
               Cancel
             </button>
-            <button type="submit" className="pv-btn-primary flex-1" disabled={submitting}>
+            <button type="submit" className="pv-btn-primary flex-1" disabled={submitting || !!cashShort}>
               {submitting ? 'Adding…' : 'Add to portfolio'}
             </button>
           </div>
