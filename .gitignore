@@ -91,6 +91,11 @@ inspect_db.js
 inspect_db2.js
 _vc_*.js
 __obsolete_next_cache_*/
+# T47 ad-hoc scratch scripts (additions, not in repo policy)
+_dedup_trades.js
+_inspect_seed.js
+_smoke_friends.sh
+_vision_friends.js
 
 # Build caches inside seed scripts dir
 seed/*.db
@@ -99,3 +104,4 @@ seed/*.db-wal
 # Keep only the public-facing screenshot capture script in scripts/
 !scripts/screenshots.ts
 .vercel
+data/

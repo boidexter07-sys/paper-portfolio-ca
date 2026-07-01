@@ -119,6 +119,74 @@ function easeOutCubic(t: number): number {
 }
 
 // ----------------------------------------------------------------------------
+// useScrollFade — T47
+// Returns [ref, visible]. Pair with .pv-scroll-fade in globals.css:
+//
+//   const [ref, visible] = useScrollFade<HTMLDivElement>();
+//   <div ref={ref} className={`pv-scroll-fade${visible ? ' is-visible' : ''}`}>...</div>
+//
+// Behavior:
+//   - One-shot IntersectionObserver (default threshold 0.15, rootMargin
+//     `0px 0px -10% 0px`) — once the element crosses into view, .is-visible
+//     sticks and the observer disconnects.
+//   - Honors useReducedMotion(): returns visible=true immediately, no observer.
+//   - SSR-safe: returns visible=false during server render (no hydration
+//     mismatch — element renders visible without the data-pending attr).
+//   - Falls back to visible=true if IntersectionObserver is missing so the
+//     page is never blank in very old browsers.
+//   - Above-fold elements at mount time are marked visible without going
+//     through the pending state — they were never below the fold, so we
+//     skip the fade-in entirely. This keeps full-page screenshots and
+//     SSR rendering showing all content.
+// ----------------------------------------------------------------------------
+
+export function useScrollFade<T extends Element = HTMLDivElement>(
+  options: { threshold?: number; rootMargin?: string } = {}
+): [React.RefObject<T>, boolean] {
+  const { threshold = 0.15, rootMargin = '0px 0px -10% 0px' } = options;
+  const reduced = useReducedMotion();
+  const ref = useRef<T>(null);
+  const [visible, setVisible] = useState(reduced ? true : false);
+
+  useEffect(() => {
+    if (reduced) {
+      setVisible(true);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+    // Already in viewport at mount? No fade-in needed.
+    const rect = el.getBoundingClientRect();
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
+    if (rect.top < vh && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+    // Below the fold — opt into the fade-in by tagging data-pv-fade-pending.
+    el.setAttribute('data-pv-fade-pending', '1');
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            obs.disconnect();
+          }
+        }
+      },
+      { threshold, rootMargin }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold, rootMargin, reduced]);
+
+  return [ref, visible];
+}
+
+// ----------------------------------------------------------------------------
 // Format helpers — keep the display logic out of the component.
 //
 // T40: formatCountUp now uses Intl.NumberFormat for the integer part so

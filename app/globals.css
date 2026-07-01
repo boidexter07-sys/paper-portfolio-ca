@@ -332,6 +332,24 @@
   box-shadow: theme('boxShadow.card');
 }
 
+/* T47: card hover-lift. Used by LandingPage's ARENA section screenshot
+   cards + the 4 surface tiles. Subtle elevation on hover so cards feel
+   like cards, not buttons. Respects prefers-reduced-motion below. */
+.pv-card-hover {
+  transition: box-shadow 180ms var(--mo-ease-standard), transform 180ms var(--mo-ease-standard);
+}
+.pv-card-hover:hover {
+  box-shadow: theme('boxShadow.modal');
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pv-card-hover,
+  .pv-card-hover:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
 .pv-btn-primary {
   @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
   background-color: theme('colors.ink');
@@ -570,4 +588,121 @@
 .pv-pill-neutral {
   background-color: theme('colors.fog');
   color: theme('colors.ink');
+}
+
+/* ==========================================================
+   T47: landing-page energy upgrade
+   Used by the redesigned LandingPage hero + ARENA section.
+   All four utilities respect prefers-reduced-motion: reduce
+   (see the media block at the bottom of this section).
+   ========================================================== */
+
+/* Hero gradient — very subtle paper → fog wash, anchored top-left.
+   Sits behind the hero text + phone mockup without competing with them.
+   Uses the existing theme tokens so it follows the rest of the palette. */
+.pv-gradient-hero {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 90% 60% at 80% -10%, rgba(122, 82, 48, 0.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(44, 79, 122, 0.06), transparent 60%),
+    linear-gradient(180deg, theme('colors.paper') 0%, theme('colors.bone') 100%);
+}
+/* Faint candlestick grid lines (very low opacity) so the hero has
+   data-grid texture without distracting. Uses an SVG data URI. */
+.pv-gradient-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(theme('colors.fog') 1px, transparent 1px),
+    linear-gradient(90deg, theme('colors.fog') 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%);
+  pointer-events: none;
+}
+
+/* Hero stat counter — large serif number with tight tabular numerics.
+   Used for "12 challenges · 1,216 stocks · 50 clans" type callouts. */
+.pv-stat-num {
+  font-family: theme('fontFamily.serif');
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  color: theme('colors.ink');
+  letter-spacing: -0.01em;
+}
+.pv-stat-num sup {
+  font-size: 0.5em;
+  font-weight: 500;
+  color: theme('colors.graphite');
+  margin-left: 0.125rem;
+  letter-spacing: 0;
+}
+
+/* Glow on featured CTAs — sits behind a primary CTA in the hero.
+   Uses the mark color so it matches the brand accent. */
+.pv-glow-mark {
+  position: relative;
+  box-shadow:
+    0 0 0 1px theme('colors.mark'),
+    0 8px 24px -8px rgba(122, 82, 48, 0.45),
+    0 2px 6px rgba(122, 82, 48, 0.15);
+}
+.pv-glow-mark:hover {
+  box-shadow:
+    0 0 0 1px theme('colors.mark'),
+    0 12px 32px -8px rgba(122, 82, 48, 0.55),
+    0 4px 10px rgba(122, 82, 48, 0.20);
+}
+
+/* Scroll-fade — paired with useScrollFade() in lib/motion.ts. The hook
+   adds `data-pv-fade-pending='1'` to below-fold elements only; CSS keeps
+   above-fold sections fully visible by default so SSR / no-JS /
+   full-page screenshots always show content. Respects prefers-reduced-motion. */
+.pv-scroll-fade {
+  /* Default visible — never an SSR blank section. */
+}
+.pv-scroll-fade[data-pv-fade-pending='1'] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.pv-scroll-fade.is-visible,
+.pv-scroll-fade[data-pv-fade-pending='1'].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 600ms var(--mo-ease-standard),
+    transform 600ms var(--mo-ease-standard);
+}
+
+/* One-shot fade-up for content blocks that should animate on render,
+   not on scroll. Use this on hero copy / stats grids that always live
+   in the initial viewport so they don't need IO. */
+@keyframes pv-fade-up-once {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.pv-fade-up-once {
+  animation: pv-fade-up-once 600ms var(--mo-ease-standard) both;
+}
+
+/* T47 reduced-motion gate. The hook (.pv-scroll-fade + useScrollFade)
+   already skips the IO observer when reduced motion is on — this CSS
+   rule is the safety net so any leftover opacity:0 never persists. */
+@media (prefers-reduced-motion: reduce) {
+  .pv-scroll-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .pv-glow-mark,
+  .pv-glow-mark:hover {
+    box-shadow: 0 0 0 1px theme('colors.mark'), 0 2px 4px rgba(122, 82, 48, 0.15);
+  }
 }
