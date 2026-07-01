@@ -89,6 +89,7 @@ _inspect_users.js
 _tsx_check.js
 inspect_db.js
 inspect_db2.js
+_vc_*.js
 __obsolete_next_cache_*/
 
 # Build caches inside seed scripts dir
