@@ -1,9 +1,14 @@
 # v13 build report — T47 (Nova)
 
-Date: 2026-07-01
-Branch: T47
+Date: 2026-07-01 (committed) / 2026-07-01 (re-deployed in retry run)
+Branch: main
 Profile: nova
 Task: Kanban task `t_32727171` — Landing page redesign: make ARENA the differentiator (competition-first, not learning-first)
+Commit: 25858aa (T47 landing-page redesign)
+Deploy: dpl_er0p948ru at https://app-six-iota-41.vercel.app (production alias)
+Live verification: 12/12 routes return 200; landing HTML confirms hero, ARENA section, and T47 utility classes all ship to production.
+
+RETRY NOTE: First attempt exhausted iteration budget at commit staging step (T47 work was already in working tree uncommitted). Retry run committed the work, deployed to Vercel, smoke-tested all 12 routes, and updated this report. The Plaid-full-app rebrand that grew in the comment thread is OUT OF SCOPE for this task — it has been split into a child task (`t_plaid_rebrand`) so the next worker can plan it without scope creep blowing the budget again.
 
 ## What changed
 
