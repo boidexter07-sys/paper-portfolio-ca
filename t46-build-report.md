@@ -4,8 +4,8 @@
 **Author:** Thor (thor profile, kanban task t_1e7dc0b9)
 **Builds on:** T45 (Vercel production deploy at https://app-six-iota-41.vercel.app)
 **Live URL:** https://app-six-iota-41.vercel.app
-**Deploy ID (final):** `dpl_8n0vk1ziv` (alias `app-8n0vk1ziv-dexter-s-projects12.vercel.app`)
-**Repo HEAD:** `1fd2f88` (T46 polish) → prior `b6d4164` (T46 readonly fix) → prior `0e01d56` (T46 ship)
+**Deploy ID (final):** `dpl_f37dcrwag` (alias `app-f37dcrwag-dexter-s-projects12.vercel.app`)
+**Repo HEAD:** `45bc6e9` (T46 build report) → prior `1fd2f88` (T46 polish) → prior `b6d4164` (T46 readonly fix) → prior `0e01d56` (T46 ship)
 **Region:** iad1 (Washington, D.C., USA)
 
 > Naming note: the existing `v13-build-report.md` is T47's landing-page rewrite (sibling task). T46 is named after its kanban id to keep both artifacts findable. Prior reports: v6, v8, v9, v10, v11, v12.
@@ -43,7 +43,7 @@ The live URL is now shareable with **five pre-loaded friend accounts** so Taha's
 
 **Share this:** `https://app-six-iota-41.vercel.app`
 
-The pre-existing `app-six-iota-41.vercel.app` alias (created before Vercel Deployment Protection) now resolves to the T46 final deploy `dpl_8n0vk1ziv`. Fresh `app-<hash>-dexter-s-projects12.vercel.app` URLs are still SSO-gated.
+The pre-existing `app-six-iota-41.vercel.app` alias (created before Vercel Deployment Protection) now resolves to the T46 final deploy `dpl_f37dcrwag`. Fresh `app-<hash>-dexter-s-projects12.vercel.app` URLs are still SSO-gated.
 
 ---
 
@@ -212,5 +212,5 @@ To create *new* test accounts (or change the 5 friends), edit `FRIENDS` in `scri
 | `seed_friend_accounts.ts` script created, idempotent | ✓ | re-ran `npm run seed:friends` cleanly |
 | Pre-built SQLite DB shipped at `data/paperportfolio.db` | ✓ | committed in `0e01d56`, 20.7 MB |
 | `lib/db.ts` updated to use shipped DB on Vercel | ✓ | opens read-only on Vercel, read/write locally |
-| Re-deployed to Vercel | ✓ | deploy `dpl_8n0vk1ziv` aliased to public URL |
+| Re-deployed to Vercel | ✓ | deploy `dpl_f37dcrwag` aliased to public URL |
 | Existing local `demo@paperportfolio.ca` user still works | ✓ | Unchanged — 3 portfolios + holdings intact |
