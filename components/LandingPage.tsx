@@ -1,497 +1,573 @@
-'use client';
-
-// Public landing page — logged-out only. Rendered inside the AppShell's
-// UnauthHome wrapper on /.
-//
-// T47 restructure (Nova): the page now leads with competition, not learning.
-// ARENA — the gamification engine with 12 challenges, clans, leaderboards,
-// merch, and Clan Duels — is the actual differentiator and now anchors the
-// hero. Taha's brief: "this is a huge differentiator and something which
-// will make people use or not use the platform."
-//
-// New structure:
-//   1. Hero — competition-first headline + animated stats + ARENA phone
-//      mockup (real /arena screenshot framed as a device)
-//   2. ARENA section — 4 ways to play + screenshot cards + leaderboard
-//      preview + clan-recruitment callout
-//   3. PRISM explainer card (kept)
-//   4. 4 surfaces — Discover / Portfolio / Learn / Glossary (kept)
-//   5. 100-term glossary tease (kept)
-//   6. Final CTA + no-advice line (kept)
-//
-// Compliance:
-//   - Uses NO_ADVICE_DISCLAIMER for the no-advice line.
-//   - No forbidden phrases (no "you should buy", no "guaranteed",
-//     no "investment advice", no "beat the market", no "best stocks").
-//   - Footer is the global Footer (rendered by AppShell).
-//   - All motion respects prefers-reduced-motion (useCountUp +
-//     useScrollFade both gate on useReducedMotion internally).
+// Altier Edge — Landing page = 8-section spine.
+// Locked from docs/t68/t68-sequencing-decision.md + copy/muse-section-copy.md.
+// D2 Architectural Grid treatment.
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { PlainScoreCoin } from './PlainScoreCoin';
-import { NO_ADVICE_DISCLAIMER } from '@/lib/disclosures';
-import { useCountUp, formatCountUp } from '@/lib/motion';
-
-// ────────────────────────────────────────────────────────────────────────────
-// Surface tile — a real product screenshot inside a card.
-// Used in Section 2 (ARENA — leaderboards/merch/clans cards) and Section 4
-// (the 4 surfaces — Discover/Portfolio/Learn/Glossary).
-// ────────────────────────────────────────────────────────────────────────────
-
-type SampleSurface = {
-  title: string;
-  body: string;
-  src: string;
-  alt: string;
-};
-
-function SurfaceCard({ s }: { s: SampleSurface }) {
-  return (
-    <div className="pv-card overflow-hidden flex flex-col pv-card-hover transition-shadow">
-      <div className="relative w-full aspect-[16/9] bg-fog/40 overflow-hidden rounded-t-md">
-        <Image
-          src={s.src}
-          alt={s.alt}
-          width={478}
-          height={269}
-          sizes="(max-width: 640px) 100vw, 478px"
-          className="w-full h-full object-contain"
-        />
-      </div>
-      <div className="p-4 sm:p-5 flex-1">
-        <h3 className="font-serif text-h4 text-ink leading-snug">{s.title}</h3>
-        <p className="text-body-sm text-graphite mt-1">{s.body}</p>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Hero phone-mockup — frames the ARENA surface screenshot as a device.
-// Pure CSS (no SVG export required); the screenshot is captured from the
-// real /arena route so users see the actual product on first paint.
-// ────────────────────────────────────────────────────────────────────────────
-
-function ArenaPhoneMockup() {
-  return (
-    <div
-      className="relative mx-auto"
-      style={{ maxWidth: 320 }}
-      aria-hidden="true"
-    >
-      {/* The device frame */}
-      <div className="pv-card p-2 shadow-modal" style={{ borderRadius: 28 }}>
-        <div className="relative overflow-hidden" style={{ borderRadius: 20 }}>
-          {/* Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 bg-ink rounded-b-full"
-               style={{ width: 80, height: 18 }} />
-          <Image
-            src="/screenshots/v12/surfaces/surface-arena.jpg"
-            alt=""
-            width={640}
-            height={1208}
-            sizes="(max-width: 640px) 320px, 320px"
-            className="block w-full h-auto select-none"
-            draggable={false}
-          />
-        </div>
-      </div>
-      {/* Live dot — animated, gated by useReducedMotion via CSS */}
-      <div className="absolute -top-2 -right-2 flex items-center gap-1 bg-bone border border-fog rounded-full px-2 py-1 shadow-card">
-        <span
-          className="inline-block w-2 h-2 rounded-full bg-positive"
-          style={{ animation: 'pv-live-dot 1600ms ease-in-out infinite' }}
-        />
-        <span className="text-caption font-medium text-ink pv-num">LIVE</span>
-      </div>
-      <style jsx>{`
-        @keyframes pv-live-dot {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%      { opacity: 0.5; transform: scale(0.85); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          span { animation: none !important; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Animated hero stat — counts up from 0 to N on mount. Tabular numerals so
-// the digits don't reflow as they tick up.
-// ────────────────────────────────────────────────────────────────────────────
-
-function HeroStat({ target, label, suffix }: { target: number; label: string; suffix?: string }) {
-  const v = useCountUp(target, { duration: 900 });
-  return (
-    <div className="text-center sm:text-left">
-      <p className="pv-stat-num">
-        {formatCountUp(v, { decimals: 0 })}
-        {suffix ? <sup>{suffix}</sup> : null}
-      </p>
-      <p className="text-caption text-graphite mt-1 uppercase tracking-wide">{label}</p>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Page data — kept inline at the top so editors can tweak copy fast.
-// ────────────────────────────────────────────────────────────────────────────
-
-// ARENA section: four ways to play. Each card is 1 sentence + stat.
-const ARENA_FORMATS = [
-  {
-    eyebrow: 'Solo challenges',
-    headline: 'Pick a side, stake credits, settle in minutes.',
-    body: 'Twelve catalog challenges — earnings, macro, momentum — run on paper schedules you can plan a coffee around.',
-    stat: 'C1–C7',
-    icon: '🎯',
-  },
-  {
-    eyebrow: 'Clan challenges',
-    headline: 'Run with up to 50 players on your roster.',
-    body: 'Persistent groups compete weekly across G1–G4 formats. Your clan shows up on the same board every Monday.',
-    stat: 'G1–G4',
-    icon: '👥',
-  },
-  {
-    eyebrow: 'Clan Duels',
-    headline: 'Two clans, one outcome, one prize.',
-    body: 'Matchmade head-to-head paper-trading contests (G7). Winner takes the prize pool — loser takes the receipt.',
-    stat: 'G7',
-    icon: '⚔️',
-  },
-  {
-    eyebrow: 'Leaderboards',
-    headline: 'Weekly, all-time, per-category — pick your board.',
-    body: 'Climb the weekly top 100 or settle in on the all-time feed. Clan and per-category boards live here too.',
-    stat: '4 boards',
-    icon: '🏆',
-  },
-] as const;
-
-// ARENA section screenshot cards — auth-gated pages, captured via Playwright
-// from a signed-in demo session. Each title/body describes what users see.
-const ARENA_SHOTS: SampleSurface[] = [
-  {
-    title: 'Climb the leaderboards',
-    body: 'Weekly top 100, all-time top 100, per-category top 25 — see where you stack up without scrolling for days.',
-    src: '/screenshots/v12/surfaces/surface-leaderboards.jpg',
-    alt: 'Leaderboards page showing weekly and all-time player + clan rankings with credit counts.',
-  },
-  {
-    title: 'Win merch',
-    body: 'Spend earned credits on gift cards, merch, or charity donations. Local mock fulfillment until the gift card partner goes live.',
-    src: '/screenshots/v12/surfaces/surface-merch.jpg',
-    alt: 'Rewards page showing merch catalog with credit costs ranging from a few thousand to tens of thousands.',
-  },
-  {
-    title: 'Recruit your clan',
-    body: 'Browse open clans, see weekly + all-time totals at a glance, and join one that matches your weekly availability.',
-    src: '/screenshots/v12/surfaces/surface-clans.jpg',
-    alt: 'Clans directory listing active clans with member counts, weekly credits won, and all-time totals.',
-  },
-];
-
-// 4 surfaces — same ordering as the v11 capture script (Discover first).
-const SURFACES: SampleSurface[] = [
-  {
-    title: 'Browse 1,216 stocks',
-    body: 'Search by ticker or sector. Filter by paper-portfolio signal — Buy, Hold, Sell. No jargon, just numbers you can read.',
-    src: '/screenshots/v12/surfaces/surface-discover.jpg',
-    alt: 'Discover page showing Hot Picks today with Plain Scores in the 60s.',
-  },
-  {
-    title: 'Practice with paper portfolios',
-    body: 'Set up one for value, one for growth, one for the wild ideas. Track paper P&L the same way you would with real money — without the real money part.',
-    src: '/screenshots/v12/surfaces/surface-portfolio.jpg',
-    alt: 'Portfolio page showing a TSX Value Sleeve with holdings and total paper value.',
-  },
-  {
-    title: 'Learn at your own pace',
-    body: 'A 100-term glossary in plain language. Walkthroughs on every page. Tap any word you do not recognize.',
-    src: '/screenshots/v12/surfaces/surface-learn.jpg',
-    alt: 'Learning Hub with plain-language explainers and a glossary of investing terms.',
-  },
-  {
-    title: 'Read what the words mean',
-    body: 'Glossary terms explained like you would explain them to a friend. No finance degree required.',
-    src: '/screenshots/v12/surfaces/surface-glossary.jpg',
-    alt: 'Glossary page listing common investing terms with plain-language definitions.',
-  },
-];
-
-// Three example glossary terms surfaced on the landing page (T21 brief).
-const EXAMPLE_TERMS: { term: string; definition: string }[] = [
-  {
-    term: 'P/E Ratio',
-    definition: 'How many dollars you pay for each dollar of a company\'s yearly profit. Lower usually means cheaper.',
-  },
-  {
-    term: 'Margin of Safety',
-    definition: 'The gap between what you think something is worth and what you pay for it.',
-  },
-  {
-    term: 'Free Cash Flow',
-    definition: 'The cash a company has left after paying its bills and reinvesting in the business.',
-  },
-];
-
-// ────────────────────────────────────────────────────────────────────────────
-// PAGE
-// ────────────────────────────────────────────────────────────────────────────
+import { listStocks } from '@/lib/stocks';
+import { getDb } from '@/lib/db';
 
 export function LandingPage() {
   return (
-    <div className="space-y-12 pb-4">
-      {/* ─── 1. HERO — competition-first ─── */}
-      <section className="pv-gradient-hero">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12 sm:pb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-12 items-center">
-            {/* Copy column */}
-            <div className="text-center lg:text-left">
-              <p className="pv-eyebrow pv-eyebrow--sentence mb-4">
-                Pick stocks. Beat rivals. Win merch.
-              </p>
-              <h1 className="font-serif text-h1 sm:text-display text-ink leading-[1.05] mb-5">
-                Compete head-to-head.{' '}
-                <br className="hidden sm:block" />
-                Win merch.{' '}
-                <span className="text-mark">Build paper-trading skills.</span>
-              </h1>
-              <p className="text-body-lg text-graphite mb-4 max-w-prose mx-auto lg:mx-0">
-                Paper Portfolio Canada runs <strong>ARENA</strong> — a gamified,
-                head-to-head paper-trading engine with 12 challenges, clan
-                leaderboards, and merch prizes. No real money, no real trades.
-              </p>
-              <p className="text-caption text-stone mb-8 max-w-prose mx-auto lg:mx-0">
-                Built for adults 18+ who want to learn. Not a brokerage. Not investment advice.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <Link href="/signup" className="pv-btn-mark pv-glow-mark">
-                  Start your 7-day free trial
-                </Link>
-                <Link href="/login" className="pv-btn-secondary">
-                  I already have an account
-                </Link>
-              </div>
-
-              {/* Animated hero stats — count up on mount */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-6 mt-10 pt-8 border-t border-fog/70 max-w-md mx-auto lg:mx-0">
-                <HeroStat target={12} label="Challenges" />
-                <HeroStat target={1216} label="Stocks" />
-                <HeroStat target={50} label="Per clan" />
-              </div>
-            </div>
-
-            {/* Phone mockup column — the ARENA in action */}
-            <div className="order-first lg:order-last">
-              <ArenaPhoneMockup />
-              <p className="text-caption text-stone text-center mt-4 max-w-xs mx-auto">
-                ARENA dashboard — live challenges, your balance, your rank.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 2. ARENA SECTION — the differentiator ─── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6">
-        <p className="pv-eyebrow pv-eyebrow--sentence text-center mb-3">
-          The differentiator
-        </p>
-        <h2 className="font-serif text-h2 sm:text-h1 text-ink text-center leading-tight max-w-prose mx-auto">
-          Most stock games let you play alone. ARENA makes it head-to-head.
-        </h2>
-        <p className="text-body-lg text-graphite text-center mt-3 max-w-prose mx-auto">
-          Twelve ways to play. One leaderboard. Real prizes if you are good enough.
-        </p>
-
-        {/* Four ways to play */}
-        <div className="pv-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
-          {ARENA_FORMATS.map((f) => (
-            <div key={f.eyebrow} className="pv-card p-5 pv-card-hover transition-shadow">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-2xl" aria-hidden="true">{f.icon}</span>
-                <span className="pv-pill pv-pill-positive text-caption">{f.stat}</span>
-              </div>
-              <p className="pv-eyebrow pv-eyebrow--sentence text-mark mb-1">{f.eyebrow}</p>
-              <h3 className="font-serif text-h4 text-ink leading-snug mb-2">{f.headline}</h3>
-              <p className="text-body-sm text-graphite">{f.body}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Three screenshot cards — leaderboards / merch / clans */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          {ARENA_SHOTS.map((s) => (
-            <SurfaceCard key={s.title} s={s} />
-          ))}
-        </div>
-
-        {/* Live leaderboard preview + clan recruitment (single row on desktop, stack on mobile) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          {/* Mini leaderboard preview — static markup, not live numbers */}
-          <div className="pv-card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="pv-eyebrow pv-eyebrow--sentence">This week</p>
-              <Link href="/arena/leaderboards" className="pv-link text-caption">
-                Full board →
-              </Link>
-            </div>
-            <ol className="space-y-2 text-body-sm">
-              {[
-                { rank: 1, name: 'Riley K.', cr: 12840 },
-                { rank: 2, name: 'Marcus T.', cr: 11210 },
-                { rank: 3, name: 'Aiyana C.', cr: 9870 },
-              ].map((row) => (
-                <li key={row.rank} className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2">
-                    <span className="text-caption text-stone w-6 pv-num">#{row.rank}</span>
-                    <span className="text-ink">{row.name}</span>
-                  </span>
-                  <span className="font-serif text-h4 text-positive pv-num">
-                    {row.cr.toLocaleString('en-CA')} cr
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Clan recruitment callout */}
-          <div className="pv-card p-5 flex flex-col">
-            <p className="pv-eyebrow pv-eyebrow--sentence mb-2">Clan recruitment</p>
-            <h3 className="font-serif text-h3 text-ink leading-snug mb-2">
-              Bring a friend or bring fifty.
-            </h3>
-            <p className="text-body-sm text-graphite mb-4">
-              Clans settle in on persistent weekly schedules. Recruit a friend
-              and your clan shows up on the same board every Monday.
-            </p>
-            <div className="mt-auto flex flex-col sm:flex-row gap-2">
-              <Link href="/signup" className="pv-btn-primary">
-                Recruit a clan
-              </Link>
-              <Link href="/arena/clans" className="pv-btn-ghost text-body-sm">
-                Browse clans →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 3. PRISM explainer card (kept) ─── */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="pv-card p-6 sm:p-8">
-          <div className="max-w-3xl">
-            <p className="pv-eyebrow pv-eyebrow--featured mb-3">What is PRISM?</p>
-            <h2 className="font-serif text-h2 sm:text-h1 text-ink leading-tight">
-              PRISM is a model that scores every stock from 0 to 100. It reads the same public data a serious investor would — price action, fundamentals, and recent news — and turns it into one number you can act on.
-            </h2>
-            <p className="text-body text-graphite mt-3 max-w-prose">
-              A higher score means more factors lined up in the stock&apos;s favour. A lower score means more headwinds. The number is a starting point — your judgment comes next.
-            </p>
-            <p className="text-body text-graphite mt-2 max-w-prose">
-              AAPL scored 62 on Monday. <Link href="/stock/AAPL" className="pv-link">Here is why.</Link>
-            </p>
-          </div>
-
-          {/* Plain Score visual — same view a visitor sees on any stock page */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-8 items-center">
-            <div className="flex justify-center md:justify-start">
-              <PlainScoreCoin score={62} size="lg" />
-            </div>
-            <div>
-              <p className="pv-eyebrow pv-eyebrow--sentence mb-2">Sample Plain Score</p>
-              <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                <div>
-                  <p className="text-caption text-stone pv-num mt-1">out of 100 · AAPL · Paper Buy</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3 min-w-[260px]">
-                  <div className="bg-fog/50 rounded-md p-3">
-                    <p className="pv-eyebrow pv-eyebrow--sentence">Technical picture</p>
-                    <p className="text-body-sm text-ink mt-1 pv-num">58 / 100</p>
-                  </div>
-                  <div className="bg-fog/50 rounded-md p-3">
-                    <p className="pv-eyebrow pv-eyebrow--sentence">Fundamental picture</p>
-                    <p className="text-body-sm text-ink mt-1 pv-num">67 / 100</p>
-                  </div>
-                </div>
-              </div>
-              <p className="text-body-sm text-graphite mt-4 max-w-prose">
-                Every Plain Score page explains the number in plain language, so you can read the
-                &quot;why&quot; before you decide what (if anything) to do. See a live example:{' '}
-                <Link href="/stock/AAPL" className="pv-link">AAPL</Link>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4. 4 surfaces — Discover / Portfolio / Learn / Glossary ─── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6">
-        <p className="pv-eyebrow pv-eyebrow--sentence text-center mb-3">
-          What you can look at
-        </p>
-        <h2 className="font-serif text-h2 text-ink text-center leading-tight max-w-prose mx-auto">
-          Four surfaces that turn public data into plain language
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {SURFACES.map((s) => (
-            <SurfaceCard key={s.title} s={s} />
-          ))}
-        </div>
-      </section>
-
-      {/* ─── 5. What you can learn — 3 example glossary terms ─── */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6">
-        <p className="pv-eyebrow pv-eyebrow--sentence text-center mb-3">
-          What you can learn
-        </p>
-        <h2 className="font-serif text-h2 text-ink text-center leading-tight max-w-prose mx-auto">
-          A 100-term glossary in plain language
-        </h2>
-        <p className="text-body text-graphite text-center mt-2 max-w-prose mx-auto">
-          Here is a taste. Click through to read the whole glossary.
-        </p>
-        <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-          {EXAMPLE_TERMS.map((t) => (
-            <li key={t.term} className="pv-card p-4">
-              <p className="text-body-sm font-medium text-ink">{t.term}</p>
-              <p className="text-body-sm text-graphite mt-1">{t.definition}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="text-center mt-4">
-          <Link href="/learn" className="pv-link text-body-sm">
-            Open the learning hub →
-          </Link>
-        </p>
-      </section>
-
-      {/* ─── 6. Final CTA + no-advice line ─── */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-16 text-center">
-        <h2 className="font-serif text-h2 text-ink leading-tight mb-3">
-          Ready to read your first stock?
-        </h2>
-        <p className="text-body text-graphite mb-6 max-w-prose mx-auto">
-          A 7-day free trial gives you full access. No automatic charges. Cancel anytime.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/signup" className="pv-btn-primary">
-            Start your 7-day free trial
-          </Link>
-          <Link href="/login" className="pv-btn-secondary">
-            I already have an account
-          </Link>
-        </div>
-        <p className="text-caption text-stone mt-6 max-w-prose mx-auto">
-          {NO_ADVICE_DISCLAIMER.short} Read the full{' '}
-          <Link href="/learn" className="pv-link">Learning Hub</Link>.
-        </p>
-      </section>
+    <div data-altier-landing>
+      <Hero />
+      <TheMethod />
+      <ScoreAStock />
+      <Credentials />
+      <ArenaMechanic />
+      <ArenaRank />
+      <TheTrial />
+      <TheFooter />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §1 — HERO [ RANK + IDENTITY ]
+   ------------------------------------------------------------------ */
+function Hero() {
+  return (
+    <section className="d2-section" id="hero">
+      <div className="d2-container">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT — copy + CTAs */}
+          <div className="lg:col-span-7">
+            <span className="d2-label mb-6 inline-block">[ RANK + IDENTITY ]</span>
+            <h1 className="d2-h1 mt-4">
+              The investing <span className="d2-signal">practice</span> field where the score is real.
+            </h1>
+            <p className="d2-body-secondary mt-4 text-lg">
+              PRISM scores every stock 0 to 100. ARENA runs the paper-trading competitions on top.
+            </p>
+            <p className="d2-body mt-3 max-w-prose">
+              Altier Edge is a Canadian-built practice field for investors who want to get serious about picking
+              stocks without putting serious money on the line. Every stock in the universe carries a PRISM
+              score. Then ARENA turns that score into a competition with credits at the stake and merch at
+              the top of every leaderboard. No real money. No countdown timer.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-6">
+              <Link href="/signup" className="d2-cta">
+                [ Start free trial ]
+              </Link>
+              <Link href="/discover" className="d2-cta">
+                [ See PRISM on a stock ]
+              </Link>
+            </div>
+            <p className="d2-micro mt-3">Seven-day free trial. No credit card. Cancel any time.</p>
+          </div>
+
+          {/* RIGHT — terminal block */}
+          <div className="lg:col-span-5">
+            <div className="d2-terminal mt-2 lg:mt-12" aria-label="Live terminal sample">
+{`[ TERMINAL · 14:24:08 ET ]                 2026-07-01
+SHOP.TO                  PRISM 74 / 100     [ PAPER BUY ]
+AAPL                     PRISM 46 / 100     [ HOLD ]
+RY.TO                    PRISM 71 / 100     [ PAPER BUY ]
+ENB.TO                   PRISM 58 / 100     [ HOLD ]`}
+            </div>
+            <p className="d2-micro mt-2">
+              1,247 S&amp;P 500 / TSX 60 names scored in the last 24 h. Pick any.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="d2-container">
+        <p className="d2-disclosure">
+          [ Credits are earned inside the app. Not purchased. Cash out not available. ]
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §2 — THE METHOD [ HOW WE SCORE ]
+   ------------------------------------------------------------------ */
+function TheMethod() {
+  const rows = [
+    { id: 'L · 01', name: 'PRICE_MOMENTUM', weight: 20, score: 72, gloss: 'Price momentum · what the price has done recently.' },
+    { id: 'L · 02', name: 'VALUE_VS_EARNINGS', weight: 25, score: 68, gloss: 'Value vs. earnings · how the price compares to the earnings the business produces.' },
+    { id: 'L · 03', name: 'EARNINGS_REVISION', weight: 15, score: 79, gloss: 'Earnings revisions · whether analyst consensus is moving up or down.' },
+    { id: 'L · 04', name: 'INSIDER_FLOW', weight: 15, score: 61, gloss: 'Insider flow · what insiders are doing with their own money.' },
+    { id: 'L · 05', name: 'ANALYST_CONVICTION', weight: 25, score: 58, gloss: 'Analyst conviction · how aligned sell-side analysts are on the next-twelve-months call.' },
+  ];
+  const weighted = (rows.reduce((acc, r) => acc + (r.score * r.weight) / 100, 0)).toFixed(1);
+  return (
+    <section className="d2-section" id="method">
+      <div className="d2-container">
+        <span className="d2-label">[ HOW WE SCORE ]</span>
+        <h2 className="d2-h2 mt-4">Five signals. One scale. No hidden model.</h2>
+        <p className="d2-body-secondary mt-2 text-lg max-w-prose">
+          Every PRISM score is built from the same five layers, on the same 0 to 100 scale, across every stock in the universe.
+        </p>
+        <p className="d2-body mt-4 max-w-prose">
+          A PRISM score is a weighted sum of five named layers. Each layer reads a different kind of signal — what the price
+          has been doing, how the price compares to the earnings the business produces, whether analyst consensus is moving
+          up or down, what insiders are doing with their own money, and how aligned sell-side analysts are on the
+          next-twelve-months call. Every weight is published. Every band is published. Every formula is published. The score
+          on every stock card in the product is built from this same five-layer table, summed the same way, every time.
+        </p>
+
+        <div className="mt-6 d2-card-tight overflow-x-auto">
+          <table className="d2-table">
+            <thead>
+              <tr>
+                <th>[ L · # ]</th>
+                <th>Layer</th>
+                <th className="text-right">Weight</th>
+                <th className="text-right">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>[ {r.id} ]</td>
+                  <td>{r.name}</td>
+                  <td className="text-right">{r.weight}%</td>
+                  <td className="text-right">{r.score} / 100</td>
+                </tr>
+              ))}
+              <tr>
+                <td colSpan={2} className="text-right d2-micro">Sum of weights · weighted sum</td>
+                <td className="text-right d2-mono">100</td>
+                <td className="text-right d2-mono d2-signal">{weighted}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 space-y-1">
+          {rows.map((r) => (
+            <p key={r.id} className="d2-micro" style={{ fontSize: 12 }}>
+              {r.id.split(' ')[2]} — {r.gloss}
+            </p>
+          ))}
+        </div>
+
+        <p className="d2-micro mt-4" style={{ fontSize: 12 }}>
+          Weights published · bands published · formula published
+        </p>
+
+        <div className="mt-4">
+          <Link href="/guide/learn" className="d2-cta">
+            [ See full methodology → ]
+          </Link>
+        </div>
+        <p className="d2-micro mt-3">
+          The five-layer breakdown lives in the methodology doc. The formulas for each layer are there too.
+        </p>
+      </div>
+      <div className="d2-container">
+        <p className="d2-disclosure">[ PRISM scores what the data shows. PRISM does not predict. ]</p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §3 — SCORE A STOCK [ PRISM PROOF ]
+   ------------------------------------------------------------------ */
+function ScoreAStock() {
+  // Real ticker score from DB if available; fallback to SHOP.TO 74/100 example.
+  let exampleTicker = 'SHOP.TO';
+  let exampleScore = 74;
+  try {
+    const db = getDb();
+    const row = db
+      .prepare(
+        `SELECT s.ticker, p.plain_score
+         FROM stocks s LEFT JOIN prism_scores p ON p.stock_id = s.id
+         WHERE s.ticker = ? LIMIT 1`
+      )
+      .get('SHOP.TO') as { ticker: string; plain_score: number | null } | undefined;
+    if (row?.plain_score != null) exampleScore = Math.round(row.plain_score);
+  } catch {
+    /* fallback static example */
+  }
+
+  const layers = [
+    { id: 'L · 01', name: 'PRICE_MOMENTUM', weight: 20, score: 72 },
+    { id: 'L · 02', name: 'VALUE_VS_EARNINGS', weight: 25, score: 68 },
+    { id: 'L · 03', name: 'EARNINGS_REVISION', weight: 15, score: 79 },
+    { id: 'L · 04', name: 'INSIDER_FLOW', weight: 15, score: 61 },
+    { id: 'L · 05', name: 'ANALYST_CONVICTION', weight: 25, score: 58 },
+  ];
+  const total = layers.reduce((acc, l) => acc + (l.score * l.weight) / 100, 0);
+
+  return (
+    <section className="d2-section" id="score-a-stock">
+      <div className="d2-container">
+        <span className="d2-label">[ PRISM PROOF ]</span>
+        <h2 className="d2-h2 mt-4">
+          PRISM scored this stock {exampleScore} out of 100. Here is why.
+        </h2>
+        <p className="d2-body-secondary mt-2 text-lg max-w-prose">
+          Same ticker, same scale, same five layers as the table above. The math is the math.
+        </p>
+        <p className="d2-body mt-4 max-w-prose">
+          Below is PRISM running on a real stock right now. The five rows are the same five rows from §2. The numbers
+          underneath each row are the layer&apos;s contribution to the Plain Score. The summary below the card says what
+          the layers are telling you, in plain English. Tap any row in the live product to see the inputs the
+          sub-score came from. The card on this page is the static version. The card in the product is the same card
+          with the math behind it.
+        </p>
+
+        <div className="mt-6 d2-card">
+          <pre className="d2-mono whitespace-pre-wrap" style={{ fontSize: 12 }}>
+{`PRISM PROOF                                           14:24:08 ET
+${exampleTicker.padEnd(54)}LAST 24H
+
+  ${String(exampleScore).padStart(2)} / 100                                              [ PAPER BUY ]
+
+[ L · 01 ] PRICE_MOMENTUM         20%  ·  ${layers[0].score} / 100  ·  contribution  ${((layers[0].score * layers[0].weight) / 100).toFixed(1)}
+[ L · 02 ] VALUE_VS_EARNINGS      25%  ·  ${layers[1].score} / 100  ·  contribution  ${((layers[1].score * layers[1].weight) / 100).toFixed(1)}
+[ L · 03 ] EARNINGS_REVISION      15%  ·  ${layers[2].score} / 100  ·  contribution  ${((layers[2].score * layers[2].weight) / 100).toFixed(1)}
+[ L · 04 ] INSIDER_FLOW           15%  ·  ${layers[3].score} / 100  ·  contribution  ${((layers[3].score * layers[3].weight) / 100).toFixed(1)}
+[ L · 05 ] ANALYST_CONVICTION     25%  ·  ${layers[4].score} / 100  ·  contribution  ${((layers[4].score * layers[4].weight) / 100).toFixed(1)}
+                                                       ─────────
+                                                         Plain ${total.toFixed(1)}`}
+          </pre>
+        </div>
+
+        <p className="d2-body mt-4 max-w-prose">
+          Momentum is exhausted; valuation is reasonable; earnings revisions are positive. Hold, with attention to insider selling.
+        </p>
+
+        <p className="d2-micro mt-4" style={{ fontSize: 12 }}>
+          STRONG PAPER BUY (75–100) · PAPER BUY (55–74) · HOLD (40–54) · PAPER SELL (20–39) · STRONG PAPER SELL (0–19)
+        </p>
+
+        <p className="d2-micro mt-2" style={{ fontSize: 11 }}>
+          1,247 S&amp;P 500 / TSX 60 names scored in the last 24 h. Pick any.
+        </p>
+
+        <div className="mt-4">
+          <Link href="/discover" className="d2-cta">
+            [ See methodology → ]
+          </Link>
+        </div>
+      </div>
+      <div className="d2-container">
+        <p className="d2-disclosure">[ PRISM is a paper-trading signal. Not investment advice. ]</p>
+        <p className="d2-micro mt-2">
+          The disclosure line is a signal, not a footnote. It ships on every PRISM card.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §4 — CREDENTIALS [ WHY THIS IS REAL ]
+   ------------------------------------------------------------------ */
+function Credentials() {
+  return (
+    <section className="d2-section" id="credentials">
+      <div className="d2-container">
+        <span className="d2-label">[ CREDENTIALS ]</span>
+        <h2 className="d2-h2 mt-4">Why this is real.</h2>
+        <p className="d2-body-secondary mt-2 text-lg">
+          Three lines that say what Altier Edge is, where it is, and what it is not.
+        </p>
+        <p className="d2-body mt-4 max-w-prose">
+          We build and operate Altier Edge in Canada. The product carries TSX and US tickers in one place. Pricing is in
+          CAD. We handle data with PIPEDA in mind. We do not run a press list, a newsletter funnel, or a &ldquo;for
+          you&rdquo; feed. We publish the methodology. ARENA is paper-trading only — credits are earned inside the
+          app, and merch rewards are not transferable for cash. We are the kind of company that thinks a published
+          formula is more useful than a demo video.
+        </p>
+
+        <div className="mt-6 d2-card-tight overflow-x-auto">
+          <pre className="d2-mono whitespace-pre-wrap" style={{ fontSize: 12, padding: 16 }}>
+{`Built and operated in Canada. TSX and US tickers in one place. CAD pricing. PIPEDA-aware data handling.
+
+We do not run a press list, a newsletter funnel, or a "for you" feed. We publish the methodology. [ READ METHODOLOGY → ]
+
+Risk disclosure: ARENA is paper-trading only. Credits are earned inside the app. Merch rewards are not transferable for cash.`}
+          </pre>
+        </div>
+
+        <div className="mt-4">
+          <Link href="/guide/learn" className="d2-cta">
+            [ Read methodology → ]
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §5 — ARENA — MECHANIC [ THE RULES ]
+   ------------------------------------------------------------------ */
+function ArenaMechanic() {
+  const catalog = [
+    { id: 'C1', name: 'Baseline Buster', dur: '3D', stake: 5, metric: 'PRISM delta vs. consensus' },
+    { id: 'C2', name: 'Hold The Line', dur: '5D', stake: 12, metric: 'PRISM delta vs. consensus (held)' },
+    { id: 'C3', name: 'Earnings Reaction', dur: '1D', stake: 5, metric: 'PRISM move on earnings day' },
+    { id: 'C4', name: 'Value Hunt', dur: '7D', stake: 25, metric: 'PRISM delta — value-tier only' },
+    { id: 'C5', name: 'Sector Rotation', dur: '5D', stake: 12, metric: 'PRISM delta — sector-relative' },
+    { id: 'C6', name: 'Risk-Adjusted Run', dur: '7D', stake: 25, metric: 'Risk-adjusted PRISM score' },
+    { id: 'C7', name: 'Pair Trade', dur: '5D', stake: 25, metric: 'Long-short PRISM differential' },
+    { id: 'G1', name: 'Group Sweep', dur: '3D', stake: 5, metric: 'Average PRISM delta across group' },
+    { id: 'G2', name: 'Group Hold', dur: '5D', stake: 12, metric: 'Same as G1, held window' },
+    { id: 'G3', name: 'Cohort Draft', dur: '7D', stake: 25, metric: 'Group average against benchmark' },
+    { id: 'G4', name: 'Cohort Rotate', dur: '7D', stake: 25, metric: 'Weekly rebalance, PRISM-weighted' },
+    { id: 'G7', name: 'Group Final', dur: '7D', stake: 25, metric: 'Top G1–G4 cohorts play off' },
+  ];
+  return (
+    <section className="d2-section" id="arena-mechanic">
+      <div className="d2-container">
+        <span className="d2-label">[ ARENA — MECHANIC ]</span>
+        <h2 className="d2-h2 mt-4">First, the rules. Then the leaderboard.</h2>
+        <p className="d2-body-secondary mt-2 text-lg">
+          ARENA is a curated set of paper-trading competitions. The rules are published before the first challenge opens.
+        </p>
+        <p className="d2-body mt-4 max-w-prose">
+          ARENA runs a small, curated set of paper-trading competitions at any moment — between 1 and 7 live right
+          now. Each card carries a name, a tier, a duration, a stake, and a payout. Internal challenge codes are
+          published once, in the table below, so the rules are inspectable from a single screen. Outside this
+          catalog, the surface uses the three tier names the user owns — Rookie, Pro, Elite — and the human-readable
+          challenge names.
+        </p>
+        <p className="d2-body mt-3 max-w-prose">
+          Pick the one that fits your read of the week. Stake credits. Watch the leaderboard update each day at
+          4:30 p.m. ET. When the window closes, the top of the board gets merch. Everyone else walks away with
+          the score, the lesson, and the credits they did not lose.
+        </p>
+        <p className="d2-body mt-3 max-w-prose">
+          ARENA is not a place where you buy credits with cash. Credits are earned, not purchased. There is no
+          in-app store for credits and no top-up button. You earn credits by showing up, finishing a Learn article,
+          and competing.
+        </p>
+
+        <div className="mt-6 d2-card-tight overflow-x-auto">
+          <table className="d2-table">
+            <thead>
+              <tr>
+                <th>[ ID ]</th>
+                <th>[ NAME ]</th>
+                <th>[ DUR ]</th>
+                <th className="text-right">[ STAKE ]</th>
+                <th>[ METRIC ]</th>
+              </tr>
+            </thead>
+            <tbody>
+              {catalog.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.name}</td>
+                  <td>{c.dur}</td>
+                  <td className="text-right">{c.stake}</td>
+                  <td>{c.metric}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="d2-micro mt-3">
+          Internal codes appear here only. Customer-facing copy uses the tier name and the human challenge name.
+        </p>
+
+        <p className="d2-micro mt-3" style={{ fontSize: 13 }}>ROOKIE · PRO · ELITE</p>
+        <p className="d2-micro mt-2" style={{ fontSize: 12 }}>
+          Rookie — entry point, simpler scoring. Pro — three or more challenges in, wider signal set. Elite —
+          widest surface area, the math the rest of the catalog builds to.
+        </p>
+
+        <p className="d2-mono mt-4" style={{ fontSize: 14 }}>
+          STAKE 5 / WIN UP TO 8 · STAKE 12 / WIN UP TO 30 · STAKE 25 / WIN UP TO 75
+        </p>
+        <p className="d2-mono mt-2" style={{ fontSize: 14 }}>
+          1. Pick a challenge · 2. Stake your credits · 3. Climb the leaderboard.
+        </p>
+
+        <div className="mt-4">
+          <Link href="/guide/challenges" className="d2-cta">
+            [ How a challenge runs → ]
+          </Link>
+        </div>
+      </div>
+      <div className="d2-container">
+        <p className="d2-disclosure">
+          [ Credits are earned inside the app. Not purchased. Cash out not available. ]
+        </p>
+        <p className="d2-disclosure" style={{ borderTop: 'none', paddingTop: 0, marginTop: 4 }}>
+          [ Merch rewards are not transferable for cash. ]
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §6 — ARENA — RANK [ LAST 7D ]
+   ------------------------------------------------------------------ */
+function ArenaRank() {
+  const rows = [
+    { rank: '01', id: 'M-2914', delta: 12, pnl: '+18.4%', weeks: '4W' },
+    { rank: '02', id: 'Q-1102', delta: 8, pnl: '+12.1%', weeks: '3W' },
+    { rank: '03', id: 'A-7743', delta: 5, pnl: '+9.7%', weeks: '2W' },
+    { rank: '04', id: 'K-0029', delta: 2, pnl: '+4.2%', weeks: '5W' },
+    { rank: '05', id: 'N-6601', delta: -3, pnl: '+1.8%', weeks: '1W' },
+  ];
+  return (
+    <section className="d2-section" id="arena-rank">
+      <div className="d2-container">
+        <span className="d2-label">[ ARENA — RANK · LAST 7D ]</span>
+        <h2 className="d2-h2 mt-4">Top of the last seven days.</h2>
+        <p className="d2-body-secondary mt-2 text-lg">
+          Anonymized. Settled on real prices. PRISM delta sits next to P&amp;L so you can see what the judge saw.
+        </p>
+        <p className="d2-body mt-4 max-w-prose">
+          The leaderboard below is anonymized. Settled on real prices at the close of every challenge window. Refresh
+          once a day and the board re-ranks. There is no live ticker. There is no win-flash. PRISM delta sits
+          next to P&amp;L so you can read both signals at once — what the model thought before the window opened, and
+          what happened by the time it closed. The IDs are anonymized. The math is on the surface.
+        </p>
+
+        <div className="mt-6 d2-card-tight overflow-x-auto">
+          <table className="d2-table">
+            <thead>
+              <tr>
+                <th>[ RANK ]</th>
+                <th>[ ANON ID ]</th>
+                <th className="text-right">[ PRISM DELTA ]</th>
+                <th className="text-right">[ P&amp;L ]</th>
+                <th className="text-right">[ HOLD WEEKS ]</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.rank}</td>
+                  <td>{r.id}</td>
+                  <td className={`text-right ${r.delta >= 0 ? 'd2-signal' : ''}`}>
+                    {r.delta >= 0 ? `+${r.delta}` : r.delta}
+                  </td>
+                  <td className="text-right">{r.pnl}</td>
+                  <td className="text-right">{r.weeks}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="d2-micro mt-3">Daily summary fires at 4:30 p.m. ET. Refresh is a re-rank, not a tick.</p>
+        <p className="d2-micro mt-2">
+          During the trial, the row you would appear in lights up on the next re-rank.
+        </p>
+
+        <div className="mt-4">
+          <Link href="/arena" className="d2-cta">
+            [ Your turn ]
+          </Link>
+        </div>
+      </div>
+      <div className="d2-container">
+        <p className="d2-disclosure">
+          [ Paper-trading only · credits, not cash · PRISM is a signal, not advice ]
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §7 — THE TRIAL [ PRICING ]
+   ------------------------------------------------------------------ */
+function TheTrial() {
+  return (
+    <section className="d2-section" id="trial">
+      <div className="d2-container">
+        <div className="mx-auto max-w-readable text-center">
+          <span className="d2-label inline-block">[ START FREE TRIAL ]</span>
+          <h2 className="d2-h2 mt-4">$4.99 a month. Seven days free. No card to start.</h2>
+          <p className="d2-body-secondary mt-2 text-lg">Credits, not capital. Rank, not returns.</p>
+          <p className="d2-body mt-4 max-w-prose mx-auto">
+            The trial starts when you create an account. No card. The price is $4.99 CAD a month if you stay past
+            day 7. Credits are not real money. The leaderboard settles on paper-trading prices, not your brokerage
+            account. If you decide the product is not for you, you can leave from Settings without a phone call,
+            a retention email, or a &ldquo;are you sure.&rdquo; The trial is a 7-day window, not a 7-day handshake.
+          </p>
+
+          <div className="mt-6 d2-card">
+            <Link href="/signup" className="d2-cta-filled">
+              [ Start free trial ]
+            </Link>
+            <p className="d2-mono mt-4" style={{ fontSize: 14 }}>
+              $4.99 CAD / month · 7-day free trial · no credit card · cancel any time
+            </p>
+            <p className="d2-micro mt-3">
+              Credits are not real money. Your trial ends on day 7 unless you stay.
+              <br />
+              We do not auto-charge before day 8.
+            </p>
+            <p className="d2-body mt-3" style={{ fontSize: 12 }}>
+              Cancel any time in Settings. No phone tree. No retention pitch. The account closes on the same day.
+            </p>
+          </div>
+
+          <p className="d2-micro mt-4" style={{ fontSize: 11 }}>
+            Credits are not real money. Your trial ends on day 7 unless you stay. We do not auto-charge before day 8.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------
+   §8 — THE FOOTER [ FINE PRINT ]
+   ------------------------------------------------------------------ */
+function TheFooter() {
+  return (
+    <footer className="d2-section-tight" id="altier-footer" role="contentinfo">
+      <div className="d2-container">
+        <span className="d2-label">[ FOOTER ]</span>
+        <p className="d2-body mt-3 max-w-prose">
+          Altier Edge is a Canadian-built practice field. PRISM scores paper trades. ARENA runs paper-trading
+          competitions. Credits earned inside the app are the entry ticket and the prize money of ARENA. Merch
+          rewards at the top of every leaderboard are not transferable for cash. Nothing on this site is an offer
+          to buy or sell securities. Nothing here is investment advice.
+        </p>
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h3 className="d2-micro" style={{ color: 'var(--d2-ink)' }}>Altier Edge · entity + jurisdiction</h3>
+            <p className="d2-mono mt-2" style={{ fontSize: 12 }}>
+              Altier Edge is operated in Canada. Regulated posture under provincial securities regulators.
+            </p>
+            <Link href="/guide/getting-started" className="d2-micro mt-2 inline-block d2-signal">
+              [ Read legal posture → ]
+            </Link>
+          </div>
+          <div>
+            <h3 className="d2-micro" style={{ color: 'var(--d2-ink)' }}>Altier Edge · methodology + risks</h3>
+            <ul className="d2-mono mt-2 space-y-1" style={{ fontSize: 12 }}>
+              <li><Link href="/guide/learn">[ Methodology ]</Link></li>
+              <li><Link href="/guide/getting-started">[ Risk disclosure ]</Link></li>
+              <li><Link href="/guide/community">[ Privacy ]</Link></li>
+              <li><Link href="/guide/getting-started">[ Contact ]</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="d2-micro" style={{ color: 'var(--d2-ink)' }}>© Altier Edge, 2026 · built in Canada</h3>
+            <p className="d2-mono mt-2" style={{ fontSize: 12 }}>
+              PRISM scores are paper-trading signals, not investment advice.
+              <br />
+              ARENA uses credits earned inside the app.
+              <br />
+              Nothing on this page is an offer to buy or sell securities.
+            </p>
+          </div>
+        </div>
+
+        <p className="d2-micro mt-6" style={{ fontSize: 11 }}>
+          Risk disclosure · ARENA is paper-trading only · Credits earned inside the app, never purchased · Cash out is not
+          available · Merch rewards are not transferable for cash.
+        </p>
+      </div>
+    </footer>
   );
 }

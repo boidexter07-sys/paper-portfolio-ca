@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LandingPage } from './LandingPage';
@@ -16,12 +17,12 @@ type ShellProps = {
 };
 
 const NAV = [
-  { href: '/', label: 'Home', short: 'Home', walkTarget: 'discover-link' },
-  { href: '/discover', label: 'Discover', short: 'Discover', walkTarget: 'discover-link' },
-  { href: '/portfolio', label: 'Portfolio', short: 'Portfolio', walkTarget: 'portfolio-link' },
-  { href: '/learn', label: 'Learn', short: 'Learn', walkTarget: null },
-  { href: '/guide', label: 'Guide', short: 'Guide', walkTarget: null },
-  { href: '/account', label: 'Account', short: 'Account', walkTarget: null },
+  { href: '/', label: 'Home' },
+  { href: '/discover', label: 'Discover' },
+  { href: '/learn', label: 'Learn' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/community', label: 'Community' },
+  { href: '/arena', label: 'ARENA' },
 ];
 
 export function AppShell({ user, hasClan, children }: ShellProps) {
@@ -45,165 +46,323 @@ export function AppShell({ user, hasClan, children }: ShellProps) {
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <header className="sticky top-0 z-30 bg-bone/90 backdrop-blur border-b border-fog">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-7 w-7 text-mark" />
-            <span className="font-serif text-h4 text-ink">Paper Portfolio</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-2 text-caption text-stone">
-            <span className="pv-eyebrow">Learning tool</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-            <span className="hidden sm:inline text-caption text-stone">{user.email}</span>
-            <Link href="/account" className="pv-btn-ghost text-body-sm">Account</Link>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex">
-        <aside className="hidden md:block w-56 shrink-0 py-6 pr-4">
-          <nav className="sticky top-20 space-y-1">
-            {NAV.map((n) => (
-              <Link
-                key={n.href}
-                href={n.href}
-                data-walk-target={n.walkTarget ?? undefined}
-                className={`block px-3 py-2 rounded-md text-body-sm transition-colors ${
-                  isActive(n.href) ? 'bg-fog text-ink font-medium' : 'text-graphite hover:bg-fog'
-                }`}
-              >
-                {n.label}
-              </Link>
-            ))}
-            <div className="pt-4 mt-4 border-t border-fog">
-              <Link
-                href="/community"
-                className={`block px-3 py-2 rounded-md text-body-sm transition-colors ${
-                  isActive('/community') ? 'bg-fog text-ink font-medium' : 'text-graphite hover:bg-fog'
-                }`}
-              >
-                Community
-              </Link>
-              {showClanNav && (
-                <Link
-                  href="/arena"
-                  className={`block px-3 py-2 rounded-md text-body-sm transition-colors ${
-                    isActive('/arena') ? 'bg-fog text-ink font-medium' : 'text-graphite hover:bg-fog'
-                  }`}
-                >
-                  Clan Challenges
-                </Link>
-              )}
-            </div>
-            <div className="pt-4 text-caption text-stone px-3">
-              Paper trading only.<br />Nothing is investment advice.
-            </div>
-          </nav>
-        </aside>
-
-        <main className="flex-1 min-w-0 pb-24 md:pb-12">
-          {children}
-        </main>
-      </div>
-
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-bone border-t border-fog">
-        <div className="grid" style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}>
-          {NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={`flex flex-col items-center justify-center py-2 text-caption ${
-                isActive(n.href) ? 'text-mark' : 'text-graphite'
-              }`}
-            >
-              <NavIcon name={n.short} active={isActive(n.href)} />
-              <span className="mt-0.5">{n.short}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    </div>
-  );
-}
-
-function UnauthHome({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-fog bg-bone sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-7 w-7 text-mark" />
-            <span className="font-serif text-h4 text-ink">Paper Portfolio</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            {/* T29: added whitespace-nowrap so the two buttons never break
-                onto two lines when the viewport tightens. Also shortened
-                the CTA copy so both fit comfortably at 1280px and 375px.
-                The `pv-btn-primary` class sets `display: inline-flex`
-                which beats Tailwind's `.hidden` utility at the same
-                specificity (CSS source order). So we wrap each Link in
-                a `<span>` that owns the responsive visibility — the
-                span's `.hidden` rule applies cleanly, and the Link's
-                `.pv-btn-primary` styling is untouched. */}
-            <Link href="/login" className="pv-btn-ghost text-body-sm whitespace-nowrap">
-              Log in
-            </Link>
-            <span className="hidden sm:inline-flex">
-              <Link
-                href="/signup"
-                className="pv-btn-primary text-body-sm whitespace-nowrap"
-              >
-                Start free trial
-              </Link>
-            </span>
-            <span className="inline-flex sm:hidden">
-              <Link
-                href="/signup"
-                className="pv-btn-primary text-body-sm whitespace-nowrap"
-              >
-                Sign up
-              </Link>
-            </span>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1">
-        <LandingPage />
+      <D2Nav user={user} isActive={isActive} showClanNav={showClanNav} />
+      <main className="flex-1 min-w-0">
         {children}
       </main>
     </div>
   );
 }
 
-function Logo({ className }: { className?: string }) {
+/* ------------------------------------------------------------------
+   D2 Top-bar Nav — locked from muse-section-copy.md §nav-persistent.
+   Desktop (>=1024px): brand wordmark LEFT, links CENTER/RIGHT, CTA FAR RIGHT.
+   Mobile (<1024px): brand LEFT, hamburger RIGHT. Tap → side drawer from RIGHT.
+   ------------------------------------------------------------------ */
+
+function D2Nav({
+  user,
+  isActive,
+  showClanNav,
+}: {
+  user: { id: string; email: string };
+  isActive: (href: string) => boolean;
+  showClanNav: boolean;
+}) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Lock body scroll while drawer open
+  useEffect(() => {
+    if (drawerOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [drawerOpen]);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [usePathname()]);
+
   return (
-    <svg viewBox="0 0 28 28" fill="none" className={className} aria-label="Paper Portfolio logo">
-      <rect x="2" y="2" width="24" height="24" rx="6" fill="currentColor" />
-      <path d="M8 18 L14 8 L20 18" stroke="#F7F7F4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d="M11 18 L14 13 L17 18" stroke="#F7F7F4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
+    <>
+      <header className="d2-nav" role="banner">
+        <div className="d2-nav-inner">
+          {/* Brand wordmark LEFT — JetBrains Mono Medium 18px + tagline 12px UPPERCASE letter-spaced +0.08em color #555550 */}
+          <Link href="/" className="d2-wordmark" aria-label="Altier Edge home">
+            <span className="d2-wordmark-mark">altier edge</span>
+            <span className="d2-wordmark-tag">THE INVESTING PRACTICE FIELD</span>
+          </Link>
+
+          {/* Desktop nav links CENTER/RIGHT */}
+          <nav className="d2-nav-links" aria-label="Primary">
+            <Link
+              href="/"
+              className={`d2-nav-link ${isActive('/') && pathnameExact('/') ? 'is-active' : ''} hidden lg:inline-block`}
+            >
+              Home
+            </Link>
+            <Link
+              href="/discover"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/discover') ? 'is-active' : ''}`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/learn"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/learn') ? 'is-active' : ''}`}
+            >
+              Learn
+            </Link>
+            <Link
+              href="/portfolio"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/portfolio') ? 'is-active' : ''}`}
+            >
+              Portfolio
+            </Link>
+            <Link
+              href="/community"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/community') ? 'is-active' : ''}`}
+            >
+              Community
+            </Link>
+            <Link
+              href="/arena"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/arena') ? 'is-active' : ''}`}
+            >
+              ARENA
+            </Link>
+          </nav>
+
+          {/* Right cluster — CTA + user chip + hamburger (mobile) */}
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <span className="hidden md:inline d2-micro">{user.email}</span>
+            <Link
+              href="/account"
+              className="hidden lg:inline-flex pv-btn-ghost"
+              style={{ padding: '6px 12px', fontSize: 11 }}
+            >
+              Account
+            </Link>
+            <Link href="/signup" className="d2-cta hidden lg:inline-flex">
+              [ Start free trial ]
+            </Link>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="lg:hidden d2-cta"
+              aria-label="Open menu"
+              style={{ padding: '8px 12px' }}
+            >
+              ≡
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile drawer */}
+      {drawerOpen && (
+        <>
+          <div
+            className="d2-drawer-backdrop"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="d2-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
+            <div className="d2-drawer-header">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close menu"
+                className="d2-cta"
+                style={{ padding: '6px 10px' }}
+              >
+                ×
+              </button>
+            </div>
+            <nav aria-label="Mobile primary">
+              {NAV.map((n) => (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={`d2-drawer-link ${isActive(n.href) ? 'is-active' : ''}`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  {n.label}
+                </Link>
+              ))}
+              <Link
+                href="/account"
+                className="d2-drawer-link"
+                onClick={() => setDrawerOpen(false)}
+              >
+                Account
+              </Link>
+            </nav>
+            <div className="d2-drawer-cta">
+              <Link href="/signup" className="d2-cta-filled w-full justify-center">
+                [ Start free trial ]
+              </Link>
+              <p className="d2-micro mt-3 text-center" style={{ color: 'var(--d2-text-tertiary)' }}>
+                {user.email}
+              </p>
+            </div>
+          </aside>
+        </>
+      )}
+    </>
   );
 }
 
-function NavIcon({ name, active }: { name: string; active: boolean }) {
-  const color = active ? '#7A5230' : '#3A424C';
-  const stroke = { stroke: color, strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, fill: 'none' };
-  switch (name) {
-    case 'Home':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><path d="M3 11 L12 4 L21 11 V20 H15 V14 H9 V20 H3 Z" {...stroke} /></svg>;
-    case 'Discover':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="11" cy="11" r="6" {...stroke} /><path d="M16 16 L21 21" {...stroke} /></svg>;
-    case 'Portfolio':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><path d="M4 8 H20 V20 H4 Z" {...stroke} /><path d="M9 8 V5 H15 V8" {...stroke} /></svg>;
-    case 'Learn':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><path d="M4 5 H20 V19 H4 Z" {...stroke} /><path d="M4 5 L12 11 L20 5" {...stroke} /></svg>;
-    case 'Guide':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="12" cy="12" r="9" {...stroke} /><path d="M15 9 L11 11 L9 15 L13 13 Z" {...stroke} /></svg>;
-    case 'Account':
-      return <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="12" cy="8" r="4" {...stroke} /><path d="M4 21 C4 16 8 14 12 14 C16 14 20 16 20 21" {...stroke} /></svg>;
-    default:
-      return null;
-  }
+// Pathname equality helper (avoids pulling usePathname twice in AppShell scope)
+function pathnameExact(href: string): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.location.pathname === href;
+}
+
+function UnauthHome({ children }: { children: React.ReactNode }) {
+  return <UnauthD2Layout>{children}</UnauthD2Layout>;
+}
+
+/* ------------------------------------------------------------------
+   Unauthenticated landing layout — D2 nav for logged-out users.
+   ------------------------------------------------------------------ */
+function UnauthD2Layout({ children }: { children: React.ReactNode }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const pathname = usePathname() || '/';
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+
+  useEffect(() => {
+    if (drawerOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [drawerOpen]);
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="d2-nav">
+        <div className="d2-nav-inner">
+          <Link href="/" className="d2-wordmark" aria-label="Altier Edge home">
+            <span className="d2-wordmark-mark">altier edge</span>
+            <span className="d2-wordmark-tag">THE INVESTING PRACTICE FIELD</span>
+          </Link>
+          <nav className="d2-nav-links" aria-label="Primary">
+            <Link href="/" className={`d2-nav-link hidden lg:inline-block ${pathname === '/' ? 'is-active' : ''}`}>
+              Home
+            </Link>
+            <Link
+              href="/discover"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/discover') ? 'is-active' : ''}`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/learn"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/learn') ? 'is-active' : ''}`}
+            >
+              Learn
+            </Link>
+            <Link
+              href="/portfolio"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/portfolio') ? 'is-active' : ''}`}
+            >
+              Portfolio
+            </Link>
+            <Link
+              href="/community"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/community') ? 'is-active' : ''}`}
+            >
+              Community
+            </Link>
+            <Link
+              href="/arena"
+              className={`d2-nav-link hidden lg:inline-block ${isActive('/arena') ? 'is-active' : ''}`}
+            >
+              ARENA
+            </Link>
+          </nav>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden lg:inline-flex pv-btn-ghost"
+              style={{ padding: '6px 12px', fontSize: 11 }}
+            >
+              Log in
+            </Link>
+            <Link href="/signup" className="d2-cta hidden lg:inline-flex">
+              [ Start free trial ]
+            </Link>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="lg:hidden d2-cta"
+              aria-label="Open menu"
+              style={{ padding: '8px 12px' }}
+            >
+              ≡
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {drawerOpen && (
+        <>
+          <div
+            className="d2-drawer-backdrop"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="d2-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
+            <div className="d2-drawer-header">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close menu"
+                className="d2-cta"
+                style={{ padding: '6px 10px' }}
+              >
+                ×
+              </button>
+            </div>
+            <nav aria-label="Mobile primary">
+              {NAV.map((n) => (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={`d2-drawer-link ${isActive(n.href) ? 'is-active' : ''}`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  {n.label}
+                </Link>
+              ))}
+              <Link href="/login" className="d2-drawer-link" onClick={() => setDrawerOpen(false)}>
+                Log in
+              </Link>
+            </nav>
+            <div className="d2-drawer-cta">
+              <Link href="/signup" className="d2-cta-filled w-full justify-center">
+                [ Start free trial ]
+              </Link>
+            </div>
+          </aside>
+        </>
+      )}
+
+      <main className="flex-1">
+        {children}
+      </main>
+    </div>
+  );
 }

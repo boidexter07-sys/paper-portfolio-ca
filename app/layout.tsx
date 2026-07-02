@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Source_Serif_4 } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '@/components/AppShell';
 import { FirstSignalModal } from '@/components/FirstSignalModal';
@@ -18,18 +18,18 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 });
 
-const serif = Source_Serif_4({
+const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-serif',
+  variable: '--font-mono',
   weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
-  title: 'Paper Portfolio Canada — Practice reading stocks with paper portfolios',
+  title: 'Altier Edge — The investing practice field',
   description:
-    'Paper Portfolio Canada is a learning tool for paper portfolios. Search 1,216 stocks, see plain-language signals, and practice trading with no real money. Nothing here is investment advice.',
-  applicationName: 'Paper Portfolio Canada',
+    'Altier Edge is a Canadian-built practice field for investors. PRISM scores every stock 0 to 100. ARENA runs paper-trading competitions on top. No real money. Credits, not cash.',
+  applicationName: 'Altier Edge',
   robots: { index: false, follow: false },
 };
 
@@ -43,8 +43,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const hasClan = user ? listUserClans(user.id).length > 0 : false;
 
   return (
-    <html lang="en" className={`${inter.variable} ${serif.variable}`}>
-      <body>
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+      <body className="font-sans">
         <ToastProvider>
           <AppShell user={shellUser} hasClan={hasClan}>
             {children}

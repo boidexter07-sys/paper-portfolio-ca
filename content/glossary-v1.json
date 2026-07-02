@@ -79,7 +79,7 @@
   },
   {
     "term": "Canadian Dollar (CAD)",
-    "definition": "The currency of Canada, often the reporting currency for Paper Portfolio Canada portfolios and prices.",
+    "definition": "The currency of Canada, often the reporting currency for Altier Edge portfolios and prices.",
     "category": "canada_specific",
     "see_also": []
   },
@@ -451,7 +451,7 @@
     ]
   },
   {
-    "term": "Paper Portfolio",
+    "term": "Altier Edge",
     "definition": "A fake list of holdings used to practise decisions without risking actual cash.",
     "category": "paper_trading",
     "see_also": [

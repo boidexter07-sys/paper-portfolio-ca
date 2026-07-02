@@ -1,30 +1,48 @@
 /** @type {import('tailwindcss').Config} */
+// Altier Edge — D2 Architectural Grid design tokens.
+// Locked from docs/t62/direction-02-tokens.json.
+// Brutalist: ink on bone, JetBrains Mono + Inter, 2px ink borders,
+// orange #FF3B00 reserved for signal only.
 module.exports = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        ink: '#0F1419',
-        graphite: '#3A424C',
-        stone: '#6E7681',
-        mist: '#C7CCD3',
-        fog: '#E8EAED',
-        paper: '#F7F7F4',
+        // D2 token map
+        ink: '#0A0A0A',
+        graphite: '#2A2A2A',
+        stone: '#555550',
+        quaternary: '#8A8880',
+        fog: '#D5D3CC',
+        rule: 'rgba(10,10,10,0.04)',
+        paper: '#FAFAF7',
+        panel: '#F2F2EE',
+        elevated: '#ECECE7',
         bone: '#FFFFFF',
-        mark: '#7A5230',
+        // Brand signals
+        signal: '#FF3B00',         // D2 brand accent (orange)
+        signal_alt: '#0046FF',
+        // Inverse
+        inverse: '#1A1A1A',
+        inverse_fg: '#E5E5E0',
+        // Backwards-compat aliases — keeps older component class names
+        // (text-ink, bg-paper, etc.) wired to D2 tokens.
+        mark: '#FF3B00',
         positive: '#2E6B4F',
         negative: '#8B2C2C',
         warn: '#A86A1F',
         info: '#2C4F7A',
+        mist: '#C0BEB6',
       },
       fontFamily: {
-        serif: [
-          '"Source Serif 4"',
-          '"Source Serif Pro"',
-          'Charter',
-          '"Iowan Old Style"',
-          'Georgia',
-          'serif',
+        // Display + code: JetBrains Mono. Body: Inter.
+        mono: [
+          '"JetBrains Mono"',
+          '"JetBrains Mono Medium"',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'monospace',
         ],
         sans: [
           'Inter',
@@ -35,9 +53,16 @@ module.exports = {
           'Arial',
           'sans-serif',
         ],
+        // Aliases for old components
+        serif: [
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'sans-serif',
+        ],
       },
       fontSize: {
-        display: ['3rem', { lineHeight: '1.10' }],
+        display: ['64px', { lineHeight: '1.08', letterSpacing: '-0.03em' }],
         h1: ['2.25rem', { lineHeight: '1.15' }],
         h2: ['1.75rem', { lineHeight: '1.20' }],
         h3: ['1.375rem', { lineHeight: '1.25' }],
@@ -52,13 +77,17 @@ module.exports = {
         readable: '36rem',
       },
       borderRadius: {
-        sm: '4px',
-        md: '8px',
-        lg: '12px',
+        // D2: no rounded corners.
+        sm: '0px',
+        md: '0px',
+        lg: '0px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15, 20, 25, 0.04), 0 1px 3px rgba(15, 20, 25, 0.05)',
-        modal: '0 10px 25px rgba(15, 20, 25, 0.12), 0 4px 10px rgba(15, 20, 25, 0.08)',
+        // D2: brutalist offset shadow.
+        brutal: '4px 4px 0 #0A0A0A',
+        brutal_sm: '2px 2px 0 #0A0A0A',
+        card: '0 1px 0 #D5D3CC',
+        modal: '4px 4px 0 #0A0A0A',
       },
     },
   },

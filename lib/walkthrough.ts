@@ -1,68 +1,91 @@
-// T43: ARENA How-To-Play walkthrough — client-safe data + helpers.
-//
-// This module exports only plain data and pure helpers. The server-only
-// DB-touching functions (markWalkthroughComplete / resetWalkthrough)
-// live in lib/walkthrough.server.ts so they never get bundled into
-// client code (which would drag better-sqlite3 + node:fs into the
-// browser chunk).
-//
-// Step keys are stable; never renumber — the per-step URLs are
-// /walkthrough/<key>. Renumbering would break bookmarks.
+// Altier Edge — 8-step guided tour.
+// Locked from copy/muse-guided-tour.md.
+// Steps: Account setup → Run PRISM → Watchlist → Enter challenge →
+// See leaderboard → Claim merch → Find Learn → Follow a clan.
 
 export const WALKTHROUGH_STEPS = [
   {
-    key: 'welcome',
-    title: 'Welcome to the arena',
+    key: 'account-setup',
+    title: 'Set up your account',
     body:
-      'This is a paper-trading learning tool. No real money moves — every signal and trade is a chance to practice reading stocks without risk. Take five minutes to see how it works.',
-    target: null as string | null,
-    illustration: 'welcome',
-    nextLabel: "Let's go",
+      'Pick a username, set your timezone to Eastern Time, and choose which account types you want to track (RRSP, TFSA, taxable).',
+    target: '[data-walk-target="account-menu"]',
+    illustration: 'account-setup',
+    nextLabel: 'Next',
+    action: 'next' as const,
   },
   {
-    key: 'pick-challenge',
-    title: 'Pick your first challenge',
+    key: 'run-prism',
+    title: 'Run PRISM on a stock',
     body:
-      'Challenges are small, concrete goals — predict a price target, beat a benchmark, time an earnings release. Browse the challenge list, read the rules, and pick one that lines up with your style.',
+      'Type a ticker you know. PRISM scores every stock 0 to 100. Tap the score to see the five-layer breakdown.',
     target: '[data-walk-target="discover-link"]',
-    illustration: 'pick-challenge',
-    nextLabel: 'Next',
+    illustration: 'run-prism',
+    nextLabel: 'Try it',
+    action: 'try' as const,
   },
   {
-    key: 'build-portfolio',
-    title: 'Build your challenge portfolio',
+    key: 'watchlist',
+    title: 'Add to your watchlist',
     body:
-      'A challenge portfolio is a separate sandbox per challenge — so a risky bet on one stock can’t bleed into the rest of your paper trading. Open the challenge detail page and follow its setup steps.',
-    target: '[data-walk-target="portfolio-link"]',
-    illustration: 'build-portfolio',
-    nextLabel: 'Next',
+      'The watchlist keeps the tickers you want to follow on one screen. Add as many as you want. The list stays between sessions.',
+    target: '[data-walk-target="watchlist-cta"]',
+    illustration: 'watchlist',
+    nextLabel: 'Try it',
+    action: 'try' as const,
   },
   {
-    key: 'submit-track',
-    title: 'Submit and track',
+    key: 'enter-challenge',
+    title: 'Enter your first challenge',
     body:
-      'Submit your entry when you’re ready. From there the challenge ledger tracks progress in plain language — what’s working, what isn’t, and what the room is doing.',
+      'Pick a Rookie-tier challenge. Stake a small amount of credits. The window is 1–3 days. The leaderboard settles on real prices at the close.',
+    target: '[data-walk-target="arena-cta"]',
+    illustration: 'enter-challenge',
+    nextLabel: 'Next',
+    action: 'next' as const,
+    disclosure: '[ Paper-trading only · credits, not cash ]',
+  },
+  {
+    key: 'leaderboard',
+    title: 'See the live leaderboard',
+    body:
+      'Leaderboards settle once a day at 4:30 p.m. ET. Refresh is a re-rank, not a tick. The IDs are anonymized.',
     target: '[data-walk-target="leaderboard-link"]',
-    illustration: 'submit-track',
+    illustration: 'leaderboard',
     nextLabel: 'Next',
+    action: 'next' as const,
+    disclosure: '[ Refresh is a re-rank, not a tick · settlement at 4:30 p.m. ET ]',
   },
   {
-    key: 'earn-credits',
-    title: 'Earn credits',
+    key: 'claim-merch',
+    title: 'Claim your merch credits',
     body:
-      'Winning challenges pays out credits — like coins at an arcade. Credits are paper too, but they unlock the merch wall: t-shirts, mugs, and the limited seasonal drops.',
-    target: null as string | null,
-    illustration: 'earn-credits',
-    nextLabel: 'Next',
+      'Credits earned inside the app can be spent on merch from the catalog. The catalog rotates seasonally. Merch ships to your address on file.',
+    target: '[data-walk-target="rewards-cta"]',
+    illustration: 'claim-merch',
+    nextLabel: 'Try it',
+    action: 'try' as const,
+    disclosure: '[ Merch rewards are not transferable for cash ]',
   },
   {
-    key: 'spend-merch',
-    title: 'Spend on merch',
+    key: 'find-learn',
+    title: 'Read your first Learn article',
     body:
-      'Open the merch wall, browse what’s in stock, and cash in your credits. Shipping is paper-only too, so the whole loop stays risk-free.',
-    target: '[data-walk-target="credits-link"]',
-    illustration: 'spend-merch',
-    nextLabel: 'Finish',
+      'Learn is the in-app library. Six articles ship on day one. The first article is "What is a stock, really?" — 5 minutes, no jargon.',
+    target: '[data-walk-target="learn-link"]',
+    illustration: 'find-learn',
+    nextLabel: 'Try it',
+    action: 'try' as const,
+  },
+  {
+    key: 'follow-clan',
+    title: 'Follow a small clan',
+    body:
+      'Clans are small groups of 3–10 who run paper-trading contests together. Follow one to see how group challenges settle. You can leave any clan from Settings.',
+    target: '[data-walk-target="clan-join"]',
+    illustration: 'follow-clan',
+    nextLabel: 'Finish tour',
+    action: 'finish' as const,
   },
 ] as const;
 

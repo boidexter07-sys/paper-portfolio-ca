@@ -1,4 +1,4 @@
-// Paper Portfolio Canada motion library.
+// Altier Edge motion library.
 //
 // Six canonical animations, each with a prefers-reduced-motion fallback:
 //   1. Count-up   — useCountUp()
