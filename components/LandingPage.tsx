@@ -1,6 +1,7 @@
 // Altier Edge — Home page (D3 Cinematic Motion).
 // 8-section spine per T70 task body §2 / docs/d3-takes-two/section-reference-mapping.md.
 // Each section applies ONE reference's structural device.
+// §7 is "Get Started" — freemium-first framing, no subscription gate front-of-page.
 // Server component. Single motion language: rank row entrance (mounted via client sibling).
 
 import Link from 'next/link';
@@ -21,15 +22,15 @@ export function LandingPage() {
             Real prices, settled at 4:30 p.m. ET.
           </p>
           <div className="d3-hero-cta-row">
-            <Link href="/signup" className="d3-btn d3-btn-primary">Start free trial</Link>
+            <Link href="/signup" className="d3-btn d3-btn-primary">Start free — score a stock</Link>
             <Link href="/discover" className="d3-btn d3-btn-ghost">See PRISM on a stock</Link>
           </div>
         </div>
 
         <div className="d3-hero-foot">
+          <span>Free to play</span>
           <span>1,247 stocks scored</span>
           <span>Built in Canada</span>
-          <span>$4.99 CAD / month</span>
         </div>
       </section>
 
@@ -331,7 +332,7 @@ export function LandingPage() {
 
           <div className="d3-rank-foot">
             <p>Daily summary fires at 4:30 p.m. ET · refresh is a re-rank, not a tick.</p>
-            <p>During the trial, the row you would appear in lights up on the next re-rank.</p>
+            <p>During your first session, the row you would appear in lights up on the next re-rank.</p>
             <p>{ALTIER_DISCLOSURES.arenaRank}</p>
           </div>
 
@@ -341,38 +342,38 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* §7 · THE TRIAL — Supaste single panel, teal ring */}
+      {/* §7 · GET STARTED — freemium-first, no gate. Same teal ring treatment the Trial had,
+          refocused: start free, base ARENA stakes free, opt into bigger stakes in-app. */}
       <section className="d3-section d3-trial is-rail-aware" id="d3-trial" aria-labelledby="trial-h">
         <div className="d3-container">
           <div className="d3-trial-inner">
             <h2 id="trial-h" className="d3-trial-head">
-              $4.99 a month. <em>Seven days free.</em> No card to start.
+              Free to play. <em>Real stakes still paper.</em> No card to start.
             </h2>
             <p className="d3-trial-tagline">Credits, not capital. Rank, not returns.</p>
 
             <div className="d3-trial-panel">
-              <p className="d3-trial-eyebrow">Start Free Trial</p>
-              <p className="d3-trial-price">$4.99<span style={{ fontSize: 24, color: 'var(--d3-ink-muted)', fontFamily: 'var(--font-mono)' }}> CAD / month</span></p>
+              <p className="d3-trial-eyebrow">Start Free</p>
+              <p className="d3-trial-price">$0<span style={{ fontSize: 24, color: 'var(--d3-ink-muted)', fontFamily: 'var(--font-mono)' }}> to play</span></p>
 
               <div className="d3-trial-terms">
-                <p>$4.99 CAD / month</p>
-                <p>7-day free trial</p>
-                <p>No credit card</p>
-                <p>Cancel any time</p>
+                <p>Free account — no card</p>
+                <p>5-credit base stakes on every ARENA challenge</p>
+                <p>PRISM access on 1,247 stocks</p>
+                <p>Opt into bigger stakes any time, inside the app</p>
               </div>
 
               <p className="d3-trial-reinforce">
-                Credits are not real money. Your trial ends on day 7 unless you stay.
-                We do not auto-charge before day 8.
+                You start with starter credits. Credits are not real money. There is no charge
+                to play the base layer. Bigger stakes (and merch) are an opt-in from your account.
               </p>
 
               <Link href="/signup" className="d3-btn d3-btn-primary" style={{ width: '100%', textAlign: 'center', padding: '18px 24px' }}>
-                Start free trial
+                Start free
               </Link>
 
               <p className="d3-trial-cancel">
-                Cancel any time in Settings. No phone tree. No retention pitch.
-                The account closes on the same day.
+                No phone tree. No retention pitch. Close your account in Settings, same day.
               </p>
             </div>
           </div>

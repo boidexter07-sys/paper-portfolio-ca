@@ -33,7 +33,7 @@ const RAIL = [
   { id: 'd3-credentials', num: '04', name: 'Credentials' },
   { id: 'd3-mechanic',    num: '05', name: 'ARENA — Mechanic' },
   { id: 'd3-rank',        num: '06', name: 'ARENA — Rank' },
-  { id: 'd3-trial',       num: '07', name: 'Trial' },
+  { id: 'd3-trial',       num: '07', name: 'Get started' },
   { id: 'd3-footer',      num: '08', name: 'Footer' },
 ];
 
@@ -71,7 +71,7 @@ export function AppShell({ user, hasClan, children }: ShellProps) {
 /* ------------------------------------------------------------------
    D3 Sticky Top Bar — locked from task body §1 + d3-tokens.json.
    Desktop (>=1024px): brand wordmark LEFT (serif lowercase + tagline),
-   nav links CENTER, "Start free trial" CTA FAR RIGHT (no brackets).
+   nav links CENTER, "Start free" CTA FAR RIGHT (no brackets).
    Mobile (<1024px): wordmark LEFT, hamburger RIGHT; side drawer from RIGHT.
    ------------------------------------------------------------------ */
 
@@ -138,7 +138,7 @@ function D3Nav({
               Account
             </Link>
             <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
-              Start free trial
+             Start free
             </Link>
             <button
               type="button"
@@ -192,10 +192,10 @@ function D3Nav({
             </nav>
             <div className="d3-drawer-cta">
               <Link href="/signup" className="d3-btn d3-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
-                Start free trial
+                Start free
               </Link>
               <p className="d3-mono" style={{ fontSize: 10, color: 'var(--d3-ink-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 16, textAlign: 'center' }}>
-                Seven-day free trial · No credit card · Cancel any time
+                Free to play · No card · Close any time
               </p>
             </div>
           </aside>
@@ -298,7 +298,7 @@ function UnauthLayout({ children }: { children: React.ReactNode }) {
               Log in
             </Link>
             <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
-              Start free trial
+             Start free
             </Link>
             <button
               type="button"
@@ -354,10 +354,10 @@ function UnauthLayout({ children }: { children: React.ReactNode }) {
             </nav>
             <div className="d3-drawer-cta">
               <Link href="/signup" className="d3-btn d3-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
-                Start free trial
+                Start free
               </Link>
               <p className="d3-mono" style={{ fontSize: 10, color: 'var(--d3-ink-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 16, textAlign: 'center' }}>
-                Seven-day free trial · No credit card · Cancel any time
+                Free to play · No card · Close any time
               </p>
             </div>
           </aside>
