@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '@/components/AppShell';
 import { FirstSignalModal } from '@/components/FirstSignalModal';
@@ -25,6 +25,14 @@ const jetbrains = JetBrains_Mono({
   weight: ['400', '500', '600'],
 });
 
+const sourceSerif = Source_Serif_4({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: ['400', '600', '700'],
+  style: ['normal', 'italic'],
+});
+
 export const metadata: Metadata = {
   title: 'Altier Edge — The investing practice field',
   description:
@@ -38,12 +46,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const daysIntoTrial = user ? getUserDaysIntoTrial(user.created_at) : 0;
   const trialExpired = user ? daysIntoTrial >= 7 : false;
   const shellUser = user ? { id: user.id, email: user.email } : null;
-  // T42: only show the "Clan Challenges" nav item if the user is a
-  // member of at least one clan, per task body §DASHBOARD.
   const hasClan = user ? listUserClans(user.id).length > 0 : false;
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`}>
       <body className="font-sans">
         <ToastProvider>
           <AppShell user={shellUser} hasClan={hasClan}>
@@ -52,10 +58,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </AppShell>
           {user && <FirstSignalModal userId={user.id} initialAck={user.acknowledged_first_signal === 1} />}
           {user && <TrialPaywall userId={user.id} expired={trialExpired} daysIntoTrial={daysIntoTrial} />}
-          {/* T43: mount the in-app walkthrough spotlight overlay on
-              first-login (gated by users.walkthrough_completed_at).
-              WalkthroughOverlayMount is a client component that
-              itself decides whether to actually render the overlay. */}
           {user && (
             <WalkthroughOverlayMount
               userId={user.id}

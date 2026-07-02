@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LandingPage } from './LandingPage';
 import { NotificationBell } from './Community/NotificationBell';
 
 type ShellUser = { id: string; email: string } | null;
@@ -25,29 +24,44 @@ const NAV = [
   { href: '/arena', label: 'ARENA' },
 ];
 
+// Persistent numbered left rail — only renders on the homepage.
+// Maps the 8 sections to a 7-item rail (hero doesn't carry a rail item).
+const RAIL = [
+  { id: 'd3-hero',        num: '01', name: 'Hero' },
+  { id: 'd3-method',      num: '02', name: 'Method' },
+  { id: 'd3-score',       num: '03', name: 'Score a stock' },
+  { id: 'd3-credentials', num: '04', name: 'Credentials' },
+  { id: 'd3-mechanic',    num: '05', name: 'ARENA — Mechanic' },
+  { id: 'd3-rank',        num: '06', name: 'ARENA — Rank' },
+  { id: 'd3-trial',       num: '07', name: 'Trial' },
+  { id: 'd3-footer',      num: '08', name: 'Footer' },
+];
+
 export function AppShell({ user, hasClan, children }: ShellProps) {
   const pathname = usePathname() || '/';
 
   // Auth pages render bare — no shell chrome.
   if (pathname === '/login' || pathname === '/signup' || pathname === '/logout') {
-    return <div className="min-h-screen bg-paper">{children}</div>;
+    return <div className="min-h-screen" style={{ background: 'var(--d3-void)' }}>{children}</div>;
   }
 
   if (!user) {
-    if (pathname === '/') return <UnauthHome>{children}</UnauthHome>;
+    if (pathname === '/') return <UnauthLayout>{children}</UnauthLayout>;
     if (typeof window !== 'undefined') {
       window.location.replace('/login');
     }
-    return <div className="p-12 text-center text-stone">Redirecting to log in…</div>;
+    return <div className="p-12 text-center" style={{ color: 'var(--d3-ink-muted)' }}>Redirecting to log in…</div>;
   }
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   const showClanNav = !!hasClan;
+  const isHome = pathname === '/';
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <D2Nav user={user} isActive={isActive} showClanNav={showClanNav} />
-      <main className="flex-1 min-w-0">
+    <div className="min-h-screen" style={{ background: 'var(--d3-void)', color: 'var(--d3-ink)' }}>
+      <D3Nav user={user} isActive={isActive} showClanNav={showClanNav} />
+      {isHome && <NumberedRail />}
+      <main className="flex-1 min-w-0" style={{ paddingTop: 0 }}>
         {children}
       </main>
     </div>
@@ -55,12 +69,13 @@ export function AppShell({ user, hasClan, children }: ShellProps) {
 }
 
 /* ------------------------------------------------------------------
-   D2 Top-bar Nav — locked from muse-section-copy.md §nav-persistent.
-   Desktop (>=1024px): brand wordmark LEFT, links CENTER/RIGHT, CTA FAR RIGHT.
-   Mobile (<1024px): brand LEFT, hamburger RIGHT. Tap → side drawer from RIGHT.
+   D3 Sticky Top Bar — locked from task body §1 + d3-tokens.json.
+   Desktop (>=1024px): brand wordmark LEFT (serif lowercase + tagline),
+   nav links CENTER, "Start free trial" CTA FAR RIGHT (no brackets).
+   Mobile (<1024px): wordmark LEFT, hamburger RIGHT; side drawer from RIGHT.
    ------------------------------------------------------------------ */
 
-function D2Nav({
+function D3Nav({
   user,
   isActive,
   showClanNav,
@@ -70,171 +85,7 @@ function D2Nav({
   showClanNav: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Lock body scroll while drawer open
-  useEffect(() => {
-    if (drawerOpen) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
-  }, [drawerOpen]);
-
-  // Close drawer on route change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [usePathname()]);
-
-  return (
-    <>
-      <header className="d2-nav" role="banner">
-        <div className="d2-nav-inner">
-          {/* Brand wordmark LEFT — JetBrains Mono Medium 18px + tagline 12px UPPERCASE letter-spaced +0.08em color #555550 */}
-          <Link href="/" className="d2-wordmark" aria-label="Altier Edge home">
-            <span className="d2-wordmark-mark">altier edge</span>
-            <span className="d2-wordmark-tag">THE INVESTING PRACTICE FIELD</span>
-          </Link>
-
-          {/* Desktop nav links CENTER/RIGHT */}
-          <nav className="d2-nav-links" aria-label="Primary">
-            <Link
-              href="/"
-              className={`d2-nav-link ${isActive('/') && pathnameExact('/') ? 'is-active' : ''} hidden lg:inline-block`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/discover"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/discover') ? 'is-active' : ''}`}
-            >
-              Discover
-            </Link>
-            <Link
-              href="/learn"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/learn') ? 'is-active' : ''}`}
-            >
-              Learn
-            </Link>
-            <Link
-              href="/portfolio"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/portfolio') ? 'is-active' : ''}`}
-            >
-              Portfolio
-            </Link>
-            <Link
-              href="/community"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/community') ? 'is-active' : ''}`}
-            >
-              Community
-            </Link>
-            <Link
-              href="/arena"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/arena') ? 'is-active' : ''}`}
-            >
-              ARENA
-            </Link>
-          </nav>
-
-          {/* Right cluster — CTA + user chip + hamburger (mobile) */}
-          <div className="flex items-center gap-3">
-            <NotificationBell />
-            <span className="hidden md:inline d2-micro">{user.email}</span>
-            <Link
-              href="/account"
-              className="hidden lg:inline-flex pv-btn-ghost"
-              style={{ padding: '6px 12px', fontSize: 11 }}
-            >
-              Account
-            </Link>
-            <Link href="/signup" className="d2-cta hidden lg:inline-flex">
-              [ Start free trial ]
-            </Link>
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(true)}
-              className="lg:hidden d2-cta"
-              aria-label="Open menu"
-              style={{ padding: '8px 12px' }}
-            >
-              ≡
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile drawer */}
-      {drawerOpen && (
-        <>
-          <div
-            className="d2-drawer-backdrop"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <aside className="d2-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
-            <div className="d2-drawer-header">
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                aria-label="Close menu"
-                className="d2-cta"
-                style={{ padding: '6px 10px' }}
-              >
-                ×
-              </button>
-            </div>
-            <nav aria-label="Mobile primary">
-              {NAV.map((n) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  className={`d2-drawer-link ${isActive(n.href) ? 'is-active' : ''}`}
-                  onClick={() => setDrawerOpen(false)}
-                >
-                  {n.label}
-                </Link>
-              ))}
-              <Link
-                href="/account"
-                className="d2-drawer-link"
-                onClick={() => setDrawerOpen(false)}
-              >
-                Account
-              </Link>
-            </nav>
-            <div className="d2-drawer-cta">
-              <Link href="/signup" className="d2-cta-filled w-full justify-center">
-                [ Start free trial ]
-              </Link>
-              <p className="d2-micro mt-3 text-center" style={{ color: 'var(--d2-text-tertiary)' }}>
-                {user.email}
-              </p>
-            </div>
-          </aside>
-        </>
-      )}
-    </>
-  );
-}
-
-// Pathname equality helper (avoids pulling usePathname twice in AppShell scope)
-function pathnameExact(href: string): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.location.pathname === href;
-}
-
-function UnauthHome({ children }: { children: React.ReactNode }) {
-  return <UnauthD2Layout>{children}</UnauthD2Layout>;
-}
-
-/* ------------------------------------------------------------------
-   Unauthenticated landing layout — D2 nav for logged-out users.
-   ------------------------------------------------------------------ */
-function UnauthD2Layout({ children }: { children: React.ReactNode }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname() || '/';
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   useEffect(() => {
     if (drawerOpen) {
@@ -251,67 +102,53 @@ function UnauthD2Layout({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="d2-nav">
-        <div className="d2-nav-inner">
-          <Link href="/" className="d2-wordmark" aria-label="Altier Edge home">
-            <span className="d2-wordmark-mark">altier edge</span>
-            <span className="d2-wordmark-tag">THE INVESTING PRACTICE FIELD</span>
+    <>
+      <header className="d3-nav" role="banner">
+        <div className="d3-nav-inner">
+          {/* Brand wordmark LEFT — Source Serif 4 700 lowercase + tagline mono uppercase */}
+          <Link href="/" className="d3-nav-brand" aria-label="Altier Edge home">
+            <span className="d3-nav-brand-name">altier edge</span>
+            <span className="d3-nav-brand-tag">THE INVESTING PRACTICE FIELD</span>
           </Link>
-          <nav className="d2-nav-links" aria-label="Primary">
-            <Link href="/" className={`d2-nav-link hidden lg:inline-block ${pathname === '/' ? 'is-active' : ''}`}>
-              Home
-            </Link>
-            <Link
-              href="/discover"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/discover') ? 'is-active' : ''}`}
-            >
-              Discover
-            </Link>
-            <Link
-              href="/learn"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/learn') ? 'is-active' : ''}`}
-            >
-              Learn
-            </Link>
-            <Link
-              href="/portfolio"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/portfolio') ? 'is-active' : ''}`}
-            >
-              Portfolio
-            </Link>
-            <Link
-              href="/community"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/community') ? 'is-active' : ''}`}
-            >
-              Community
-            </Link>
-            <Link
-              href="/arena"
-              className={`d2-nav-link hidden lg:inline-block ${isActive('/arena') ? 'is-active' : ''}`}
-            >
-              ARENA
-            </Link>
+
+          {/* Desktop nav links — Center/Right */}
+          <nav className="d3-nav-links" aria-label="Primary">
+            {NAV.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`hidden lg:inline-block ${isActive(n.href) ? 'is-active' : ''}`}
+              >
+                {n.label}
+              </Link>
+            ))}
           </nav>
+
+          {/* Right cluster — CTA + account + user chip + hamburger */}
           <div className="flex items-center gap-3">
+            <NotificationBell />
+            <span className="hidden md:inline d3-mono" style={{ fontSize: 11, color: 'var(--d3-ink-faint)' }}>
+              {user.email}
+            </span>
             <Link
-              href="/login"
-              className="hidden lg:inline-flex pv-btn-ghost"
-              style={{ padding: '6px 12px', fontSize: 11 }}
+              href="/account"
+              className="d3-btn-ghost hidden lg:inline-flex"
+              style={{ padding: '8px 14px', fontSize: 11 }}
             >
-              Log in
+              Account
             </Link>
-            <Link href="/signup" className="d2-cta hidden lg:inline-flex">
-              [ Start free trial ]
+            <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
+              Start free trial
             </Link>
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="lg:hidden d2-cta"
+              className="d3-nav-burger"
               aria-label="Open menu"
-              style={{ padding: '8px 12px' }}
             >
-              ≡
+              <span />
+              <span />
+              <span />
             </button>
           </div>
         </div>
@@ -320,41 +157,208 @@ function UnauthD2Layout({ children }: { children: React.ReactNode }) {
       {drawerOpen && (
         <>
           <div
-            className="d2-drawer-backdrop"
+            className="d3-drawer-backdrop"
             onClick={() => setDrawerOpen(false)}
             aria-hidden="true"
           />
-          <aside className="d2-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
-            <div className="d2-drawer-header">
+          <aside className="d3-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
+            <div className="d3-drawer-header">
+              <Link href="/" className="d3-nav-brand" onClick={() => setDrawerOpen(false)}>
+                <span className="d3-nav-brand-name">altier edge</span>
+              </Link>
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close menu"
-                className="d2-cta"
-                style={{ padding: '6px 10px' }}
+                className="d3-drawer-close"
               >
-                ×
+                × Close
               </button>
             </div>
-            <nav aria-label="Mobile primary">
+            <nav className="d3-drawer-links" aria-label="Mobile primary">
               {NAV.map((n) => (
                 <Link
                   key={n.href}
                   href={n.href}
-                  className={`d2-drawer-link ${isActive(n.href) ? 'is-active' : ''}`}
                   onClick={() => setDrawerOpen(false)}
+                  className={isActive(n.href) ? 'is-active' : ''}
                 >
                   {n.label}
                 </Link>
               ))}
-              <Link href="/login" className="d2-drawer-link" onClick={() => setDrawerOpen(false)}>
+              <Link href="/account" onClick={() => setDrawerOpen(false)}>
+                Account
+              </Link>
+            </nav>
+            <div className="d3-drawer-cta">
+              <Link href="/signup" className="d3-btn d3-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
+                Start free trial
+              </Link>
+              <p className="d3-mono" style={{ fontSize: 10, color: 'var(--d3-ink-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 16, textAlign: 'center' }}>
+                Seven-day free trial · No credit card · Cancel any time
+              </p>
+            </div>
+          </aside>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Numbered Rail — fixed left edge. IntersectionObserver marks active.
+   Only mounted when this component renders (homepage).
+   ------------------------------------------------------------------ */
+function NumberedRail() {
+  const [active, setActive] = useState<string>('d3-hero');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const targets = RAIL
+      .map((r) => document.getElementById(r.id))
+      .filter((el): el is HTMLElement => !!el);
+    if (targets.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Pick the visible target closest to viewport center.
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length === 0) return;
+        visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        const id = visible[0].target.id;
+        setActive(id);
+      },
+      { rootMargin: '-30% 0px -50% 0px', threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] }
+    );
+
+    targets.forEach((t) => observer.observe(t));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <aside className="d3-rail" aria-label="Section navigation">
+      {RAIL.map((r) => (
+        <div key={r.id} className={`d3-rail-item ${active === r.id ? 'is-active' : ''}`}>
+          <span className="d3-rail-num">{r.num}</span>
+          <span className="d3-rail-name">{r.name}</span>
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Unauthenticated layout — D3 nav for logged-out users (homepage only).
+   ------------------------------------------------------------------ */
+function UnauthLayout({ children }: { children: React.ReactNode }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const pathname = usePathname() || '/';
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const isHome = pathname === '/';
+
+  useEffect(() => {
+    if (drawerOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [drawerOpen]);
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--d3-void)', color: 'var(--d3-ink)' }}>
+      <header className="d3-nav">
+        <div className="d3-nav-inner">
+          <Link href="/" className="d3-nav-brand" aria-label="Altier Edge home">
+            <span className="d3-nav-brand-name">altier edge</span>
+            <span className="d3-nav-brand-tag">THE INVESTING PRACTICE FIELD</span>
+          </Link>
+          <nav className="d3-nav-links" aria-label="Primary">
+            {NAV.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`hidden lg:inline-block ${isActive(n.href) ? 'is-active' : ''}`}
+              >
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="d3-btn-ghost hidden lg:inline-flex"
+              style={{ padding: '8px 14px', fontSize: 11 }}
+            >
+              Log in
+            </Link>
+            <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
+              Start free trial
+            </Link>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="d3-nav-burger"
+              aria-label="Open menu"
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {isHome && <NumberedRail />}
+
+      {drawerOpen && (
+        <>
+          <div
+            className="d3-drawer-backdrop"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="d3-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
+            <div className="d3-drawer-header">
+              <Link href="/" className="d3-nav-brand" onClick={() => setDrawerOpen(false)}>
+                <span className="d3-nav-brand-name">altier edge</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close menu"
+                className="d3-drawer-close"
+              >
+                × Close
+              </button>
+            </div>
+            <nav className="d3-drawer-links" aria-label="Mobile primary">
+              {NAV.map((n) => (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  onClick={() => setDrawerOpen(false)}
+                  className={isActive(n.href) ? 'is-active' : ''}
+                >
+                  {n.label}
+                </Link>
+              ))}
+              <Link href="/login" onClick={() => setDrawerOpen(false)}>
                 Log in
               </Link>
             </nav>
-            <div className="d2-drawer-cta">
-              <Link href="/signup" className="d2-cta-filled w-full justify-center">
-                [ Start free trial ]
+            <div className="d3-drawer-cta">
+              <Link href="/signup" className="d3-btn d3-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
+                Start free trial
               </Link>
+              <p className="d3-mono" style={{ fontSize: 10, color: 'var(--d3-ink-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 16, textAlign: 'center' }}>
+                Seven-day free trial · No credit card · Cancel any time
+              </p>
             </div>
           </aside>
         </>
