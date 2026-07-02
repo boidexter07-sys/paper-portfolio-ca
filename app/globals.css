@@ -1,708 +1,437 @@
-/* Paper Portfolio Canada prototype styles. Theme keys live in tailwind.config.js. */
+/* Altier Edge — D2 Architectural Grid global styles.
+   Locked from docs/t62/direction-02-tokens.json. */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ========================================================================
-   Paper Portfolio Canada motion grammar
-   Reduced-motion rule: the `prefers-reduced-motion: reduce` media query
-   disables every animation below; consumers should also gate effects
-   through useReducedMotion().
-   ======================================================================== */
-
-/* Tokens — duration + easing */
 :root {
   --mo-tap: 80ms;
-  --mo-pop: 400ms;
+  --mo-pop: 200ms;
   --mo-count: 800ms;
   --mo-draw: 1200ms;
-  --mo-page: 320ms;
-  --mo-narrative: 1500ms;
-
-  --mo-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --mo-ease-decel: cubic-bezier(0, 0, 0.2, 1);
-  --mo-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --mo-ease-linear: linear;
 
-  /* Neumorphic surface (Option A accents) — same palette as the
-       rest of the prototype; shadows tint with the canvas color. */
-  --neo-canvas: #f7f7f4; /* matches theme('colors.paper') */
-  --neo-shadow: #cfd1d6;  /* drop-shadow color */
-  --neo-light: #ffffff;   /* highlight color */
+  --d2-signal: #FF3B00;
+  --d2-ink: #0A0A0A;
+  --d2-paper: #FAFAF7;
+  --d2-bone: #FFFFFF;
+  --d2-panel: #F2F2EE;
+  --d2-elevated: #ECECE7;
+  --d2-text-tertiary: #555550;
+  --d2-border: #D5D3CC;
+  --d2-inverse: #1A1A1A;
+  --d2-inverse-fg: #E5E5E0;
 }
 
-/* ------------------------------------------------------------------
-   Count-up: numbers are rendered as text, so the count itself is
-   handled in the React component (useCountUp). Nothing to animate here.
-   ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------
-   Draw-in: applied to a wrapping div around the chart. The actual
-   SVG path uses stroke-dasharray + stroke-dashoffset; the CSS just
-   keeps the wrapper opaque so the chart doesn't flicker.
-   ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------
-   Pulse: PRISM signal tier chip — scales 1 → 1.08 → 1 + color glow.
-   Add the .pv-pulse class to an element to run once.
-   ------------------------------------------------------------------ */
-@keyframes pv-pulse {
-  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(122,82,48,0.0); }
-  40%  { transform: scale(1.10); box-shadow: 0 0 0 8px rgba(122,82,48,0.18); }
-  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(122,82,48,0.0); }
-}
-.pv-pulse {
-  animation: pv-pulse 600ms var(--mo-ease-standard);
-  will-change: transform, box-shadow;
+html, body {
+  background: var(--d2-paper);
+  color: var(--d2-ink);
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ------------------------------------------------------------------
-   Shimmer: skeleton-screen highlight, 1500ms linear loop.
-   Add the class to any block element to get a moving left→right gradient.
-   ------------------------------------------------------------------ */
-@keyframes pv-shimmer {
-  0%   { background-position: -480px 0; }
-  100% { background-position: 480px 0; }
-}
-.pv-shimmer {
-  background-color: theme('colors.fog');
-  background-image: linear-gradient(
-    90deg,
-    rgba(232, 234, 237, 0)   0%,
-    rgba(255, 255, 255, 0.85) 50%,
-    rgba(232, 234, 237, 0)   100%
-  );
-  background-size: 480px 100%;
-  background-repeat: no-repeat;
-  animation: pv-shimmer 1500ms var(--mo-ease-linear) infinite;
+body { font-size: 16px; line-height: 1.55; }
+
+a { color: inherit; text-decoration: none; }
+
+.d2-eyebrow {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--d2-text-tertiary);
 }
 
-/* T43: page-level fade-in (single shot) used by WalkthroughHighlight's
-   mount transition. The overlay opacity ramps from 0 to 1 in 280ms.
-   Respects prefers-reduced-motion via the parent component's
-   useReducedMotion() check (it conditionally applies the animation
-   class rather than depending on the media query below). */
-@keyframes pv-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.d2-label {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--d2-ink);
+  border: 2px solid var(--d2-ink);
+  padding: 4px 8px;
+  display: inline-block;
+  background: var(--d2-paper);
 }
 
-/* ------------------------------------------------------------------
-   Pop: badge earned — scale 0 → 1.15 → 1 + brief rotation.
-   Add the .pv-pop class to an element to run the entry animation.
-   ------------------------------------------------------------------ */
-@keyframes pv-pop {
-  0%   { transform: scale(0)    rotate(-8deg); opacity: 0; }
-  60%  { transform: scale(1.15) rotate(8deg);  opacity: 1; }
-  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
-}
-.pv-pop {
-  animation: pv-pop 400ms var(--mo-ease-spring);
-  will-change: transform, opacity;
+.d2-h1 {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--d2-ink);
 }
 
-/* ------------------------------------------------------------------
-   Stagger: child list entry. Add .pv-stagger to a container, then each
-   direct child fades + slides in sequentially with a 50ms stagger.
-   ------------------------------------------------------------------ */
-@keyframes pv-stagger-in {
-  0%   { transform: translateY(8px); opacity: 0; }
-  100% { transform: translateY(0);   opacity: 1; }
-}
-.pv-stagger > * {
-  opacity: 0;
-  animation: pv-stagger-in 300ms var(--mo-ease-standard) forwards;
-}
-.pv-stagger > *:nth-child(1)  { animation-delay: 0ms;   }
-.pv-stagger > *:nth-child(2)  { animation-delay: 50ms;  }
-.pv-stagger > *:nth-child(3)  { animation-delay: 100ms; }
-.pv-stagger > *:nth-child(4)  { animation-delay: 150ms; }
-.pv-stagger > *:nth-child(5)  { animation-delay: 200ms; }
-.pv-stagger > *:nth-child(6)  { animation-delay: 250ms; }
-.pv-stagger > *:nth-child(7)  { animation-delay: 300ms; }
-.pv-stagger > *:nth-child(8)  { animation-delay: 350ms; }
-.pv-stagger > *:nth-child(9)  { animation-delay: 400ms; }
-.pv-stagger > *:nth-child(10) { animation-delay: 450ms; }
-.pv-stagger > *:nth-child(n+11) { animation-delay: 500ms; }
-
-/* On-screen list (e.g. watchlist rows) stagger at 40ms per item — see
-   v5-motion-grammar.md §6. */
-.pv-stagger-fast > * {
-  opacity: 0;
-  animation: pv-stagger-in 300ms var(--mo-ease-standard) forwards;
-}
-.pv-stagger-fast > *:nth-child(1)  { animation-delay: 0ms;   }
-.pv-stagger-fast > *:nth-child(2)  { animation-delay: 40ms;  }
-.pv-stagger-fast > *:nth-child(3)  { animation-delay: 80ms;  }
-.pv-stagger-fast > *:nth-child(4)  { animation-delay: 120ms; }
-.pv-stagger-fast > *:nth-child(5)  { animation-delay: 160ms; }
-.pv-stagger-fast > *:nth-child(6)  { animation-delay: 200ms; }
-.pv-stagger-fast > *:nth-child(7)  { animation-delay: 240ms; }
-.pv-stagger-fast > *:nth-child(8)  { animation-delay: 280ms; }
-.pv-stagger-fast > *:nth-child(9)  { animation-delay: 320ms; }
-.pv-stagger-fast > *:nth-child(10) { animation-delay: 360ms; }
-.pv-stagger-fast > *:nth-child(n+11) { animation-delay: 400ms; }
-
-/* ------------------------------------------------------------------
-   Plain Score coin (Accent 1) — round embossed surface with dual shadow.
-   Pressed state: shadows invert to concave (looks "pressed in").
-   ------------------------------------------------------------------ */
-.pv-coin {
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  background: var(--neo-canvas);
-  box-shadow:
-    8px 8px 24px var(--neo-shadow),
-    -8px -8px 24px var(--neo-light);
-  display: grid;
-  place-items: center;
-  transition: box-shadow 80ms var(--mo-ease-standard), transform 80ms var(--mo-ease-standard);
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.pv-coin:active {
-  box-shadow:
-    inset 6px 6px 12px var(--neo-shadow),
-    inset -6px -6px 12px var(--neo-light);
-  transform: translateY(1px);
-}
-.pv-coin-sm {
-  width: 96px;
-  height: 96px;
-}
-/* T28: lg coin is 160px so 3-digit scores like "100" fit comfortably
-   inside the circle without overflow. Used on the PRISM card hero slot. */
-.pv-coin-lg {
-  width: 160px;
-  height: 160px;
+.d2-h2 {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: clamp(24px, 3.2vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--d2-ink);
 }
 
-/* ------------------------------------------------------------------
-   Embossed number (Accent 2) — inset text-shadow so the number reads
-   as engraved into the card. Uses color-tinted shadows for pos/neg.
-   ------------------------------------------------------------------ */
-.pv-embossed-positive {
-  color: theme('colors.positive');
-  text-shadow:
-    0 1px 1px rgba(255, 255, 255, 0.4),
-    0 -1px 1px rgba(46, 107, 79, 0.10);
-}
-.pv-embossed-negative {
-  color: theme('colors.negative');
-  text-shadow:
-    0 1px 1px rgba(255, 255, 255, 0.4),
-    0 -1px 1px rgba(139, 44, 44, 0.10);
-}
-.pv-embossed-ink {
-  color: theme('colors.ink');
-  text-shadow:
-    0 1px 1px rgba(255, 255, 255, 0.4),
-    0 -1px 1px rgba(15, 20, 25, 0.10);
+.d2-h3 {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--d2-ink);
 }
 
-/* ------------------------------------------------------------------
-   Press-state primary buttons (Accent 3) — Buy / Sell on Stock Profile.
-   Two-layer outset shadow resting, inset shadow pressed.
-   ------------------------------------------------------------------ */
-.pv-btn-neo {
-  background: var(--neo-canvas);
-  color: theme('colors.ink');
-  border: 0;
-  border-radius: 999px;
-  padding: 14px 22px;
-  font-weight: 700;
-  font-size: 15px;
-  box-shadow:
-    0 2px 4px rgba(15, 20, 25, 0.10),
-    0 -1px 2px rgba(255, 255, 255, 0.5);
-  transition:
-    box-shadow 120ms var(--mo-ease-standard),
-    transform 120ms var(--mo-ease-standard);
+.d2-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.d2-body {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--d2-ink);
+}
+
+.d2-body-secondary {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #2A2A2A;
+}
+
+.d2-micro {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--d2-text-tertiary);
+}
+
+.d2-cta {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  padding: 10px 16px;
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-paper);
+  color: var(--d2-ink);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.pv-btn-neo:hover {
-  box-shadow:
-    0 4px 8px rgba(15, 20, 25, 0.12),
-    0 -1px 2px rgba(255, 255, 255, 0.6);
-}
-.pv-btn-neo:active {
-  box-shadow:
-    inset 0 1px 2px rgba(15, 20, 25, 0.15),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.3);
-  transform: translateY(1px);
-}
-.pv-btn-neo-buy {
-  color: theme('colors.mark');
-}
-.pv-btn-neo-sell {
-  color: theme('colors.negative');
-}
-.pv-btn-neo:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow:
-    0 2px 4px rgba(15, 20, 25, 0.06),
-    0 -1px 2px rgba(255, 255, 255, 0.3);
+  transition: none;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-/* ------------------------------------------------------------------
-   Reduced-motion gate — keep accessibility-critical state transitions
-   (button press, color change) but disable the decorative animations.
-   Per v5-motion-grammar.md §7, these two transitions stay enabled.
-   ------------------------------------------------------------------ */
-@media (prefers-reduced-motion: reduce) {
-  .pv-shimmer {
-    animation: none;
-    background: theme('colors.fog');
-  }
-  /* T43: pv-fade-in is used by the walkthrough overlay; skip it under
-     reduced-motion (the overlay still appears, just instantly). */
-  .pv-fade-in,
-  [data-walk-overlay] {
-    animation: none !important;
-    opacity: 1 !important;
-  }
-  .pv-pulse,
-  .pv-pop,
-  .pv-stagger > *,
-  .pv-stagger-fast > * {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .pv-coin,
-  .pv-coin:active {
-    transform: none;
-  }
-  .pv-btn-neo,
-  .pv-btn-neo:active {
-    transition: none;
-    transform: none;
-  }
+.d2-cta:hover { background: var(--d2-ink); color: var(--d2-bone); }
+
+.d2-cta-filled {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  padding: 10px 16px;
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-ink);
+  color: var(--d2-bone);
+  cursor: pointer;
+  transition: none;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-/* ========================================================================
-   Original prototype styles (kept for compatibility with existing markup).
-   ======================================================================== */
+.d2-cta-filled:hover { background: var(--d2-paper); color: var(--d2-ink); }
+
+.d2-signal { color: var(--d2-signal); }
+.d2-signal-bg { background: var(--d2-signal); color: var(--d2-bone); }
+
+.d2-card {
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-paper);
+  padding: 16px;
+}
+
+.d2-card-tight {
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-paper);
+  padding: 0;
+}
+
+.d2-card-inverse {
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-inverse);
+  color: var(--d2-inverse-fg);
+  padding: 16px;
+}
+
+.d2-terminal {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-inverse);
+  color: var(--d2-inverse-fg);
+  padding: 16px;
+  white-space: pre;
+  overflow-x: auto;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.d2-terminal .d2-pos { color: var(--d2-signal); }
+
+.d2-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.d2-table th {
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--d2-ink);
+  color: var(--d2-ink);
+}
+
+.d2-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--d2-border);
+  color: var(--d2-ink);
+}
+
+.d2-table tr:last-child td { border-bottom: 2px solid var(--d2-ink); }
+.d2-table tr:hover td { background: var(--d2-panel); }
+
+.d2-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--d2-paper);
+  border-bottom: 2px solid var(--d2-ink);
+}
+
+.d2-nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+}
+
+.d2-wordmark {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--d2-ink);
+  text-decoration: none;
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.d2-wordmark-mark {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--d2-ink);
+  line-height: 1;
+}
+
+.d2-wordmark-tag {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--d2-text-tertiary);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.d2-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: flex-end;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.d2-nav-link {
+  color: var(--d2-ink);
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+}
+
+.d2-nav-link:hover,
+.d2-nav-link.is-active {
+  border-bottom-color: var(--d2-ink);
+}
+
+.d2-nav-link.is-active {
+  color: var(--d2-ink);
+  font-weight: 500;
+}
+
+.d2-section {
+  border-top: 2px solid var(--d2-ink);
+  padding: 48px 0;
+}
+
+.d2-section-tight {
+  border-top: 2px solid var(--d2-ink);
+  padding: 24px 0;
+}
+
+.d2-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.d2-disclosure {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--d2-text-tertiary);
+  text-transform: uppercase;
+  border-top: 1px solid var(--d2-border);
+  padding-top: 12px;
+  margin-top: 24px;
+}
+
+.d2-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.5);
+  z-index: 60;
+}
+
+.d2-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(86vw, 360px);
+  background: var(--d2-paper);
+  border-left: 2px solid var(--d2-ink);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: d2-slide-in 200ms linear;
+}
+
+@keyframes d2-slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.d2-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--d2-ink);
+}
+
+.d2-drawer-link {
+  display: block;
+  padding: 16px;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--d2-ink);
+  border-bottom: 1px solid var(--d2-border);
+  text-decoration: none;
+}
+
+.d2-drawer-link:hover { background: var(--d2-panel); }
+
+.d2-drawer-cta { margin: 16px; display: block; text-align: center; }
+
+.pv-eyebrow {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--d2-text-tertiary);
+}
+
+.pv-card {
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-paper);
+  border-radius: 0;
+}
+
+.pv-btn-primary,
+.pv-btn-secondary,
+.pv-btn-ghost,
+.pv-btn-mark {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: 2px solid var(--d2-ink);
+  background: var(--d2-paper);
+  color: var(--d2-ink);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 0;
+  transition: none;
+}
+
+.pv-btn-primary,
+.pv-btn-mark {
+  background: var(--d2-ink);
+  color: var(--d2-bone);
+}
+
+.pv-btn-primary:hover,
+.pv-btn-mark:hover {
+  background: var(--d2-paper);
+  color: var(--d2-ink);
+}
+
+.pv-btn-secondary:hover,
+.pv-btn-ghost:hover {
+  background: var(--d2-ink);
+  color: var(--d2-bone);
+}
 
 .pv-num {
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
-.pv-eyebrow {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  text-transform: uppercase;
-  color: theme('colors.stone');
-  letter-spacing: 0.08em;
-}
-
-/* T26b: sentence-case eyebrow modifier for the landing page.
-   Drop the uppercase transform and tighten letter-spacing so labels
-   read as "What you can look at" instead of "WHAT YOU CAN LOOK AT". */
-.pv-eyebrow--sentence {
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 500;
-}
-
-/* T27b: "featured" eyebrow modifier for the PRISM card headline.
-   Bigger, ink-colored, semibold — the standard 13px stone eyebrow gets
-   visually swallowed under a serif h2, so this one matches the
-   typographic weight of a deck/sub-headline without out-shouting the
-   H2 above it. Scoped to a single element; no global impact. */
-.pv-eyebrow--featured {
-  font-size: 1rem;        /* 16px, up from 13px */
-  line-height: 1.4;
-  text-transform: none;
-  letter-spacing: -0.005em;
-  font-weight: 600;
-  color: theme('colors.ink');
-}
-
-.pv-card {
-  border-radius: 8px;
-  border: 1px solid theme('colors.fog');
-  background-color: theme('colors.bone');
-  box-shadow: theme('boxShadow.card');
-}
-
-/* T47: card hover-lift. Used by LandingPage's ARENA section screenshot
-   cards + the 4 surface tiles. Subtle elevation on hover so cards feel
-   like cards, not buttons. Respects prefers-reduced-motion below. */
-.pv-card-hover {
-  transition: box-shadow 180ms var(--mo-ease-standard), transform 180ms var(--mo-ease-standard);
-}
-.pv-card-hover:hover {
-  box-shadow: theme('boxShadow.modal');
-  transform: translateY(-2px);
-}
 @media (prefers-reduced-motion: reduce) {
-  .pv-card-hover,
-  .pv-card-hover:hover {
-    transition: none;
-    transform: none;
-  }
-}
-
-.pv-btn-primary {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
-  background-color: theme('colors.ink');
-  color: theme('colors.bone');
-  padding: 0.625rem 1rem;
-}
-.pv-btn-primary:hover {
-  background-color: theme('colors.graphite');
-}
-.pv-btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pv-btn-secondary {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
-  background-color: theme('colors.bone');
-  color: theme('colors.ink');
-  border: 1px solid theme('colors.fog');
-  padding: 0.625rem 1rem;
-}
-.pv-btn-secondary:hover {
-  background-color: theme('colors.fog');
-}
-.pv-btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pv-btn-mark {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-opacity;
-  background-color: theme('colors.mark');
-  color: theme('colors.bone');
-  padding: 0.625rem 1rem;
-}
-.pv-btn-mark:hover {
-  opacity: 0.9;
-}
-.pv-btn-mark:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pv-btn-ghost {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
-  color: theme('colors.graphite');
-  padding: 0.5rem 0.75rem;
-}
-.pv-btn-ghost:hover {
-  background-color: theme('colors.fog');
-}
-.pv-btn-ghost:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pv-btn-danger {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-body-sm transition-colors;
-  background-color: theme('colors.negative');
-  color: theme('colors.bone');
-  padding: 0.625rem 1rem;
-}
-.pv-btn-danger:hover {
-  filter: brightness(0.95);
-}
-.pv-btn-danger:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pv-btn-danger-sm {
-  @apply inline-flex items-center justify-center rounded-md font-medium text-caption transition-colors;
-  background-color: transparent;
-  color: theme('colors.negative');
-  border: 1px solid theme('colors.negative');
-  padding: 0.25rem 0.625rem;
-}
-.pv-btn-danger-sm:hover {
-  background-color: theme('colors.negative');
-  color: theme('colors.bone');
-}
-
-.pv-input {
-  @apply w-full rounded-md text-body-sm transition-colors;
-  background-color: theme('colors.bone');
-  color: theme('colors.ink');
-  border: 1px solid theme('colors.mist');
-  padding: 0.625rem 0.75rem;
-}
-.pv-input:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-color: theme('colors.mark');
-}
-
-.pv-link {
-  color: theme('colors.ink');
-  text-decoration-line: underline;
-  text-decoration-color: theme('colors.fog');
-  text-underline-offset: 2px;
-}
-.pv-link:hover {
-  text-decoration-color: theme('colors.mark');
-}
-
-.pv-pill {
-  @apply inline-flex items-center rounded-full text-caption font-medium;
-  padding: 0.25rem 0.625rem;
-}
-.pv-pill-positive {
-  background-color: rgba(46, 107, 79, 0.1);
-  color: theme('colors.positive');
-}
-.pv-pill-negative {
-  background-color: rgba(139, 44, 44, 0.1);
-  color: theme('colors.negative');
-}
-
-.pv-table {
-  font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-.pv-scroll-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.pv-scroll-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* ==========================================================
-   T41: starting-cash slider + quick-pick buttons
-   Used by CashSlider (signup step 4 + /portfolio create modal).
-   Range is $50K–$1M; step $10K. Filled portion is the mark color
-   via the --pv-cash-pct CSS var set inline by the component.
-   ========================================================== */
-.pv-cash-slider {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  height: 28px;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-}
-.pv-cash-slider:focus { outline: none; }
-.pv-cash-slider:focus-visible {
-  outline: 2px solid theme('colors.mark');
-  outline-offset: 8px;
-  border-radius: 4px;
-}
-
-/* WebKit/Blink */
-.pv-cash-slider::-webkit-slider-runnable-track {
-  height: 6px;
-  border-radius: 999px;
-  background:
-    linear-gradient(to right,
-      theme('colors.mark') 0%,
-      theme('colors.mark') var(--pv-cash-pct, 0%),
-      theme('colors.fog') var(--pv-cash-pct, 0%),
-      theme('colors.fog') 100%);
-}
-.pv-cash-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 22px;
-  width: 22px;
-  border-radius: 50%;
-  background: theme('colors.bone');
-  border: 2px solid theme('colors.mark');
-  margin-top: -8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-.pv-cash-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.08);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-.pv-cash-slider:active::-webkit-slider-thumb {
-  transform: scale(1.15);
-  box-shadow: 0 0 0 6px rgba(170, 138, 71, 0.18);
-}
-
-/* Firefox */
-.pv-cash-slider::-moz-range-track {
-  height: 6px;
-  border-radius: 999px;
-  background: theme('colors.fog');
-}
-.pv-cash-slider::-moz-range-progress {
-  height: 6px;
-  border-radius: 999px;
-  background: theme('colors.mark');
-}
-.pv-cash-slider::-moz-range-thumb {
-  height: 22px;
-  width: 22px;
-  border-radius: 50%;
-  background: theme('colors.bone');
-  border: 2px solid theme('colors.mark');
-  cursor: pointer;
-  transition: transform 120ms ease;
-}
-.pv-cash-slider::-moz-range-thumb:hover {
-  transform: scale(1.08);
-}
-
-/* Quick-pick chips below the slider. */
-.pv-quickpick {
-  @apply inline-flex items-center justify-center px-3 py-1.5 rounded-full text-caption font-medium;
-  background-color: theme('colors.bone');
-  border: 1px solid theme('colors.fog');
-  color: theme('colors.ink');
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-  min-width: 56px;
-}
-.pv-quickpick:hover {
-  border-color: theme('colors.mark');
-  color: theme('colors.mark');
-}
-.pv-quickpick--active {
-  background-color: theme('colors.mark');
-  border-color: theme('colors.mark');
-  color: white;
-}
-.pv-quickpick--active:hover {
-  color: white;
-}
-
-/* T41: "Started at $X" badge variant — sits alongside the existing
-   positive/negative pills on the portfolio card. Neutral by design
-   because it's a fact about the portfolio's history, not its P&L. */
-.pv-pill-neutral {
-  background-color: theme('colors.fog');
-  color: theme('colors.ink');
-}
-
-/* ==========================================================
-   T47: landing-page energy upgrade
-   Used by the redesigned LandingPage hero + ARENA section.
-   All four utilities respect prefers-reduced-motion: reduce
-   (see the media block at the bottom of this section).
-   ========================================================== */
-
-/* Hero gradient — very subtle paper → fog wash, anchored top-left.
-   Sits behind the hero text + phone mockup without competing with them.
-   Uses the existing theme tokens so it follows the rest of the palette. */
-.pv-gradient-hero {
-  position: relative;
-  isolation: isolate;
-  background:
-    radial-gradient(ellipse 90% 60% at 80% -10%, rgba(122, 82, 48, 0.10), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(44, 79, 122, 0.06), transparent 60%),
-    linear-gradient(180deg, theme('colors.paper') 0%, theme('colors.bone') 100%);
-}
-/* Faint candlestick grid lines (very low opacity) so the hero has
-   data-grid texture without distracting. Uses an SVG data URI. */
-.pv-gradient-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(theme('colors.fog') 1px, transparent 1px),
-    linear-gradient(90deg, theme('colors.fog') 1px, transparent 1px);
-  background-size: 56px 56px;
-  opacity: 0.35;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%);
-  pointer-events: none;
-}
-
-/* Hero stat counter — large serif number with tight tabular numerics.
-   Used for "12 challenges · 1,216 stocks · 50 clans" type callouts. */
-.pv-stat-num {
-  font-family: theme('fontFamily.serif');
-  font-size: clamp(2rem, 5vw, 3rem);
-  line-height: 1.1;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: "tnum" 1, "lnum" 1;
-  color: theme('colors.ink');
-  letter-spacing: -0.01em;
-}
-.pv-stat-num sup {
-  font-size: 0.5em;
-  font-weight: 500;
-  color: theme('colors.graphite');
-  margin-left: 0.125rem;
-  letter-spacing: 0;
-}
-
-/* Glow on featured CTAs — sits behind a primary CTA in the hero.
-   Uses the mark color so it matches the brand accent. */
-.pv-glow-mark {
-  position: relative;
-  box-shadow:
-    0 0 0 1px theme('colors.mark'),
-    0 8px 24px -8px rgba(122, 82, 48, 0.45),
-    0 2px 6px rgba(122, 82, 48, 0.15);
-}
-.pv-glow-mark:hover {
-  box-shadow:
-    0 0 0 1px theme('colors.mark'),
-    0 12px 32px -8px rgba(122, 82, 48, 0.55),
-    0 4px 10px rgba(122, 82, 48, 0.20);
-}
-
-/* Scroll-fade — paired with useScrollFade() in lib/motion.ts. The hook
-   adds `data-pv-fade-pending='1'` to below-fold elements only; CSS keeps
-   above-fold sections fully visible by default so SSR / no-JS /
-   full-page screenshots always show content. Respects prefers-reduced-motion. */
-.pv-scroll-fade {
-  /* Default visible — never an SSR blank section. */
-}
-.pv-scroll-fade[data-pv-fade-pending='1'] {
-  opacity: 0;
-  transform: translateY(12px);
-}
-.pv-scroll-fade.is-visible,
-.pv-scroll-fade[data-pv-fade-pending='1'].is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 600ms var(--mo-ease-standard),
-    transform 600ms var(--mo-ease-standard);
-}
-
-/* One-shot fade-up for content blocks that should animate on render,
-   not on scroll. Use this on hero copy / stats grids that always live
-   in the initial viewport so they don't need IO. */
-@keyframes pv-fade-up-once {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
-}
-.pv-fade-up-once {
-  animation: pv-fade-up-once 600ms var(--mo-ease-standard) both;
-}
-
-/* T47 reduced-motion gate. The hook (.pv-scroll-fade + useScrollFade)
-   already skips the IO observer when reduced motion is on — this CSS
-   rule is the safety net so any leftover opacity:0 never persists. */
-@media (prefers-reduced-motion: reduce) {
-  .pv-scroll-fade {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-  .pv-glow-mark,
-  .pv-glow-mark:hover {
-    box-shadow: 0 0 0 1px theme('colors.mark'), 0 2px 4px rgba(122, 82, 48, 0.15);
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -170,7 +170,7 @@ export const CATALOG: Record<ChallengeKind, CatalogEntry> = {
   G4: {
     kind: 'G4', bucket: 'group', category: 'platform_boss',
     name: 'Player vs Platform', short_name: 'Player vs Platform',
-    description: 'Take on the platform\'s daily curated boss challenge. Win and unlock a bonus.',
+    description: 'Take on the platform\'s daily curated boss challenge. Win and earn a credit bonus.',
     stake_free: 15, stake_sub: 15, multiplier: 2.4,
     duration_days: 1, difficulty: 'advanced',
     max_payout_free: 15 * 2.4, max_payout_sub: 15 * 2.4,

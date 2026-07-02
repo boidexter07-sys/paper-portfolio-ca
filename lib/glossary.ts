@@ -124,7 +124,7 @@ export const LESSON_CARDS: LessonCard[] = [
     hook: 'If you have not lost paper money, you have not learned to manage real money.',
     minutes: 4,
     words: 280,
-    terms: ['Paper Trade', 'Paper Portfolio', 'Position', 'Risk Tolerance'],
+    terms: ['Paper Trade', 'Altier Edge', 'Position', 'Risk Tolerance'],
   },
   {
     slug: 'watchlist',

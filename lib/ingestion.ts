@@ -34,7 +34,7 @@ export const TTL = {
 } as const;
 
 const POLL_MIN_INTERVAL_MS = 5_500; // GDELT polling limit
-const EDGAR_USER_AGENT = process.env['SEC_USER_AGENT'] ?? 'Paper Portfolio Canada research/1.0 (contact: research@paperportfolio.local)';
+const EDGAR_USER_AGENT = process.env['SEC_USER_AGENT'] ?? 'Altier Edge research/1.0 (contact: research@altieredge.local)';
 const NEWS_API_KEY = (process.env['NEWS_API_KEY'] ?? '').trim() || null;
 const NEWS_API_BASE = 'https://newsapi.org/v2';
 const GDELT_BASE = 'https://api.gdeltproject.org/api/v2/doc/doc';

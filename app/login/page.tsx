@@ -38,10 +38,10 @@ export default function LoginPage() {
             <rect x="2" y="2" width="24" height="24" rx="6" fill="currentColor" />
             <path d="M8 18 L14 8 L20 18" stroke="#F7F7F4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
           </svg>
-          <span className="font-serif text-h3 text-ink">Paper Portfolio</span>
+          <span className="font-mono text-h3 text-ink">Altier Edge</span>
         </Link>
         <p className="pv-eyebrow mb-1">Welcome back</p>
-        <h1 className="font-serif text-h1 text-ink mb-2">Log in</h1>
+        <h1 className="font-mono text-h1 text-ink mb-2">Log in</h1>
         <p className="text-body-sm text-graphite mb-6">Pick up where you left off.</p>
         <form className="space-y-3" onSubmit={submit}>
           <div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
           New here? <Link href="/signup" className="pv-link">Start a free trial</Link>
         </p>
         <p className="text-caption text-stone text-center mt-2">
-          Demo login: <span className="pv-num">demo@paperportfolio.ca</span> / <span className="pv-num">password123</span>
+          Demo login: <span className="pv-num">demo@altieredge.ca</span> / <span className="pv-num">password123</span>
         </p>
       </div>
     </div>

@@ -61,10 +61,10 @@ export default function SignupPage() {
             <rect x="2" y="2" width="24" height="24" rx="6" fill="currentColor" />
             <path d="M8 18 L14 8 L20 18" stroke="#F7F7F4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
           </svg>
-          <span className="font-serif text-h3 text-ink">Paper Portfolio</span>
+          <span className="font-mono text-h3 text-ink">Altier Edge</span>
         </Link>
         <p className="pv-eyebrow mb-1">Start your 7-day free trial</p>
-        <h1 className="font-serif text-h1 text-ink mb-2">Create your account</h1>
+        <h1 className="font-mono text-h1 text-ink mb-2">Create your account</h1>
         <p className="text-body-sm text-graphite mb-6">Paper portfolios, plain-language signals, zero real money.</p>
 
         {step === 1 && (
@@ -91,7 +91,7 @@ export default function SignupPage() {
 
         {step === 2 && (
           <div className="space-y-3">
-            <p className="font-serif text-h3 text-ink">How would you describe your style?</p>
+            <p className="font-mono text-h3 text-ink">How would you describe your style?</p>
             <p className="text-body-sm text-graphite -mt-1">Pick the one that sounds most like you. You can change it later.</p>
             {([
               { value: 'value', label: 'Value', desc: 'I want to find companies that look cheaper than they should be.' },
@@ -116,8 +116,8 @@ export default function SignupPage() {
 
         {step === 3 && (
           <div className="space-y-3">
-            <p className="font-serif text-h3 text-ink">Are you 18 or older?</p>
-            <p className="text-body-sm text-graphite -mt-1">Paper Portfolio is built for adults. We do not collect any government ID.</p>
+            <p className="font-mono text-h3 text-ink">Are you 18 or older?</p>
+            <p className="text-body-sm text-graphite -mt-1">Altier Edge is built for adults. We do not collect any government ID.</p>
             <label className="flex items-start gap-2 p-3 rounded-md border border-fog cursor-pointer">
               <input type="checkbox" checked={ageConfirmed} onChange={(e) => setAgeConfirmed(e.target.checked)} className="mt-1" />
               <span className="text-body-sm text-ink">Yes, I am 18 or older.</span>
@@ -130,7 +130,7 @@ export default function SignupPage() {
               </button>
             </div>
             <p className="text-caption text-stone text-center pt-2">
-              By creating an account you confirm Paper Portfolio is a learning tool, not investment advice, and never connects to any real brokerage.
+              By creating an account you confirm Altier Edge is a learning tool, not investment advice, and never connects to any real brokerage.
             </p>
           </div>
         )}
@@ -138,7 +138,7 @@ export default function SignupPage() {
         {step === 4 && (
           <div className="space-y-4">
             <p className="pv-eyebrow">Set your paper trading budget</p>
-            <h2 className="font-serif text-h3 text-ink leading-tight">
+            <h2 className="font-mono text-h3 text-ink leading-tight">
               How much paper money do you want to start with?
             </h2>
             <p className="text-body-sm text-graphite -mt-1">
