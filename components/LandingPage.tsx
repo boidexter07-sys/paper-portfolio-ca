@@ -18,12 +18,13 @@ export function LandingPage() {
           <h1 id="hero-h" className="d3-hero-sans">Real math.</h1>
           <h1 className="d3-hero-serif">Real practice.</h1>
           <p className="d3-hero-sub">
-            PRISM scores every stock 0 to 100. ARENA runs the paper-trading competitions on top.
-            Real prices, settled at 4:30 p.m. ET.
+            We score every stock 0 to 100, and we run paper-trading contests where you use those
+            scores to compete. No money. No risk. Just a way to get better at picking stocks
+            before you put a dollar in.
           </p>
           <div className="d3-hero-cta-row">
             <Link href="/signup" className="d3-btn d3-btn-primary">Start free — score a stock</Link>
-            <Link href="/discover" className="d3-btn d3-btn-ghost">See PRISM on a stock</Link>
+            <Link href="/discover" className="d3-btn d3-btn-ghost">See the math on a stock</Link>
           </div>
         </div>
 
@@ -45,16 +46,14 @@ export function LandingPage() {
             Five signals. <em>One scale.</em> No hidden model.
           </h2>
           <p className="d3-sub">
-            Every PRISM score is built from the same five layers, on the same 0 to 100 scale,
-            across every stock in the universe.
+            This is called PRISM. Every PRISM score is built from the same five layers, on the
+            same 0 to 100 scale, across every stock in the universe.
           </p>
           <p className="d3-body" style={{ maxWidth: 720, marginBottom: 32 }}>
-            A PRISM score is a weighted sum of five named layers. Each layer reads a different
-            kind of signal: what the price has been doing, how the price compares to the
-            earnings the business produces, whether analyst consensus is moving up or down,
-            what insiders are doing with their own money, and how aligned sell-side analysts
-            are on the next-twelve-months call. Weights are published. Bands are published.
-            Formulas are published.
+            Every score is built from five things we can show you: how the price has been moving,
+            how the price compares to earnings, what analysts are saying, what insiders are
+            doing, and how risky the stock is. We publish the weights. We publish the formulas.
+            We publish what data we use.
           </p>
 
           <div className="d3-method-grid">
@@ -165,8 +164,8 @@ export function LandingPage() {
           </div>
 
           <p className="d3-score-narrative">
-            Momentum is exhausted. Valuation is reasonable. Earnings revisions are positive.
-            Hold, with attention to insider selling.
+            Momentum is the strongest layer here. Valuation sits at sector-typical. Earnings
+            revisions are positive. Hold, with attention to insider selling.
           </p>
 
           <div className="d3-score-bands">
@@ -218,7 +217,7 @@ export function LandingPage() {
             <div className="d3-cred-disclosure">
               <p>Built and operated in Canada · TSX and US tickers in one place · CAD pricing · PIPEDA-aware data handling.</p>
               <p>We do not run a press list, a newsletter funnel, or a "for you" feed. We publish the methodology.</p>
-              <p>Risk disclosure: ARENA is paper-trading only. Credits are earned inside the app. Merch rewards are not transferable for cash.</p>
+              <p>Risk disclosure: every competition is paper-trading only. Credits are earned inside the app. Merch rewards are not transferable for cash.</p>
             </div>
           </div>
         </div>
@@ -229,19 +228,21 @@ export function LandingPage() {
         <div className="d3-container">
           <span className="d3-eyebrow d3-eyebrow--magenta">ARENA — Mechanic</span>
           <h2 id="mech-h" className="d3-h2">
-            First, the <em className="magenta">rules.</em> Then the leaderboard.
+            The rules. <em className="magenta">The stakes.</em> The leaderboard.
           </h2>
           <p className="d3-sub">
-            ARENA is a curated set of paper-trading competitions. The rules are published before
-            the first challenge opens.
+            This is ARENA. A curated set of paper-trading competitions. Rules are published
+            before the first challenge opens, and every payout runs on the same inverted-curve math.
           </p>
           <p className="d3-body" style={{ maxWidth: 760, marginBottom: 16 }}>
-            ARENA runs a small, curated set of paper-trading competitions at any moment — between
-            one and seven live right now. Each card carries a name, a tier, a duration, a stake,
-            and a payout. Pick the one that fits your read of the week. Stake credits. Watch the
-            leaderboard update each day at 4:30 p.m. ET. When the window closes, the top of the
-            board gets merch. Everyone else walks away with the score, the lesson, and the credits
-            they did not lose.
+            A credit is a fake-dollar unit. It has no real-world value. When you enter a
+            challenge, you stake credits, we lock your pick against the PRISM score, and at
+            4:30 p.m. ET we settle based on how your pick performed against the score's
+            expectation. Win more credits and you move up the leaderboard. Lose them and the
+            leaderboard moves on without you. Seven individual challenges (C1 Baseline Buster
+            through C7 Unicorn) sit on a strictly inverted payout curve, and five clan
+            challenges (G1 Daily Clan, G2 Clan Battle 7d, G3 1v1 Duel, G4 Player vs Platform,
+            G7 Clan Duel) let 100-member clans field 20-member rosters.
           </p>
           <p className="d3-body" style={{ maxWidth: 760, marginBottom: 0 }}>
             ARENA is not a place where you buy credits with cash. Credits are earned, not
@@ -277,7 +278,7 @@ export function LandingPage() {
 
           <div className="d3-mechanic-foot">
             <p>{ALTIER_DISCLOSURES.arenaMechanic}</p>
-            <p>Stake 5 · Win up to 8 · Stake 12 · Win up to 30 · Stake 25 · Win up to 75</p>
+            <p>Stake 5 · Win up to 9 (C1) · Stake 15 · Win up to 37.50 (C4) · Stake 35 · Win up to 192.50 (C7)</p>
             <p>Pick a challenge · Stake your credits · Climb the leaderboard.</p>
           </div>
         </div>
@@ -288,18 +289,19 @@ export function LandingPage() {
         <div className="d3-container">
           <span className="d3-eyebrow d3-eyebrow--magenta">ARENA — Rank · Last 7 days</span>
           <h2 id="rank-h" className="d3-h2">
-            Top of the last <em className="magenta">seven days.</em>
+            Top of the last <em className="magenta">seven days, ranked by PRISM delta.</em>
           </h2>
           <p className="d3-sub">
-            Anonymized. Settled on real prices. PRISM delta sits next to P&L so you can see
-            what the judge saw.
+            Ranks are the average of PRISM delta and paper P&amp;L over the rolling 7-day
+            window. Anonymized. Settled on real prices. Hold weeks are the position age, not
+            the rank window.
           </p>
           <p className="d3-body" style={{ maxWidth: 760, marginBottom: 0 }}>
             The leaderboard below is anonymized. Settled on real prices at the close of every
-            challenge window. Refresh once a day and the board re-ranks. There is no live ticker.
-            There is no live ticker. There is no flash on rank change. PRISM delta sits next to P&L so you can read both signals
-            at once — what the model thought before the window opened, and what happened by the
-            time it closed.
+            challenge window. Refresh once a day and the board re-ranks. There is no live
+            ticker. There is no flash on rank change. PRISM delta sits next to P&amp;L so you
+            can read both signals at once — what the model thought before the window opened,
+            and what happened by the time it closed.
           </p>
 
           <div className="d3-rank-rows">
@@ -348,9 +350,12 @@ export function LandingPage() {
         <div className="d3-container">
           <div className="d3-trial-inner">
             <h2 id="trial-h" className="d3-trial-head">
-              Free to play. <em>Real stakes still paper.</em> No card to start.
+              Come back tomorrow. <em>The leaderboard resets every day at 4:30 p.m. ET.</em>
             </h2>
-            <p className="d3-trial-tagline">Credits, not capital. Rank, not returns.</p>
+            <p className="d3-trial-tagline">
+              Your first 5 credits are free. Your first challenge is free. Your first
+              leaderboard is free. After that, your streak starts.
+            </p>
 
             <div className="d3-trial-panel">
               <p className="d3-trial-eyebrow">Start Free</p>
@@ -358,9 +363,9 @@ export function LandingPage() {
 
               <div className="d3-trial-terms">
                 <p>Free account — no card</p>
-                <p>5-credit base stakes on every ARENA challenge</p>
+                <p>5 credits to start — re-up daily</p>
                 <p>PRISM access on 1,247 stocks</p>
-                <p>Opt into bigger stakes any time, inside the app</p>
+                <p>Your first challenge in 60 seconds</p>
               </div>
 
               <p className="d3-trial-reinforce">
@@ -437,62 +442,62 @@ const METHOD_LAYERS = [
 ];
 
 const SCORE_ROWS = [
-  { id: 'L · 01', name: 'PRICE_MOMENTUM',    weight: 20, contrib: 14.4 },
-  { id: 'L · 02', name: 'VALUE_VS_EARNINGS', weight: 25, contrib: 17.0 },
-  { id: 'L · 03', name: 'EARNINGS_REVISION', weight: 15, contrib: 11.9 },
-  { id: 'L · 04', name: 'INSIDER_FLOW',      weight: 15, contrib:  9.2 },
-  { id: 'L · 05', name: 'ANALYST_CONVICTION',weight: 25, contrib: 14.5 },
+  { id: 'L · 01', name: 'Price momentum',      weight: 20, contrib: 14.4 },
+  { id: 'L · 02', name: 'Value vs. earnings',  weight: 25, contrib: 17.0 },
+  { id: 'L · 03', name: 'Earnings revisions',  weight: 15, contrib: 11.9 },
+  { id: 'L · 04', name: 'Insider activity',    weight: 15, contrib:  9.2 },
+  { id: 'L · 05', name: 'Analyst conviction',  weight: 25, contrib: 14.5 },
 ];
 
 const CRED_STATS = [
   { num: '1,247', cardCls: 's1', label: 'Stocks scored', sub: 'S&P 500 / TSX 60 in the last 24 hours' },
-  { num: '17',    cardCls: 's2', label: 'Active challenges', sub: 'Live across Rookie · Pro · Elite' },
+  { num: '12',    cardCls: 's2', label: 'Active challenges', sub: '7 individual + 5 clan, live daily' },
   { num: '9',     cardCls: 's3', label: 'Active clans', sub: 'Anonymous, settled at 4:30 p.m. ET' },
 ];
 
 const MECH_FEATURED = [
   {
-    tier: 'Rookie',
+    tier: 'Beginner',
     cardCls: 't-rookie',
-    name: 'Paper buy a TSX bank.',
-    desc: 'Pick one of BMO, RY, TD, BNS. Hold for 7 days. Paper portfolio updates at 4:30 p.m. ET.',
+    name: 'Baseline Buster (C1).',
+    desc: 'Pick the stock PRISM rates highest above 60. Hold 3 days. Settle at 4:30 p.m. ET on real yfinance end-of-day prices.',
     stake: '5',
-    win: '8',
+    win: '9',
   },
   {
-    tier: 'Pro',
+    tier: 'Intermediate',
     cardCls: 't-pro',
-    name: 'Beat the S&P 500.',
+    name: 'PRISM Power (C4).',
     desc: 'Build a 5-stock paper portfolio over 30 days. PRISM delta vs. consensus is the metric.',
-    stake: '12',
-    win: '30',
+    stake: '15',
+    win: '37.50',
   },
   {
-    tier: 'Elite',
+    tier: 'Expert',
     cardCls: 't-elite',
-    name: 'Eight wins in a row.',
-    desc: 'Eight consecutive paper trades where PRISM said Paper Buy and the close matched.',
-    stake: '25',
-    win: '75',
+    name: 'Unicorn (C7).',
+    desc: 'The 2% pick. Stake 35, return up to 192.50 if the score reads true. 7-day hold.',
+    stake: '35',
+    win: '192.50',
   },
 ];
 
 const MECH_META = [
-  { tier: 'Rookie', tierCls: 't-rookie', name: 'Baseline Buster',  stake: '5',  duration: '3D' },
-  { tier: 'Rookie', tierCls: 't-rookie', name: 'Earnings Reaction',stake: '5',  duration: '1D' },
-  { tier: 'Pro',    tierCls: 't-pro',    name: 'Hold The Line',    stake: '12', duration: '5D' },
-  { tier: 'Pro',    tierCls: 't-pro',    name: 'Sector Rotation',  stake: '12', duration: '5D' },
-  { tier: 'Elite',  tierCls: 't-elite',  name: 'Value Hunt',       stake: '25', duration: '7D' },
-  { tier: 'Elite',  tierCls: 't-elite',  name: 'Risk-Adjusted Run',stake: '25', duration: '7D' },
-  { tier: 'Elite',  tierCls: 't-elite',  name: 'Pair Trade',       stake: '25', duration: '5D' },
-  { tier: 'Pro',    tierCls: 't-pro',    name: 'Group Sweep',      stake: '5',  duration: '3D' },
-  { tier: 'Elite',  tierCls: 't-elite',  name: 'Cohort Draft',     stake: '25', duration: '7D' },
+  { tier: 'Beg-Int',       tierCls: 't-rookie', name: 'Smart Money (C2)',       stake: '5',  duration: '3D' },
+  { tier: 'Intermediate',  tierCls: 't-pro',    name: 'Sector Sleeve (C3)',     stake: '5',  duration: '5D' },
+  { tier: 'Intermediate',  tierCls: 't-pro',    name: 'Long Shot (C5)',         stake: '15', duration: '5D' },
+  { tier: 'Advanced',      tierCls: 't-elite',  name: 'Moonshot (C6)',          stake: '25', duration: '7D' },
+  { tier: 'Beginner',      tierCls: 't-rookie', name: 'Daily Clan (G1)',        stake: '5',  duration: '1D' },
+  { tier: 'Intermediate',  tierCls: 't-pro',    name: 'Clan Battle 7d (G2)',    stake: '5',  duration: '7D' },
+  { tier: 'Intermediate',  tierCls: 't-pro',    name: '1v1 Duel (G3)',          stake: '10', duration: '1D' },
+  { tier: 'Advanced',      tierCls: 't-elite',  name: 'Player vs Platform (G4)',stake: '15', duration: '5D' },
+  { tier: 'Expert',        tierCls: 't-elite',  name: 'Clan Duel (G7)',         stake: '50', duration: '3D' },
 ];
 
 const RANK_ROWS = [
-  { rank: 1, anon: 'M-2914', tier: 'Elite',  delta: 12, deltaPositive: true,  pnl: '18.4%', pnlPositive: true,  weeks: 4 },
-  { rank: 2, anon: 'Q-1102', tier: 'Pro',    delta: 8,  deltaPositive: true,  pnl: '12.1%', pnlPositive: true,  weeks: 3 },
-  { rank: 3, anon: 'A-7743', tier: 'Rookie', delta: 5,  deltaPositive: true,  pnl: '9.7%',  pnlPositive: true,  weeks: 2 },
-  { rank: 4, anon: 'K-0029', tier: 'Pro',    delta: 2,  deltaPositive: true,  pnl: '4.2%',  pnlPositive: true,  weeks: 5 },
-  { rank: 5, anon: 'N-6601', tier: 'Rookie', delta: 3,  deltaPositive: false, pnl: '1.8%',  pnlPositive: true,  weeks: 1 },
+  { rank: 1, anon: 'M-2914', tier: 'Expert',        delta: 12, deltaPositive: true,  pnl: '18.4%', pnlPositive: true,  weeks: 4 },
+  { rank: 2, anon: 'Q-1102', tier: 'Advanced',      delta: 8,  deltaPositive: true,  pnl: '12.1%', pnlPositive: true,  weeks: 3 },
+  { rank: 3, anon: 'A-7743', tier: 'Intermediate',  delta: 5,  deltaPositive: true,  pnl: '9.7%',  pnlPositive: true,  weeks: 2 },
+  { rank: 4, anon: 'K-0029', tier: 'Advanced',      delta: 2,  deltaPositive: true,  pnl: '4.2%',  pnlPositive: true,  weeks: 5 },
+  { rank: 5, anon: 'N-6601', tier: 'Beg-Int',       delta: 3,  deltaPositive: false, pnl: '1.8%',  pnlPositive: true,  weeks: 1 },
 ];
