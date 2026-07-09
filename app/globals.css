@@ -1354,6 +1354,15 @@ section.is-rail-aware .d3-container {
 /* ===================== LEGACY HOOKS (AppShell + Footer compatibility) ===================== */
 .d2-shell-content { /* no-op: layout shells use d3-* utilities */ }
 
+/* T86: hide the D3-section numbered rail when the V11 landing is the page body.
+   The rail hard-codes D3 section IDs (d3-hero, d3-method, d3-score, ...) which no
+   longer exist on this page; it now points at nothing AND overlaps the V11 hero
+   h1 text. AppShell renders the rail unconditionally on the home route — since we
+   can't modify AppShell (out of T86 scope), we suppress it via CSS when the V11
+   landing root is mounted. Same fix idea T83 used for individual route reskins. */
+.v11-landing ~ .d3-rail,
+body:has(.v11-landing) .d3-rail { display: none !important; }
+
 /* =============================================================================
    T86 V11 LANDING — Two-area (Build + Play) wire to live /.
    Visual source: design/round-v11-landing-polish/desktop.html + mobile.html
