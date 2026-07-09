@@ -1,9 +1,9 @@
 // Altier Edge — Home page.
-// Per T67 + T68: 8-section spine for the marketing site.
-// The authed dashboard lives at /portfolio. Home is the landing.
+// T86: V11 two-area landing (Build + Play). Replaces T82 D3 landing.
+// Source: copy/t86-landing-muse-v11/landing-copy.md + design/round-v11-landing-polish/.
 
-import { LandingPage } from '@/components/LandingPage';
+import { V11Landing } from '@/components/V11Landing';
 
 export default function HomePage() {
-  return <LandingPage />;
+  return <V11Landing />;
 }
