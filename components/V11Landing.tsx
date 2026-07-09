@@ -1,16 +1,25 @@
-// Altier Edge — V11 Two-Area Landing (Build + Play).
-// T86 wires the Nova-approved V11 polish to live `/`, replacing the T82 D3 landing.
-// Copy: copy/t86-landing-muse-v11/landing-copy.md (Muse V11, locked).
-// Visual: design/round-v11-landing-polish/{desktop,mobile}.html (Nova V11, audit-passed).
+// Altier Edge — V12 Concept-First Landing (Build + Play).
+// T87 wires the Muse+Nova V12 polish to live `/`, replacing T86's V11 two-area landing.
+// Copy: copy/t87-landing-muse-v12/landing-copy.md (Muse V12, locked).
+// Visual: design/round-v12-landing-polish/{desktop,mobile}.html (Nova V12, audit-passed).
 //
-// V11 motion policy: Build = NO pulse anywhere (study surface). Play = 1.4s pulse on
-// three small pips (area-tag, benefits-col head, mid-CTA eyebrow). The same 1.4s, only
-// on Play surfaces. This is the single motion differentiator between the two areas.
+// V12 sequence: Hero → "What's paper trading?" intro → Build card → "What's the challenge?"
+// intro → Play card → Parity line → How it works 3+3 → Trust strip → Benefits 3+3 →
+// Mid-CTA → Conversion close → Footer.
 //
-// All copy strings are V11 verbatim. Brand split: internal codename "HighNet" never
-// escapes; "altier edge" wordmark appears lowercase. Banned phrases are absent.
+// V11 motion policy carried + extended: Build = NO pulse anywhere (study surface).
+// Play = 1.4s pulse on three small pips (Play intro eyebrow pip, area-tag, benefits-col
+// head, mid-CTA eyebrow) — same cadence. The first pulse on the page now lives on the
+// S4 challenge intro eyebrow pip — the visual cue that the page is about to switch
+// from calm to energetic mode.
+//
+// All copy strings are V12 verbatim. Hero + V11 sections use V11 strings unchanged.
+// Brand split: internal codename "HighNet" never escapes; "altier edge" wordmark
+// appears lowercase. Banned phrases are absent.
 
 import Link from 'next/link';
+import { ConceptIntro } from './ConceptIntro';
+import { ParityLine } from './ParityLine';
 
 export function V11Landing() {
   return (
@@ -41,15 +50,19 @@ export function V11Landing() {
         </div>
       </section>
 
-      {/* 2. TWO-AREA CARDS — Build + Play, distinct visual treatments */}
-      <section className="v11-section" id="cards" aria-labelledby="v11-cards-h">
-        <div className="v11-eyebrow">Two areas, one engine</div>
-        <h2 id="v11-cards-h" className="v11-h2">
-          Pick your rhythm. <em>Both free.</em>
-        </h2>
-        <p className="v11-sub">
-          PRISM powers both tracks — calm on the Build side, energetic on the Play side. Same brand, two rhythms.
-        </p>
+      {/* 2+3. CONCEPT INTROS + CARDS — V12 sequence.
+            On desktop: intros row (2-col) sits ABOVE cards row (2-col), each intro
+            column aligned vertically with its card below. The V11 "Two areas, one
+            engine / Pick your rhythm. Both free." section header is DROPPED — the
+            intros now carry that role, concept-first.
+            On mobile: the same children are reordered to interleave intro->card-
+            >intro->card->parity via CSS `order`, so each concept label sits tight
+            above its card. */}
+      <section className="v12-cards-stack" id="cards" aria-label="What each area means and how each card describes it">
+        <div className="v12-intros-grid">
+          <ConceptIntro variant="paper-trading" />
+          <ConceptIntro variant="challenge" />
+        </div>
 
         <div className="v11-areas">
           {/* BUILD CARD — calm tone, deeper navy, desaturated cyan, no pulse */}
@@ -96,9 +109,16 @@ export function V11Landing() {
             <Link href="/signup" className="v11-area-cta">Start Playing</Link>
           </article>
         </div>
+
+        {/* PARITY LINE — V12 NEW. Sits below both cards, single-line pill,
+            cyan/coral accents split. The meta-choice now lands in the right
+            place — after both areas have been explained by the intros. */}
+        <div className="v12-parity-section">
+          <ParityLine />
+        </div>
       </section>
 
-      {/* 3. HOW IT WORKS — 3+3 visually grouped, two columns */}
+      {/* 5. HOW IT WORKS — 3+3 visually grouped, two columns (V11 unchanged) */}
       <section className="v11-how" id="how" aria-labelledby="v11-how-h">
         <div className="v11-how-head">
           <div className="v11-how-head-left">
@@ -157,7 +177,7 @@ export function V11Landing() {
         </div>
       </section>
 
-      {/* 4. TRUST STRIP — 4 lines, last = parity moment */}
+      {/* 6. TRUST STRIP — 4 lines, last = parity moment (V11 unchanged) */}
       <section className="v11-trust" aria-labelledby="v11-trust-h">
         <h2 id="v11-trust-h" className="sr-only" style={{ position: 'absolute', left: '-9999px' }}>How we teach</h2>
         <div className="v11-trust-panel">
@@ -182,7 +202,7 @@ export function V11Landing() {
         </div>
       </section>
 
-      {/* 5. BENEFITS — 3+3 split, not 6 mixed */}
+      {/* 7. BENEFITS — 3+3 split, not 6 mixed (V11 unchanged) */}
       <section className="v11-benefits" aria-labelledby="v11-benefits-h">
         <div className="v11-eyebrow">Why it works</div>
         <h2 id="v11-benefits-h" className="v11-h2">
@@ -225,7 +245,7 @@ export function V11Landing() {
         </div>
       </section>
 
-      {/* 6. MID-CTA BANNER — Play lead (the OTHER area since hero led with Build) */}
+      {/* 8. MID-CTA BANNER — Play lead (the OTHER area since hero led with Build) (V11 unchanged) */}
       <section className="v11-cta-mid" aria-labelledby="v11-mid-h">
         <div className="v11-cta-mid-panel">
           <div className="v11-eyebrow-light">Today&apos;s game</div>
@@ -239,7 +259,7 @@ export function V11Landing() {
         </div>
       </section>
 
-      {/* 7. CONVERSION CLOSE — both areas, two CTAs */}
+      {/* 9. CONVERSION CLOSE — both areas, two CTAs (V11 unchanged) */}
       <section className="v11-cta-final" aria-labelledby="v11-final-h">
         <div className="v11-cta-final-panel">
           <div className="v11-eyebrow">Both areas, one account</div>

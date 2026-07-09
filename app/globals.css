@@ -1981,6 +1981,136 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
 .v11-area-play .v11-area-glyph .v11-row.r3 .v11-bar::after { width: 42%; }
 .v11-area-play .v11-area-glyph .v11-row .v11-pts { opacity: .85; width: 14px; text-align: right; }
 
+/* -------------------- V12 CONCEPT INTROS (NEW) --------------------
+   Two NEW editorial sections that introduce Build + Play concept-first,
+   before the cards land. Same 2-col grid as the cards row below so each
+   intro's column aligns vertically with its card. Build = calm (cyan
+   static rule, no animation); Play = energetic (coral pulsing pip, the
+   first pulse on the page).
+*/
+.v12-intros-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: end;
+}
+.v12-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 80px 32px;
+  max-width: 540px;
+  text-align: left;
+}
+.v12-intro-build { color: #D5DAEF; }
+.v12-intro-play  { color: #E6E9F4; }
+
+.v12-intro-eyebrow-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.v12-intro-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--v11-cyan-muted);
+}
+.v12-intro-play .v12-intro-eyebrow { color: var(--v11-coral); }
+.v12-intro-rule {
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--v11-cyan-muted);
+}
+.v12-intro-pip {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--v11-coral);
+  box-shadow: 0 0 12px rgba(255, 92, 61, .8);
+  animation: v11-pulse 1.4s ease-in-out infinite;
+}
+
+.v12-intro-headline {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.04;
+  color: #fff;
+}
+.v12-intro-headline-accent { font-weight: 900; }
+.v12-build-accent { color: var(--v11-cyan-soft); font-style: normal; }
+.v12-play-accent  { color: var(--v11-coral-soft); font-style: normal; }
+
+.v12-intro-body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: .005em;
+  font-weight: 500;
+}
+.v12-intro-build .v12-intro-body { color: #A8B0D4; }
+.v12-intro-play  .v12-intro-body { color: #D5DAEF; }
+
+.v12-intro-body em { font-style: normal; font-weight: 700; }
+.v12-intro-play .v12-intro-body em { color: #fff; }
+
+/* Cards section sits tight under the intros row — 24px gap, not the
+   default .v11-section top padding (48px) which would push the cards
+   too far below the concept labels. */
+.v12-cards-stack {
+  position: relative;
+  z-index: 2;
+  padding: 48px 80px 0;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.v12-cards-stack .v11-areas { margin-top: 0; }
+.v12-cards-stack .v12-parity-section {
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 32px;
+  margin-bottom: 48px;
+}
+
+/* -------------------- V12 PARITY LINE (NEW) --------------------
+   Centered single-line pill below the cards. Cyan + coral accent
+   splits match the V11 trust-strip parity line. Quiet panel chrome,
+   no button, no card. Same V11 trust-strip panel background so the
+   connective line reads as part of the same family. */
+.v12-parity-wrap {
+  display: flex;
+  justify-content: center;
+}
+.v12-parity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .035);
+  border: 1px solid rgba(255, 255, 255, .10);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.005em;
+  line-height: 1.2;
+  color: #fff;
+}
+.v12-parity-build { color: var(--v11-cyan-soft); font-weight: 800; }
+.v12-parity-play  { color: var(--v11-coral-soft); font-weight: 800; }
+.v12-parity-both  { color: #9AA3C7; font-weight: 600; }
+.v12-parity-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .30);
+}
+
 /* -------------------- HOW IT WORKS (3+3 visually grouped) -------------------- */
 .v11-how {
   position: relative;
@@ -2485,6 +2615,39 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
     gap: 14px;
   }
   .v11-area-card { padding: 28px 22px; border-radius: 22px; }
+
+  /* V12 — concept intros and cards live in a single mobile parent
+     (.v12-cards-stack) so each intro can sit tight above its card.
+     `display: contents` on the intros grid and the areas grid lets
+     their children become direct flex children of the parent; `order`
+     on each child then interleaves intro->card->intro->card->parity. */
+  .v12-cards-stack {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 40px;
+  }
+  .v12-cards-stack .v12-intros-grid,
+  .v12-cards-stack .v11-areas { display: contents; }
+
+  /* Reorder: intro_build -> build_card -> intro_play -> play_card -> parity. */
+  .v12-intro-build    { order: 1; padding: 0 0 18px; }
+  .v11-area-build     { order: 2; }
+  .v12-intro-play     { order: 3; padding: 18px 0; }
+  .v11-area-play      { order: 4; }
+  .v12-parity-section { order: 5; margin: 24px 0 0; }
+
+  .v12-intro-headline { font-size: 28px; line-height: 1.08; }
+  .v12-intro-body { font-size: 14px; line-height: 1.55; }
+
+  .v11-areas { gap: 18px; }
+
+  .v12-parity-pill {
+    font-size: 14px;
+    padding: 14px 22px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
   .v11-area-build .v11-h3,
   .v11-area-play .v11-h3 { font-size: 28px; }
   .v11-area-build .v11-area-sub,
@@ -2554,7 +2717,8 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
   .v11-mesh-low,
   .v11-area-play .v11-area-tag::before,
   .v11-ben-col.play .v11-col-head::before,
-  .v11-cta-mid-panel .v11-eyebrow-light::before {
+  .v11-cta-mid-panel .v11-eyebrow-light::before,
+  .v12-intro-pip {
     animation: none !important;
   }
 }

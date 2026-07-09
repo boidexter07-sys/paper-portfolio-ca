@@ -47,7 +47,7 @@ export function Footer() {
         </div>
 
         <div className="d3-footer-bottom">
-          <span>© 2026 Altier Edge · Built in Canada</span>
+          <span>© 2026 altier edge · Built in Canada</span>
           <span>Toronto, ON · operated under Canadian securities notice</span>
         </div>
 
