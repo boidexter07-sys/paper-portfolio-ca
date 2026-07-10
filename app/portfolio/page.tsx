@@ -1,135 +1,255 @@
-import { Suspense } from 'react';
+// T91 — /portfolio dashboard on Arcade template
+// Brief: HIGHNET-THOR-T91-PORTFOLIO-ARCADE-RESKIN.md
+// Palette (locked): navy #0E1A2B / coral #FF6B6B / cyan #22D3EE.
+// Type: heavy sans-serif. Empty-state dashboard for unauthenticated
+// visitors + real-stock peek from listStocks(). Footer renders the
+// shared d3-footer block from the layout (matches landing exactly).
+
 import Link from 'next/link';
-import { getCurrentUser } from '@/lib/auth';
-import { listPortfolios, getPortfolioWithHoldings } from '@/lib/portfolio';
 import { listStocks } from '@/lib/stocks';
-import { PAPER_ONLY_SAFETY } from '@/lib/disclosures';
-import { TRIAL_DAYS, SUBSCRIPTION_PRICE_CAD } from '@/lib/constants';
-import { PortfolioHoldingsClient } from '@/components/PortfolioHoldingsClient';
-import { CountUp } from '@/components/CountUp';
-import { EmbossedNumber } from '@/components/EmbossedNumber';
-import { CreatePortfolioButton } from '@/components/CreatePortfolioButton';
 
-function money(n: number) {
-  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
+export const dynamic = 'force-dynamic';
+
+// Hard-coded seed list — brief mandates TSLA / NVDA / AAPL / MSFT.
+const POPULAR_TICKERS = ['TSLA', 'NVDA', 'AAPL', 'MSFT'];
+
+// Deterministic mock prices + day-change % + 30-day sparkline series.
+// Using a seeded PRNG (mulberry32-ish) keyed off the ticker so the
+// sparkline shape is stable across SSR renders. Numbers are NOT
+// financial advice; visual placeholders until Clerk auth lands.
+function seedRand(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
-function pct(n: number) {
-  const s = n >= 0 ? '+' : '';
-  return `${s}${n.toFixed(2)}%`;
+function tickerSeed(ticker: string) {
+  let h = 0;
+  for (let i = 0; i < ticker.length; i++) h = (h * 31 + ticker.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+function buildSparkline(ticker: string, basePrice: number): number[] {
+  const rng = seedRand(tickerSeed(ticker));
+  const points: number[] = [];
+  let p = basePrice * (0.92 + rng() * 0.08);
+  for (let i = 0; i < 30; i++) {
+    p = p * (1 + (rng() - 0.5) * 0.04);
+    points.push(p);
+  }
+  const scale = basePrice / points[points.length - 1];
+  return points.map((v) => v * scale);
+}
+function buildMockStock(ticker: string) {
+  const rng = seedRand(tickerSeed(ticker) ^ 0xA5A5);
+  const price = +(40 + rng() * 480).toFixed(2);
+  const changePct = +(((rng() - 0.45) * 6)).toFixed(2);
+  return { price, changePct, spark: buildSparkline(ticker, price) };
 }
 
-// Top-level totals (cheap, no per-holding detail fetch) — rendered immediately.
-async function PortfolioTotals() {
-  const user = await getCurrentUser();
-  if (!user) return null;
-  const portfolios = listPortfolios(user.id);
-  const summaries = portfolios.map((p) => getPortfolioWithHoldings(p.id, user.id)).filter((x): x is NonNullable<typeof x> => x != null);
-  const totalValue = summaries.reduce((a, s) => a + s.total_value, 0);
-  const totalCost = summaries.reduce((a, s) => a + s.total_cost, 0);
-  const totalPnl = totalValue - totalCost;
-  const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+function fmtMoney(n: number) {
+  return new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
+function Sparkline({ points, up }: { points: number[]; up: boolean }) {
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const w = 120;
+  const h = 36;
+  const dx = w / (points.length - 1);
+  const y = (v: number) => h - ((v - min) / Math.max(max - min, 0.0001)) * h;
+  const d = points
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${((i * dx).toFixed(1))},${(y(v).toFixed(1))}`)
+    .join(' ');
+  const stroke = up ? '#4ADE80' : '#FF6B6B';
   return (
-    <div className="pv-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <p className="pv-eyebrow">Total paper value</p>
-          <p className="font-serif text-h1 text-ink pv-num">
-            <CountUp value={totalValue} decimals={0} prefix="$" duration={900} />
-          </p>
-        </div>
-        <div className="text-right">
-          {/* Option A Accent 2 — embossed P&L number, color-tinted inset shadow */}
-          <p className="font-serif text-h2">
-            <EmbossedNumber value={totalPnl} decimals={0} prefix="$" sign />
-          </p>
-          <p className="text-caption pv-num">
-            <EmbossedNumber value={totalPnlPct} decimals={2} suffix="%" sign />
-          </p>
-        </div>
-      </div>
-    </div>
+    <svg
+      className="t91-popular-sparkline"
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d={d} fill="none" stroke={stroke} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
   );
 }
 
-// Streaming section: per-portfolio holdings tables + add/remove UI.
-// Wrapped in Suspense so the page header renders first even when SQLite is locked.
-async function PortfolioHoldingsStream() {
-  const user = await getCurrentUser();
-  if (!user) return null;
-  const portfolios = listPortfolios(user.id);
-  const summaries = portfolios.map((p) => getPortfolioWithHoldings(p.id, user.id)).filter((x): x is NonNullable<typeof x> => x != null);
-  const stocks = listStocks().map((s) => ({
-    ticker: s.ticker,
-    name: s.name,
-    exchange: s.exchange,
-    cached_price: s.cached_price,
-  }));
-  return <PortfolioHoldingsClient summaries={summaries} stocks={stocks} />;
+function PopularCard({
+  ticker,
+  name,
+  price,
+  changePct,
+  spark,
+}: {
+  ticker: string;
+  name: string;
+  price: number;
+  changePct: number;
+  spark: number[];
+}) {
+  const up = changePct >= 0;
+  const sign = up ? '+' : '';
+  return (
+    <div className="t91-popular-card">
+      <div className="t91-popular-top">
+        <span className="t91-popular-ticker">{ticker}</span>
+        <span className="t91-popular-name">{name}</span>
+      </div>
+      <span className="t91-popular-price">{fmtMoney(price)}</span>
+      <span className={`t91-popular-change ${up ? 'up' : 'down'}`}>
+        {sign}
+        {changePct.toFixed(2)}% today
+      </span>
+      <Sparkline points={spark} up={up} />
+    </div>
+  );
 }
 
 export default function PortfolioPage() {
+  // Pull the brief-mandated tickers from the stock catalog when present,
+  // fall back to the deterministic mock so the dashboard renders even if
+  // a ticker is temporarily absent from the seed DB.
+  const stockByTicker = new Map(listStocks().map((s) => [s.ticker.toUpperCase(), s]));
+  const popular = POPULAR_TICKERS.map((ticker) => {
+    const live = stockByTicker.get(ticker);
+    const mock = buildMockStock(ticker);
+    return {
+      ticker,
+      name: live?.name ?? ticker,
+      price: live?.cached_price ?? mock.price,
+      changePct: mock.changePct,
+      spark: mock.spark,
+    };
+  });
+
   return (
-    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6 max-w-5xl">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="pv-eyebrow">Your paper portfolios</p>
-          <h1 className="font-serif text-h1 sm:text-display text-ink leading-tight">Portfolio</h1>
-          <p className="text-body text-graphite mt-1 max-w-prose">
-            {PAPER_ONLY_SAFETY.pnlLabel}. After your {TRIAL_DAYS}-day trial, you can keep your portfolio with a <span className="pv-num">${SUBSCRIPTION_PRICE_CAD.toFixed(2)} CAD</span>/mo subscription.
-          </p>
-        </div>
-        {/* T41: trigger for PortfolioCreateModal — opens the slider-driven
-            "create additional portfolio" flow. Lives outside the Suspense
-            boundary so it's interactive even before the streaming holdings
-            section finishes loading. */}
-        <CreatePortfolioButton />
+    <div className="t91" id="t91-portfolio">
+      {/* Header — eyebrow "Build" + headline "Your virtual portfolio." */}
+      <header className="t91-header">
+        <span className="t91-eyebrow">Build</span>
+        <h1 className="t91-h1">
+          Your virtual <span className="accent-coral">portfolio.</span>
+        </h1>
       </header>
 
-      <Suspense fallback={<PortfolioTotalsSkeleton />}>
-        <PortfolioTotals />
-      </Suspense>
-
-      <Suspense fallback={<PortfolioHoldingsSkeleton />}>
-        <PortfolioHoldingsStream />
-      </Suspense>
-    </div>
-  );
-}
-
-function PortfolioTotalsSkeleton() {
-  return (
-    <div className="pv-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div className="space-y-2 flex-1">
-          <div className="h-3 w-32 bg-fog rounded pv-shimmer" />
-          <div className="h-10 w-40 bg-fog rounded pv-shimmer" />
+      {/* Empty-state hero — 3x3 grid glyph + headline + body */}
+      <section className="t91-hero" aria-labelledby="t91-hero-headline">
+        <div className="t91-hero-text">
+          <h2 id="t91-hero-headline" className="t91-hero-headline">
+            Make your first pick.
+          </h2>
+          <p className="t91-hero-body">
+            Pick a stock. Track it. Learn as it moves. No real money, real data.
+          </p>
         </div>
-        <div className="space-y-2">
-          <div className="h-6 w-24 bg-fog rounded pv-shimmer" />
-          <div className="h-3 w-16 bg-fog rounded pv-shimmer" />
+        <div className="t91-hero-glyph" aria-hidden="true">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span key={i} />
+          ))}
         </div>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function PortfolioHoldingsSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="pv-card p-4 sm:p-5">
-        <div className="flex items-baseline justify-between mb-4">
-          <div className="h-6 w-40 bg-fog rounded pv-shimmer" />
-          <div className="h-5 w-16 bg-fog rounded-full pv-shimmer" />
+      {/* 4 stat tiles — Portfolio Value, Day Change, Total Return, Available Cash */}
+      <section className="t91-stats" aria-label="Portfolio snapshot">
+        <div className="t91-stat">
+          <span className="t91-stat-label">Portfolio Value</span>
+          <span className="t91-stat-value">$100,000.00</span>
+          <span className="t91-stat-sub">Starting paper balance</span>
         </div>
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="flex items-center justify-between py-3 border-b border-fog last:border-0">
-            <div className="h-4 w-16 bg-fog rounded pv-shimmer" />
-            <div className="h-4 w-20 bg-fog rounded pv-shimmer" />
-            <div className="h-4 w-20 bg-fog rounded pv-shimmer" />
-            <div className="h-4 w-20 bg-fog rounded pv-shimmer" />
+        <div className="t91-stat">
+          <span className="t91-stat-label">Day Change</span>
+          <span className="t91-stat-value coral">$0.00</span>
+          <span className="t91-stat-sub">+0.00% today</span>
+        </div>
+        <div className="t91-stat">
+          <span className="t91-stat-label">Total Return</span>
+          <span className="t91-stat-value cyan">+0.00%</span>
+          <span className="t91-stat-sub">Since first pick</span>
+        </div>
+        <div className="t91-stat">
+          <span className="t91-stat-label">Available Cash</span>
+          <span className="t91-stat-value">$100,000.00</span>
+          <span className="t91-stat-sub">Ready to deploy</span>
+        </div>
+      </section>
+
+      {/* 3 starter action cards with cyan borders */}
+      <section className="t91-actions" aria-label="Where to start">
+        <p className="t91-actions-head">Where to start</p>
+        <div className="t91-actions-grid">
+          <Link href="/discover" className="t91-action">
+            <span className="t91-action-title">Make your first pick</span>
+            <span className="t91-action-sub">
+              Browse 560+ stocks. Read PRISM scores. Start with one.
+            </span>
+            <span className="t91-action-cta">Pick a stock</span>
+          </Link>
+          <Link href="/discover" className="t91-action">
+            <span className="t91-action-title">Browse popular stocks</span>
+            <span className="t91-action-sub">
+              See what other paper-traders are watching this week.
+            </span>
+            <span className="t91-action-cta">See the list</span>
+          </Link>
+          <Link href="/learn" className="t91-action">
+            <span className="t91-action-title">Read the basics</span>
+            <span className="t91-action-sub">
+              Five-minute reads on P/E, market cap, risk, and PRISM scoring.
+            </span>
+            <span className="t91-action-cta">Start learning</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Popular stocks peek — TSLA / NVDA / AAPL / MSFT */}
+      <section className="t91-popular" aria-label="Popular stocks peek">
+        <div className="t91-popular-head">
+          <h2>Popular right now</h2>
+          <Link href="/discover">See all stocks</Link>
+        </div>
+        <div className="t91-popular-grid">
+          {popular.map((p) => (
+            <PopularCard
+              key={p.ticker}
+              ticker={p.ticker}
+              name={p.name}
+              price={p.price}
+              changePct={p.changePct}
+              spark={p.spark}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Cross-CTA "TODAY'S GAME" coral panel */}
+      <section className="t91-crosscta" aria-label="Cross-call-to-action">
+        <div className="t91-crosscta-panel">
+          <div>
+            <span className="t91-crosscta-eyebrow">Today&apos;s Game</span>
+            <h3 className="t91-crosscta-headline">Lock your call. See how you read.</h3>
+            <p className="t91-crosscta-body">
+              One stock. One direction. One day. Run it against the field on the leaderboard.
+            </p>
           </div>
-        ))}
-      </div>
+          <Link href="/arena" className="t91-crosscta-btn">
+            Open Arena
+          </Link>
+        </div>
+      </section>
+
+      {/* Honest paper-trading disclosure */}
+      <p className="t91-disclosure">
+        altier edge is a paper-trading practice field. No real money is traded, no broker
+        account is opened, and no securities are bought or sold. Numbers shown are simulated
+        for learning purposes. This is not investment advice.
+      </p>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { UserButton } from '@clerk/nextjs';
 import { NotificationBell } from './Community/NotificationBell';
 
 type ShellUser = { id: string; email: string } | null;
@@ -46,7 +47,13 @@ export function AppShell({ user, hasClan, children }: ShellProps) {
   }
 
   if (!user) {
-    if (pathname === '/') return <UnauthLayout>{children}</UnauthLayout>;
+    // Public routes that render without a session: `/` (landing) and `/portfolio`
+    // (T91 — dashboard ships the empty state for unauthenticated visitors;
+    //  T92 will replace auth placeholders with real Clerk and let the dashboard
+    //  pull real positions).
+    if (pathname === '/' || pathname.startsWith('/portfolio')) {
+      return <UnauthLayout>{children}</UnauthLayout>;
+    }
     if (typeof window !== 'undefined') {
       window.location.replace('/login');
     }
@@ -130,13 +137,20 @@ function D3Nav({
             <span className="hidden md:inline d3-mono" style={{ fontSize: 11, color: 'var(--d3-ink-faint)' }}>
               {user.email}
             </span>
-            <Link
-              href="/account"
-              className="d3-btn-ghost hidden lg:inline-flex"
-              style={{ padding: '8px 14px', fontSize: 11 }}
-            >
+            <Link href="/account" className="d3-btn-ghost hidden lg:inline-flex" style={{ padding: '8px 14px', fontSize: 11 }}>
               Account
             </Link>
+            {/* T92: Clerk UserButton for sign-out. Sits in the right cluster,
+                desktop only (mobile uses the drawer). afterSignOutUrl redirects
+                to / (the public landing). */}
+            <div className="hidden lg:inline-flex" style={{ alignItems: 'center' }}>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: { avatarBox: { width: '32px', height: '32px' } },
+                }}
+              />
+            </div>
             <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
              Start free
             </Link>
