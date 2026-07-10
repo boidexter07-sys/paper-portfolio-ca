@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { UserButton } from '@clerk/nextjs';
 import { NotificationBell } from './Community/NotificationBell';
 
 type ShellUser = { id: string; email: string } | null;
@@ -140,17 +139,8 @@ function D3Nav({
             <Link href="/account" className="d3-btn-ghost hidden lg:inline-flex" style={{ padding: '8px 14px', fontSize: 11 }}>
               Account
             </Link>
-            {/* T92: Clerk UserButton for sign-out. Sits in the right cluster,
-                desktop only (mobile uses the drawer). afterSignOutUrl redirects
-                to / (the public landing). */}
-            <div className="hidden lg:inline-flex" style={{ alignItems: 'center' }}>
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: { avatarBox: { width: '32px', height: '32px' } },
-                }}
-              />
-            </div>
+            {/* T92 will add Clerk UserButton here; T91 ships without it so
+                the dashboard renders without depending on @clerk/nextjs. */}
             <Link href="/signup" className="d3-nav-cta d3-nav-cta-desktop">
              Start free
             </Link>
