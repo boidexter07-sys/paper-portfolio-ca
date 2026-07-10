@@ -1,5 +1,5 @@
 // T91 — /portfolio dashboard on Arcade template
-// Brief: HIGHNET-THOR-T91-PORTFOLIO-ARCADE-RESKIN.md
+// Brief: briefs/PORTFOLIO-ARCADE-RESKIN.md (altier-edge task T91)
 // Palette (locked): navy #0E1A2B / coral #FF6B6B / cyan #22D3EE.
 // Type: heavy sans-serif. Empty-state dashboard for unauthenticated
 // visitors + real-stock peek from listStocks(). Footer renders the
@@ -131,12 +131,13 @@ export default function PortfolioPage() {
 
   return (
     <div className="t91" id="t91-portfolio">
-      {/* Header — eyebrow "Build" + headline "Your virtual portfolio." */}
+      {/* Header — eyebrow "Build" + headline "Your virtual portfolio." (AC2, AC12).
+          The headline ships as ONE contiguous text node so the brief's curl
+          check can grep "Your virtual portfolio." verbatim. The whole H1 is
+          heavy sans at the locked type scale; no inline color split. */}
       <header className="t91-header">
         <span className="t91-eyebrow">Build</span>
-        <h1 className="t91-h1">
-          Your virtual <span className="accent-coral">portfolio.</span>
-        </h1>
+        <h1 className="t91-h1">Your virtual portfolio.</h1>
       </header>
 
       {/* Empty-state hero — 3x3 grid glyph + headline + body */}
@@ -232,7 +233,7 @@ export default function PortfolioPage() {
       <section className="t91-crosscta" aria-label="Cross-call-to-action">
         <div className="t91-crosscta-panel">
           <div>
-            <span className="t91-crosscta-eyebrow">Today&apos;s Game</span>
+            <span className="t91-crosscta-eyebrow">TODAY'S GAME</span>
             <h3 className="t91-crosscta-headline">Lock your call. See how you read.</h3>
             <p className="t91-crosscta-body">
               One stock. One direction. One day. Run it against the field on the leaderboard.
@@ -244,12 +245,17 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      {/* Honest paper-trading disclosure */}
-      <p className="t91-disclosure">
-        altier edge is a paper-trading practice field. No real money is traded, no broker
-        account is opened, and no securities are bought or sold. Numbers shown are simulated
-        for learning purposes. This is not investment advice.
-      </p>
+      {/* Honest paper-trading disclosure. Wrapped in a .t91-disclosure-wrap
+          container so the inner paragraph inherits the 40px gutter from the
+          rest of the page (the section background stays the same navy as the
+          rest of t91). */}
+      <section className="t91-disclosure-wrap" aria-label="Disclosure">
+        <p className="t91-disclosure">
+          altier edge is a paper-trading practice field. No real money is traded, no broker
+          account is opened, and no securities are bought or sold. Numbers shown are simulated
+          for learning purposes. This is not investment advice.
+        </p>
+      </section>
     </div>
   );
 }

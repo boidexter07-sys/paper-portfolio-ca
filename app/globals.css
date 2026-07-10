@@ -2931,12 +2931,15 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
   0%, 100% { transform: scale(1); opacity: 1; }
   50%      { transform: scale(1.4); opacity: 0.6; }
 }.t91-disclosure {
-  max-width: 1280px; margin: 0 auto;
-  padding: 0 40px 24px;
   font-size: 12px; line-height: 1.6;
   color: var(--t91-muted-2);
   border-top: 1px solid var(--t91-hairline);
   padding-top: 24px;
+  max-width: 720px;
+}
+.t91-disclosure-wrap {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 40px 24px;
 }
 @media (max-width: 768px) {
   .t91-header { padding: 32px 40px 16px; }
