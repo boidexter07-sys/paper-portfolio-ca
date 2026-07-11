@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono, Source_Serif_4 } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import { AppShell } from '@/components/AppShell';
 import { FirstSignalModal } from '@/components/FirstSignalModal';
@@ -51,20 +52,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`}>
       <body className="font-sans">
-        <ToastProvider>
-          <AppShell user={shellUser} hasClan={hasClan}>
-            {children}
-            <Footer />
-          </AppShell>
-          {user && <FirstSignalModal userId={user.id} initialAck={user.acknowledged_first_signal === 1} />}
-          {user && <TrialPaywall userId={user.id} expired={trialExpired} daysIntoTrial={daysIntoTrial} />}
-          {user && (
-            <WalkthroughOverlayMount
-              userId={user.id}
-              walkthroughCompletedAt={user.walkthrough_completed_at}
-            />
-          )}
-        </ToastProvider>
+        <ClerkProvider>
+          <ToastProvider>
+            <AppShell user={shellUser} hasClan={hasClan}>
+              {children}
+              <Footer />
+            </AppShell>
+            {user && <FirstSignalModal userId={user.id} initialAck={user.acknowledged_first_signal === 1} />}
+            {user && <TrialPaywall userId={user.id} expired={trialExpired} daysIntoTrial={daysIntoTrial} />}
+            {user && (
+              <WalkthroughOverlayMount
+                userId={user.id}
+                walkthroughCompletedAt={user.walkthrough_completed_at}
+              />
+            )}
+          </ToastProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
