@@ -5,32 +5,12 @@ import * as fs from 'fs';
 type Database = DatabaseNS.Database;
 const Database = (DatabaseNS as unknown as { default: new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database }).default ?? (DatabaseNS as unknown as new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database);
 
-// Canonical DB location: data/paperportfolio.db, next to the repo root.
-//
-// T46 update: previously this forked to /tmp/paperportfolio.db on Vercel
-// (T45) because Vercel serverless functions have a read-only
-// process.cwd() and only /tmp is writable. That worked for warm-instance
-// writes but every cold start wiped the data and signup endpoints broke
-// for fresh requests. To ship a populated demo, we now ship the
-// pre-seeded DB file as part of the repo.
-//
-// Runtime FS behaviour:
-//   - Local dev (process.cwd() writable, VERCEL unset): open read/write.
-//     `npm run seed` and `npm run seed:friends` populate the file.
-//   - Vercel (VERCEL=1 set): the runtime FS at /var/task is read-only.
-//     better-sqlite3 in default mode tries to write the -wal / -shm side
-//     files and throws SQLITE_READONLY. To get reads working from the
-//     shipped DB, we open with `readonly: true, fileMustExist: true` —
-//     which makes SQLite use the existing DB read-only with no side
-//     files. Writes from API endpoints (signup, trade, post, reaction)
-//     still throw, by design; this limitation is documented in
-//     v13-build-report.md. Friends see a populated demo on every page
-//     load; their actions silently no-op or 500 if they try to write.
-//
-// .gitignore: this file is in `data/*.db` (and negated via
-// `!data/paperportfolio.db` for the shipped file).
+// DB location: uses /tmp on Vercel (writable) or data/ on local.
+// On Vercel, the DB is created fresh on each cold start — data persists
+// only within a warm instance. This is acceptable for alpha demos and
+// will be replaced with a real database (Clerk + Supabase) for production.
 const IS_VERCEL = !!process.env.VERCEL;
-const DB_DIR = path.join(process.cwd(), 'data');
+const DB_DIR = IS_VERCEL ? '/tmp' : path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'paperportfolio.db');
 
 let _db: Database | null = null;
@@ -40,15 +20,11 @@ export function getDb(): Database {
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
-  // Vercel: open read-only against the shipped file. Local: read/write.
-  const db = IS_VERCEL
-    ? new Database(DB_PATH, { readonly: true, fileMustExist: true })
-    : new Database(DB_PATH);
-  if (!IS_VERCEL) {
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
-    initSchema(db); // local: ensure schema; Vercel: shipped file already has it
-  }
+  const fileMustExist = !IS_VERCEL && fs.existsSync(DB_PATH);
+  const db = new Database(DB_PATH, { fileMustExist });
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+  initSchema(db);
   _db = db;
   return db;
 }
