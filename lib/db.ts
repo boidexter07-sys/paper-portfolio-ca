@@ -6,12 +6,30 @@ type Database = DatabaseNS.Database;
 const Database = (DatabaseNS as unknown as { default: new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database }).default ?? (DatabaseNS as unknown as new (p: string, opts?: { readonly?: boolean; fileMustExist?: boolean }) => Database);
 
 // DB location: uses /tmp on Vercel (writable) or data/ on local.
-// On Vercel, the DB is created fresh on each cold start — data persists
-// only within a warm instance. This is acceptable for alpha demos and
-// will be replaced with a real database (Clerk + Supabase) for production.
+// On Vercel, the bundled seed DB (T100-1) is copied from the deploy
+// artifact into /tmp on cold start so warm instances have populated
+// data. Without a copy, /tmp would be empty on every cold start.
+// Will be replaced with a real database (Clerk + Supabase) for production.
 const IS_VERCEL = !!process.env.VERCEL;
 const DB_DIR = IS_VERCEL ? '/tmp' : path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'paperportfolio.db');
+
+// Bundled seed DB locations, in priority order. On Vercel the trace
+// artifact is usually at .next/server/data/paperportfolio.db (Next 14+),
+// but the exact subpath has shifted across releases — we search a few
+// likely spots before falling back to an empty DB.
+const SEED_CANDIDATES = IS_VERCEL
+  ? [
+      // Next.js traces the file relative to project root into the
+      // server bundle; cwd at runtime is the function root, not the
+      // project root, so absolute patterns matter more than cwd.
+      path.join(process.cwd(), '.next', 'server', 'data', 'paperportfolio.db'),
+      path.join(process.cwd(), '.next', 'server', 'app', 'data', 'paperportfolio.db'),
+      path.join(process.cwd(), '.next', 'standalone', 'data', 'paperportfolio.db'),
+      path.join(process.cwd(), '.next', 'data', 'paperportfolio.db'),
+      path.join(process.cwd(), 'data', 'paperportfolio.db'),
+    ]
+  : [];
 
 let _db: Database | null = null;
 
@@ -19,6 +37,35 @@ export function getDb(): Database {
   if (_db) return _db;
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
+  }
+  // T100-2: on Vercel cold start, copy the bundled seed DB into /tmp
+  // before opening it. Subsequent warm starts find the file already
+  // present and skip the copy.
+  if (IS_VERCEL && !fs.existsSync(DB_PATH)) {
+    const source = SEED_CANDIDATES.find((p) => fs.existsSync(p));
+    if (source) {
+      try {
+        fs.copyFileSync(source, DB_PATH);
+        // Copy WAL/SHM sidecars too if they exist — keeps journal_mode=WAL
+        // happy on the first open and avoids an implicit checkpoint.
+        for (const ext of ['-wal', '-shm']) {
+          const sidecar = source + ext;
+          if (fs.existsSync(sidecar)) {
+            fs.copyFileSync(sidecar, DB_PATH + ext);
+          }
+        }
+      } catch (err) {
+        // Copy failed (permissions, trace artifact missing) — fall through
+        // to opening an empty DB. Logged so failed bundles are diagnosable.
+        console.warn('[db] failed to copy seed DB from', source, '→', DB_PATH, err);
+      }
+    } else {
+      console.warn(
+        '[db] no bundled seed DB found in any Vercel trace path; opening empty /tmp DB. ' +
+          'Searched:',
+        SEED_CANDIDATES,
+      );
+    }
   }
   const fileMustExist = !IS_VERCEL && fs.existsSync(DB_PATH);
   const db = new Database(DB_PATH, { fileMustExist });
