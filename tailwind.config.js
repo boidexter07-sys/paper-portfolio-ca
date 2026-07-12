@@ -1,38 +1,49 @@
 /** @type {import('tailwindcss').Config} */
-// Altier Edge — D2 Architectural Grid design tokens.
-// Locked from docs/t62/direction-02-tokens.json.
-// Brutalist: ink on bone, JetBrains Mono + Inter, 2px ink borders,
-// orange #FF3B00 reserved for signal only.
+// Altier Edge — TAILWIND TOKEN MAP ALIGNED TO D3 CINEMATIC DARK THEME.
+//
+// History: tailwind.config.js was originally written for the D2 brutalist
+// light theme (ink #0A0A0A on bone #FFFFFF). The D3 cinematic motion
+// rebrand (T70) flipped globals.css + AppShell to dark-first (--d3-void
+// #0A1020 background, --d3-ink #F5F1E8 foreground) but the Tailwind color
+// tokens were left at the D2 values. Result: 65 components using
+// `text-ink` / `text-graphite` / `bg-bone` / `bg-paper` rendered black
+// text on dark navy — invisible. (T100 visual audit confirmed.)
+//
+// Fix: remap every shared token to its D3 dark-theme equivalent. Brand
+// signals (mark / signal / positive / negative / warn / info) stay
+// unchanged — they're semantic across themes.
 module.exports = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // D2 token map
-        ink: '#0A0A0A',
-        graphite: '#2A2A2A',
-        stone: '#555550',
-        quaternary: '#8A8880',
-        fog: '#D5D3CC',
-        rule: 'rgba(10,10,10,0.04)',
-        paper: '#FAFAF7',
-        panel: '#F2F2EE',
-        elevated: '#ECECE7',
-        bone: '#FFFFFF',
-        // Brand signals
-        signal: '#FF3B00',         // D2 brand accent (orange)
+        // === D3 dark-theme token map ===
+        // Foreground tokens — were D2 black/gray, now D3 cream/muted so
+        // text-ink on var(--d3-void) reads as cream-on-navy.
+        ink: '#F5F1E8',            // primary fg (was #0A0A0A black)
+        graphite: '#9AA0B0',       // secondary fg (was #2A2A2A)
+        stone: '#5A6070',          // tertiary fg (was #555550)
+        quaternary: '#5A6070',
+        // Background tokens — were D2 light surfaces, now D3 dark surfaces.
+        paper: '#0A1020',          // primary bg = --d3-void (was #FAFAF7)
+        panel: '#101A2E',          // elevated bg = --d3-card (was #F2F2EE)
+        elevated: '#142035',       // raised bg = --d3-card-hover (was #ECECE7)
+        bone: '#101A2E',           // card/panel bg = --d3-card (was #FFFFFF)
+        // Hairline / border tokens — were D2 light gray, now D3 hairline.
+        fog: 'rgba(245, 241, 232, 0.08)',  // hairline (was #D5D3CC)
+        rule: 'rgba(245, 241, 232, 0.04)',
+        mist: '#1A2238',           // chrome surface = --d3-card-chrome
+        // Inverse (kept for any explicit light-on-dark badge work)
+        inverse: '#F5F1E8',
+        inverse_fg: '#0A1020',
+        // === Brand signals (unchanged — semantic across themes) ===
+        signal: '#FF3B00',         // brand accent (orange) — keep
         signal_alt: '#0046FF',
-        // Inverse
-        inverse: '#1A1A1A',
-        inverse_fg: '#E5E5E0',
-        // Backwards-compat aliases — keeps older component class names
-        // (text-ink, bg-paper, etc.) wired to D2 tokens.
         mark: '#FF3B00',
         positive: '#2E6B4F',
         negative: '#8B2C2C',
         warn: '#A86A1F',
         info: '#2C4F7A',
-        mist: '#C0BEB6',
       },
       fontFamily: {
         // Display + code: JetBrains Mono. Body: Inter.
