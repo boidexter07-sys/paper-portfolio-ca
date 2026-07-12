@@ -2954,10 +2954,18 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
     padding: 0 40px 40px;
     gap: 14px;
   }
+  /* T97 — at ≤768px the stat tiles become 2 cols. $100,000.00 at 22px is
+     141px wide, but a 414px viewport yields only ~116px of content width
+     in each tile → overflow. Scale the value font with viewport so it
+     stays inside the card from 768px down to 390px. Floor 15px covers
+     the 390px case (102px content). */
+  .t91-stat-value { font-size: clamp(15px, 4vw, 22px); line-height: 1.15; }
+  .t91-stat { padding: 18px 18px 16px; gap: 6px; }
   .t91-actions { padding: 0 40px 40px; }
   .t91-actions-grid { grid-template-columns: 1fr; gap: 14px; }
   .t91-popular { padding: 0 40px 40px; }
   .t91-popular-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .t91-popular-price { font-size: 19px; }
   .t91-crosscta { padding: 0 40px 40px; }
   .t91-crosscta-panel {
     grid-template-columns: 1fr;
@@ -2975,6 +2983,24 @@ body:has(.v11-landing) .d3-rail { display: none !important; }
   .t91-popular { padding: 0 40px 32px; }
   .t91-crosscta { padding: 0 40px 32px; }
   .t91-disclosure { padding: 16px 40px 0; }
+  /* T97 — at 390px the stat tile content width drops to ~102px. Tighten
+     padding so the 15px-floor stat value (set by the 768px clamp above)
+     fits with breathing room. */
+  .t91-stat { padding: 16px 14px 14px; gap: 6px; }
+  /* T97 — defensive text wrap on multi-word labels/subs only. Tickers, prices,
+     and single-token fields keep white-space: nowrap + min-width: 0 so they
+     don't break inside flex rows (overflow-wrap: anywhere would split "TSLA"
+     into "TSL\nA" at 390px). */
+  .t91-stat-value,
+  .t91-stat-label,
+  .t91-stat-sub,
+  .t91-action-title,
+  .t91-action-sub,
+  .t91-action-cta {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    min-width: 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .t91-crosscta-eyebrow::before { animation: none !important; }
