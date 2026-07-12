@@ -140,7 +140,7 @@ export default function PortfolioPage() {
         <h1 className="t91-h1">Your virtual portfolio.</h1>
       </header>
 
-      {/* Empty-state hero — 3x3 grid glyph + headline + body */}
+      {/* Empty-state hero — headline + body */}
       <section className="t91-hero" aria-labelledby="t91-hero-headline">
         <div className="t91-hero-text">
           <h2 id="t91-hero-headline" className="t91-hero-headline">
@@ -149,11 +149,6 @@ export default function PortfolioPage() {
           <p className="t91-hero-body">
             Pick a stock. Track it. Learn as it moves. No real money, real data.
           </p>
-        </div>
-        <div className="t91-hero-glyph" aria-hidden="true">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span key={i} />
-          ))}
         </div>
       </section>
 

@@ -60,7 +60,6 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
     [
       '.t91-header h1',
       '.t91-hero-text',
-      '.t91-hero-glyph',
       '.t91-stat',
       '.t91-action',
       '.t91-popular-card',
