@@ -46,17 +46,13 @@ export function AppShell({ user, hasClan, children }: ShellProps) {
   }
 
   if (!user) {
-    // Public routes that render without a session: `/` (landing) and `/portfolio`
-    // (T91 — dashboard ships the empty state for unauthenticated visitors;
-    //  T92 will replace auth placeholders with real Clerk and let the dashboard
-    //  pull real positions).
-    if (pathname === '/' || pathname.startsWith('/portfolio')) {
-      return <UnauthLayout>{children}</UnauthLayout>;
-    }
-    if (typeof window !== 'undefined') {
-      window.location.replace('/login');
-    }
-    return <div className="p-12 text-center" style={{ color: 'var(--d3-ink-muted)' }}>Redirecting to log in…</div>;
+    // Alpha: all routes render without a session. Pages that require
+    // authentication (community, guide, arena/merch, etc.) have their own
+    // server-side redirect('/login') checks. The AppShell redirect caused
+    // a redirect loop on Vercel cold starts because /tmp/paperportfolio.db
+    // is per-instance and the cookie-bearing user may not exist on the
+    // instance handling the navigation. T94+/Clerk will fix this properly.
+    return <UnauthLayout>{children}</UnauthLayout>;
   }
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
