@@ -14,16 +14,26 @@ import { CountUp } from '@/components/CountUp';
 import { FactorExplainerSection } from '@/components/FactorExplainerSection';
 import { NewsSentimentServer } from '@/components/NewsSentimentServer';
 
+// T100-3: page renders for anonymous visitors too. The DB-on-/tmp is
+// per-Vercel-instance, so a freshly signed-up user may not exist in the
+// instance handling this request — `getCurrentUser()` returns null,
+// which used to short-circuit the whole page (line `if (!user) return
+// null;`). Stock data is public — the h1, price, PRISM coin, chart,
+// and fundamental stats should all render regardless of auth. The
+// trade button keeps its own guard (`portfolios.length > 0 && stock.
+// cached_price`) so anonymous visitors see "Create one →" instead of
+// a broken trade form.
+export const dynamic = 'force-dynamic';
+
 export default async function StockProfilePage({ params }: { params: { ticker: string } }) {
   const user = await getCurrentUser();
-  if (!user) return null;
   const stock = getStock(params.ticker);
   if (!stock) notFound();
   const history = priceHistoryFor(stock.ticker, 180);
-  const portfolios = listPortfolios(user.id);
+  const portfolios = user ? listPortfolios(user.id) : [];
   // The user can sell only if they actually own this ticker in any of their
   // paper portfolios. Disabled Sell button + helper text otherwise.
-  const canSell = portfolios.some((p) => {
+  const canSell = !!user && portfolios.some((p) => {
     const summary = getPortfolioWithHoldings(p.id, user.id);
     return summary?.holdings.some((h) => h.ticker === stock.ticker && h.quantity > 0);
   });
